@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-5 align-items-end">
+    <div class="col-md-8">
+        <h6 class="text-uppercase text-muted fw-bold small mb-2 ls-1">Learning Portal</h6>
+        <h2 class="fw-bold m-0 text-dark display-6">My Courses</h2>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-sm">
+            <i class="bi bi-mortarboard me-2"></i>{{ student.classroom.name }}
+        </span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="row g-4">
+            {% for course in courses %}
+            <div class="col-md-6">
+                <a href="{% url 'lms:course_detail' course.id %}" class="text-decoration-none">
+                    <div class="card border-0 shadow-hover h-100 rounded-4 overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                <div class="icon-square bg-primary-subtle text-primary rounded-4">
+                                    <i class="bi bi-journal-bookmark fs-4"></i>
+                                </div>
+                                {% if course.stream %}
+                                <span class="badge bg-light text-muted border">{{ course.stream.name }}</span>
+                                {% endif %}
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1">{{ course.title }}</h5>
+                            <p class="text-muted small mb-0">{{ course.description|truncatechars:60 }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-0 px-4 pb-4 pt-0">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="bi bi-person-circle me-2"></i>
+                                {{ course.teacher.get_full_name|default:"TBA" }}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="text-muted opacity-50 mb-2"><i class="bi bi-book fs-1"></i></div>
+                <p class="text-muted">No courses assigned to your class yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 bg-white">
+            <div class="card-header bg-white border-0 p-4">
+                <h6 class="fw-bold m-0 text-uppercase text-muted small">Due Soon</h6>
+            </div>
+            <div class="list-group list-group-flush px-2 pb-2">
+                {% for assign in assignments %}
+                <div class="list-group-item border-0 p-3 rounded-3 mb-1">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box-sm bg-danger-subtle text-danger rounded-3">
+                            <i class="bi bi-exclamation-circle"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h6 class="fw-bold text-dark mb-1 text-truncate">{{ assign.title }}</h6>
+                            <small class="text-danger fw-bold d-block">{{ assign.due_date|timeuntil }} left</small>
+                            <small class="text-muted" style="font-size: 0.75rem;">{{ assign.course.title }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4 px-4">
+                    <i class="bi bi-check-circle-fill text-success fs-1 mb-3 opacity-25"></i>
+                    <p class="text-muted small m-0">No pending assignments!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    
+    <div class="row justify-content-center w-100">
+        <div class="col-xl-5 col-lg-7 col-md-9">
+            
+            <div class="card card-bento border-0 shadow-soft overflow-hidden">
+                
+                <div class="card-header bg-theme-dark p-4 border-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                            <i class="bi bi-journal-plus"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white fw-black m-0 tracking-tighter" style="letter-spacing: 0.5px;">Asset Registry</h4>
+                            <span class="smallest fw-black text-white opacity-50 uppercase ls-3">
+                                {% if form.instance.pk %}Modification Protocol{% else %}Initialization Protocol{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-lg-5 bg-white">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div class="mb-4">
+                            <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">
+                                {{ field.label }}
+                            </label>
+                            
+                            {{ field }}
+                            
+                            {% if field.help_text %}
+                                <div class="smallest fw-bold text-muted mt-2 uppercase ls-1 opacity-75">
+                                    <i class="bi bi-info-circle me-1"></i>{{ field.help_text }}
+                                </div>
+                            {% endif %}
+                            
+                            {% for error in field.errors %}
+                                <div class="smallest fw-black text-danger mt-2 uppercase ls-1">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-flex flex-column gap-3 mt-5">
+                            <button type="submit" class="btn-neon-premium w-100 py-3 shadow-soft hover-lift fs-6">
+                                {% if form.instance.pk %}COMMIT CHANGES{% else %}INITIALIZE ASSET{% endif %} 
+                                <i class="bi bi-cloud-arrow-up-fill ms-2"></i>
+                            </button>
+                            
+                            <a href="{% url 'library:book_catalog' %}" class="text-center text-decoration-none smallest fw-black text-theme-dark opacity-50 uppercase ls-2 transition-all hover-opacity-100">
+                                Discard & Return to Catalog
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light-sage border-0 text-center py-4">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-shield-check theme-accent-text-dark"></i>
+                        <span class="smallest fw-black text-theme-dark opacity-75 uppercase ls-1">Registry Synchronization Node Active</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* FORM INPUTS: PURE BLACK VISIBILITY */
+    input, select, textarea { 
+        width: 100%;
+        border-radius: 15px !important; 
+        border: 2px solid var(--bg-sage) !important; 
+        padding: 14px 18px !important; 
+        font-size: 1rem !important; 
+        font-weight: 700 !important;      
+        color: #000000 !important; /* FIXED: Absolute typed visibility */
+        background: var(--bg-light) !important;
+        transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--theme-dark) !important; background: var(--white) !important; box-shadow: 0 10px 20px rgba(15, 56, 34, 0.05) !important; outline: none; }
+    
+    /* File Inputs & Checkboxes */
+    input[type="file"] { padding: 8px 12px !important; font-size: 0.85rem !important; border: 2px dashed var(--bg-sage) !important; }
+    input[type="checkbox"] { width: 25px !important; height: 25px !important; margin-top: 5px !important; cursor: pointer; }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 40px; border: 2.1px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    
+    .icon-square { width: 55px; height: 55px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(203, 251, 69, 0.4); }
+
+    /* UTILITIES */
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.08); }
+    .transition-all { transition: 0.3s ease; }
+    .hover-opacity-100:hover { opacity: 1 !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .hover-lift:hover { transform: translateY(-3px); }
+</style>
+
+<script>
+    // Pure JS fallback to ensure all dynamic inputs inherit architectural classes
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            if(field.type === 'checkbox') {
+                field.className = 'form-check-input';
+            } else {
+                field.classList.add('transition-all');
+            }
+        });
+    });
+</script>
+{% endblock %}

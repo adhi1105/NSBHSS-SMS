@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <a href="{% url 'fees:index' %}" class="btn-close-custom shadow-soft transition-all d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <span class="badge-pill-neon" style="letter-spacing: 1px;">Finance Node</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Cashier Interface</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Accept <span class="theme-accent-text-dark">Payments</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span style="letter-spacing: 0.5px;">Terminal Status:</span> 
+                <span class="uppercase ls-1 fw-black opacity-75">Active & Encrypted</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            
+            <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5">
+                <div class="card-body p-2 bg-white">
+                    <form method="GET" action="{% url 'fees:cashier_search' %}" class="d-flex align-items-center">
+                        <div class="ps-4 pe-2 text-theme-dark opacity-50">
+                            <i class="bi bi-search fs-5"></i>
+                        </div>
+                        <input type="text" name="q" class="search-field-modern" 
+                               placeholder="Enter Student Name or Unique ID Number..." 
+                               value="{{ query|default:'' }}" autofocus>
+                        <button class="btn-neon-premium px-5 py-3 shadow-soft hover-lift ms-2" type="submit">
+                            Search Node
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% if students %}
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <h6 class="smallest fw-black text-theme-dark text-uppercase ls-3 m-0">Found {{ students.count }} Student Node{{ students.count|pluralize }}</h6>
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+                    {% for student in students %}
+                    <a href="{% url 'fees:student_invoices' student.id %}" class="card card-bento border-0 shadow-soft text-decoration-none card-lift overflow-hidden">
+                        <div class="card-body p-4 d-flex align-items-center justify-content-between bg-white">
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="avatar-sq bg-theme-dark text-theme-accent rounded-3 d-flex align-items-center justify-content-center fw-black shadow-sm" style="width: 55px; height: 55px; font-size: 1.3rem;">
+                                    {{ student.user.first_name|first }}
+                                </div>
+                                
+                                <div>
+                                    <h5 class="fw-black text-theme-dark m-0 tracking-normal text-capitalize" style="margin-bottom: 3px;">{{ student.user.get_full_name }}</h5>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="smallest fw-bold text-muted text-uppercase ls-1"><i class="bi bi-fingerprint me-1 theme-accent-text-dark"></i>{{ student.student_id }}</span>
+                                        <div class="divider-v" style="height: 10px; border-left: 2px solid var(--bg-sage);"></div>
+                                        <span class="smallest fw-bold text-muted text-uppercase ls-1"><i class="bi bi-mortarboard-fill me-1 theme-accent-text-dark"></i>{{ student.classroom.name }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="action-node bg-sage text-theme-dark rounded-circle d-flex align-items-center justify-content-center transition-all" style="width: 40px; height: 40px;">
+                                <i class="bi bi-chevron-right fs-5 fw-black"></i>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+
+            {% elif query %}
+                <div class="text-center py-5">
+                    <div class="bg-light-sage d-inline-flex p-5 rounded-circle mb-4 border border-dashed border-dark opacity-25">
+                        <i class="bi bi-person-x-fill display-1 text-theme-dark"></i>
+                    </div>
+                    <h3 class="fw-black text-theme-dark tracking-normal">No Registry Matches</h3>
+                    <p class="text-muted fw-medium small mx-auto" style="max-width: 400px;">We couldn't locate a student node for "<span class="text-theme-dark fw-black">{{ query }}</span>". Please verify the ID or spelling.</p>
+                    <a href="{% url 'fees:cashier_search' %}" class="btn-minimal px-4 py-2 mt-3">Reset Search</a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* SEARCH FIELD: PURE BLACK VISIBILITY */
+    .search-field-modern {
+        width: 100%;
+        border: none !important;
+        padding: 15px 10px !important;
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        color: #000000 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+    .search-field-modern::placeholder { color: var(--theme-dark); opacity: 0.3; font-weight: 600; }
+
+    /* CARDS & COMPONENTS */
+    .card-bento { border-radius: 50px; border: 2px solid var(--bg-sage); background: var(--white); }
+    .card-lift:hover { transform: translateY(-5px); border-color: var(--theme-dark); box-shadow: 0 15px 45px rgba(15, 56, 34, 0.08) !important; }
+    .card-lift:hover .action-node { background: var(--theme-dark); color: var(--theme-accent); }
+    
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); }
+    
+    .btn-minimal { background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; padding: 10px 25px; text-decoration: none; transition: 0.3s; }
+    .btn-close-custom { border-radius: 50%; background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); text-decoration: none; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.06); }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+</style>
+{% endblock %}

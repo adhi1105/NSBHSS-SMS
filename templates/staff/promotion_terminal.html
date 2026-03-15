@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Promotion Engine | Eduplex Terminal{% endblock %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb smallest fw-black uppercase ls-1">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}" class="text-theme-accent-dark text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'staff:staff_list' %}" class="text-theme-accent-dark text-decoration-none">Staff Registry</a></li>
+            <li class="breadcrumb-item active text-muted" aria-current="page">Promotion Engine</li>
+        </ol>
+    </nav>
+
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-8">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech badge-danger">SENSITIVE_OPERATION</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50">
+                    BATCH_DATA_MIGRATION_PROTOCOL
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1">
+                Grade 11 → 12 Migration
+            </h1>
+            <p class="fs-6 fw-bold text-muted mt-3 mb-0" style="max-width: 650px;">
+                Securely transfer eligible students to the next academic session based on their Final Exam performance in the MarkSheet registry.
+            </p>
+        </div>
+        
+        <div class="col-xl-4 d-flex justify-content-xl-end">
+            <div class="text-xl-end bg-white p-3 rounded-4 shadow-sm border">
+                <span class="smallest fw-black text-danger uppercase ls-1 d-block mb-1">Authorization_Level</span>
+                <span class="fw-black text-theme-dark"><i class="bi bi-shield-lock-fill me-2 text-danger"></i>Dept_Admin / Principal</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-xl-8">
+            <div class="card card-terminal border-0 glass-node shadow-soft overflow-hidden">
+                <div class="bg-theme-dark py-3 px-4 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-dot animate-pulse bg-danger"></span>
+                        <span class="smallest fw-black text-white uppercase ls-1">Promotion_Engine_V1</span>
+                    </div>
+                    <code class="smallest text-white opacity-50">TRANSACTION_ATOMIC: ENABLED</code>
+                </div>
+                
+                <form method="POST" class="card-body p-4 p-md-5">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4 form-field-wrapper p-4 rounded-4 bg-light border">
+                        <label class="smallest fw-black uppercase ls-1 text-theme-dark mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-folder-minus fs-5 text-muted"></i> Source Classroom (Grade 11)
+                        </label>
+                        <select name="source_class" class="form-select node-input border-0 shadow-sm" required>
+                            <option value="" selected disabled>Select Origin Node...</option>
+                            {% for cls in classrooms_11 %}
+                            <option value="{{ cls.id }}">{{ cls.standard }} {{ cls.division }} ({{ cls.stream }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4 text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-white border shadow-sm rounded-circle" style="width: 50px; height: 50px;">
+                            <i class="bi bi-arrow-down fs-4 text-theme-accent-dark"></i>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 form-field-wrapper p-4 rounded-4 bg-sage-light border border-theme-accent">
+                        <label class="smallest fw-black uppercase ls-1 text-theme-dark mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-folder-plus fs-5 text-theme-accent-dark"></i> Target Classroom (Grade 12)
+                        </label>
+                        <select name="target_class" class="form-select node-input border-0 shadow-sm" required>
+                            <option value="" selected disabled>Select Destination Node...</option>
+                            {% for cls in classrooms_12 %}
+                            <option value="{{ cls.id }}">{{ cls.standard }} {{ cls.division }} ({{ cls.stream }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-5 p-4 rounded-4 border-dashed">
+                        <label class="smallest fw-black uppercase ls-1 text-muted mb-2 d-block">Minimum Passing Marks (%)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 fw-bold text-muted"><i class="bi bi-percent"></i></span>
+                            <input type="number" name="pass_mark" class="form-control node-input border-start-0 ps-0" value="35" min="0" max="100" required>
+                        </div>
+                        <div class="form-text smallest fw-bold mt-2 text-muted">
+                            <i class="bi bi-info-circle-fill me-1 text-warning"></i> Students scoring below this in any FINAL exam will be retained.
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-top">
+                        <button type="submit" class="btn-terminal-action neon-danger w-100 py-3 justify-content-center" 
+                                onclick="return confirm('CRITICAL WARNING: This will permanently migrate eligible student records to the new classroom. Ensure all final marks are verified. Proceed with migration?')">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> EXECUTE_BATCH_PROMOTION
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card border-0 glass-node-dark shadow-sm p-4 text-white mb-4" style="background: var(--theme-dark);">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=dc3545&color=fff&bold=true" 
+                         class="rounded-circle border border-3 border-danger" style="width: 56px;">
+                    <div>
+                        <h6 class="fw-black m-0 tracking-tighter">{{ request.user.get_full_name|default:request.user.username }}</h6>
+                        <span class="smallest opacity-50 fw-black uppercase ls-1">Authorized_Exec</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 glass-node shadow-sm p-4 mb-4 border-top border-4 border-danger">
+                <h6 class="fw-black text-theme-dark smallest uppercase ls-1 mb-3">Migration_Protocols</h6>
+                <ul class="list-unstyled mb-0 smallest fw-bold text-muted">
+                    <li class="mb-3 d-flex gap-2">
+                        <i class="bi bi-1-circle-fill text-danger fs-5"></i>
+                        <span>Only students with <strong>Active Status</strong> will be evaluated.</span>
+                    </li>
+                    <li class="mb-3 d-flex gap-2">
+                        <i class="bi bi-2-circle-fill text-danger fs-5"></i>
+                        <span>The engine evaluates <strong>FINAL</strong> exams only. Mid-terms are ignored.</span>
+                    </li>
+                    <li class="mb-3 d-flex gap-2">
+                        <i class="bi bi-3-circle-fill text-danger fs-5"></i>
+                        <span><strong>ATOMIC SAFETY:</strong> If an error occurs mid-transfer, all changes are instantly rolled back. No partial data.</span>
+                    </li>
+                    <li class="d-flex gap-2">
+                        <i class="bi bi-hdd-network-fill text-danger fs-5"></i>
+                        <span>Audit Log IP: {{ request.META.REMOTE_ADDR }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-sage: #e8f0eb;
+        --bg-sage-light: #f8faf9;
+    }
+    
+    .display-title { font-weight: 900; font-size: clamp(2rem, 5vw, 3rem); }
+    .tracking-tighter { letter-spacing: -1.2px; }
+    .ls-1 { letter-spacing: 0.5px; }
+    
+    .badge-node-tech { padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; display: inline-block; }
+    .badge-danger { background: #ffe1e1; color: #dc3545; border: 1px solid #dc3545; }
+    
+    .glass-node { background: rgba(255, 255, 255, 0.98); border-radius: 24px; border: 2px solid #ffffff; }
+    .glass-node-dark { border-radius: 24px; }
+    
+    .node-input { background: #fff; padding: 14px 18px; font-weight: 600; transition: 0.3s; }
+    .node-input:focus { box-shadow: none; border-color: var(--theme-accent-dark); }
+    
+    .border-dashed { border: 2px dashed #d1d9d4; }
+    .bg-sage-light { background: #f4f8f6; }
+    
+    .btn-terminal-action { border: none; font-weight: 900; border-radius: 12px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; display: flex; align-items: center; }
+    .neon-danger { background: #dc3545; color: white; box-shadow: 0 10px 20px rgba(220, 53, 69, 0.2); }
+    .neon-danger:hover { background: #bb2d3b; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(220, 53, 69, 0.4); color: white; }
+
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    @keyframes pulse-danger { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
+    .animate-pulse.bg-danger { animation: pulse-danger 2s infinite; }
+</style>
+{% endblock %}

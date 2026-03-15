@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="viewport-wrapper p-4 page-load-animation">
+    
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div class="header-group">
+            <h6 class="text-uppercase text-primary fw-bold smallest ls-3 mb-2">Evaluation Center</h6>
+            <h2 class="fw-black text-dark tracking-tighter m-0">{{ assignment.title }}</h2>
+            <p class="text-muted small fw-bold">Due: {{ assignment.due_date|date:"M d, Y" }} • {{ assignment.course.classroom.name }}</p>
+        </div>
+        <div class="stats-pill bg-white border rounded-pill px-4 py-2 shadow-sm d-flex gap-4">
+            <div class="stat-item text-center">
+                <div class="smallest fw-bold text-muted">SUBMITTED</div>
+                <div class="fw-black text-primary">{{ submission_map|length }}</div>
+            </div>
+            <div class="vr"></div>
+            <div class="stat-item text-center">
+                <div class="smallest fw-bold text-muted">PENDING</div>
+                <div class="fw-black text-danger">{{ students.count|add:"-submission_map|length" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-5 overflow-hidden border bg-white">
+        <div class="table-responsive">
+            <table class="table align-middle m-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="p-4 smallest fw-black text-muted text-uppercase ls-1">Student</th>
+                        <th class="smallest fw-black text-muted text-uppercase ls-1">Status</th>
+                        <th class="smallest fw-black text-muted text-uppercase ls-1">Submission Date</th>
+                        <th class="smallest fw-black text-muted text-uppercase ls-1">Marks</th>
+                        <th class="text-end p-4 smallest fw-black text-muted text-uppercase ls-1">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    {% with sub=submission_map|get_item:student.id %}
+                    <tr>
+                        <td class="p-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-circle-sm bg-indigo-subtle text-indigo fw-bold">
+                                    {{ student.user.first_name|first }}{{ student.user.last_name|first }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ student.user.get_full_name }}</div>
+                                    <div class="smallest text-muted">ID: {{ student.student_id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if sub %}
+                                {% if sub.status == 'graded' %}
+                                    <span class="badge bg-success-subtle text-success rounded-pill px-3">Graded</span>
+                                {% else %}
+                                    <span class="badge bg-warning-subtle text-warning rounded-pill px-3">Pending Review</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-light text-muted rounded-pill px-3 border">Not Submitted</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if sub %}
+                                <div class="fw-bold small {% if sub.submitted_at > assignment.due_date %}text-danger{% endif %}">
+                                    {{ sub.submitted_at|date:"M d, H:i" }}
+                                </div>
+                                {% if sub.submitted_at > assignment.due_date %}
+                                    <span class="smallest fw-bold text-danger">LATE</span>
+                                {% endif %}
+                            {% else %}--{% endif %}
+                        </td>
+                        <td>
+                            {% if sub and sub.status == 'graded' %}
+                                <span class="fw-black text-dark">{{ sub.marks_obtained }}</span><span class="text-muted small"> / {{ assignment.total_marks }}</span>
+                            {% else %}--{% endif %}
+                        </td>
+                        <td class="text-end p-4">
+                            {% if sub %}
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{{ sub.file.url }}" class="btn btn-light border rounded-pill btn-sm fw-bold px-3">Download</a>
+                                    <button class="btn btn-dark rounded-pill btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#gradeModal{{ sub.id }}">Grade</button>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

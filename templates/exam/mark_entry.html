@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <a href="{% url 'exam:teacher_select' %}" class="btn-close-custom shadow-soft transition-all d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <span class="badge-pill-neon">Grade Ledger</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Assessment Protocol</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                {{ subject.name }}
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                Node: <span class="uppercase ls-1">{{ classroom.name }}</span> • <span class="theme-accent-text-dark uppercase ls-1">{{ exam.name }}</span>
+            </p>
+        </div>
+        
+        <div class="d-none d-lg-block">
+            <div class="badge-outline-sage px-4 py-3 bg-white shadow-soft">
+                <i class="bi bi-info-circle-fill theme-accent-text-dark me-2"></i>
+                <span class="fw-black text-theme-dark smallest text-uppercase ls-1">Grades auto-calculate on synchronization</span>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" class="card card-bento border-0 shadow-soft overflow-hidden mb-5">
+        {% csrf_token %}
+        <div class="card-header bg-theme-dark p-4 border-0 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                    <i class="bi bi-clipboard-data"></i>
+                </div>
+                <h4 class="text-white fw-black m-0 tracking-tighter">Student Performance Records</h4>
+            </div>
+            <span class="smallest fw-black text-white opacity-50 uppercase ls-2">Scale: 0.00 — 100.00</span>
+        </div>
+
+        <div class="table-responsive bg-white">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr class="bg-sage border-bottom border-white">
+                        <th class="ps-4 py-4 text-uppercase smallest fw-black text-theme-dark ls-2" style="width: 30%;">Student Identity</th>
+                        <th class="py-4 text-center text-uppercase smallest fw-black text-theme-dark ls-2" style="width: 20%;">Score (100)</th>
+                        <th class="py-4 text-center text-uppercase smallest fw-black text-theme-dark ls-2" style="width: 15%;">Node State</th>
+                        <th class="pe-4 py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Faculty Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in mark_entry_list %}
+                    <tr class="border-bottom-dashed">
+                        <td class="ps-4 py-4">
+                            <div class="fw-black text-theme-dark text-capitalize fs-6 tracking-normal">{{ item.student.user.get_full_name }}</div>
+                            <div class="smallest fw-bold text-muted uppercase ls-1">{{ item.student.student_id }}</div>
+                        </td>
+                        <td class="text-center py-4">
+                            <div class="ledger-input-wrapper">
+                                <input type="number" step="0.01" max="100" min="0" 
+                                       name="mark_{{ item.student.id }}" 
+                                       class="ledger-field"
+                                       placeholder="-"
+                                       value="{{ item.mark }}">
+                            </div>
+                        </td>
+                        
+                        <td class="text-center py-4">
+                            {% if item.grade == 'F' %}
+                                <span class="badge-node bg-danger-light text-danger">FAIL</span>
+                            {% elif item.grade == '-' %}
+                                <span class="badge-node bg-light text-muted border">STAGED</span>
+                            {% else %}
+                                <span class="badge-node bg-neon text-theme-dark">{{ item.grade }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="pe-4 py-4">
+                            <input type="text" 
+                                   name="remark_{{ item.student.id }}" 
+                                   class="remark-field"
+                                   placeholder="Append qualitative node..."
+                                   value="{{ item.remark }}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-light-sage p-4 border-0 d-flex justify-content-end gap-3">
+            <a href="{% url 'exam:teacher_select' %}" class="btn-minimal px-4 py-2">Discard</a>
+            <button type="submit" class="btn-neon-premium px-5 py-3 shadow-soft hover-lift">
+                <i class="bi bi-cloud-arrow-up-fill me-2"></i>Synchronize & Calculate
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-2 { letter-spacing: 1px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.75rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* LEDGER INPUTS: PURE BLACK VISIBILITY */
+    .ledger-input-wrapper { display: flex; justify-content: center; }
+    .ledger-field {
+        width: 100px;
+        height: 48px;
+        border-radius: 12px !important;
+        border: 2px solid var(--bg-sage) !important;
+        background: #f8fafc !important;
+        text-align: center;
+        font-weight: 800 !important;
+        font-size: 1.1rem !important;
+        color: #000000 !important; /* Pure Black typed text */
+        transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ledger-field:focus {
+        border-color: var(--theme-dark) !important;
+        background: var(--white) !important;
+        box-shadow: 0 8px 20px rgba(15, 56, 34, 0.1) !important;
+        outline: none;
+        transform: scale(1.08);
+        z-index: 10;
+    }
+
+    .remark-field {
+        width: 100%;
+        border: 2px solid transparent !important;
+        background: transparent !important;
+        font-weight: 600 !important;
+        color: var(--theme-dark) !important;
+        padding: 8px 12px !important;
+        font-size: 0.85rem !important;
+        transition: 0.3s;
+        border-radius: 10px !important;
+    }
+    .remark-field:focus {
+        background: var(--white) !important;
+        border-color: var(--bg-sage) !important;
+        outline: none;
+    }
+
+    /* CARDS & BADGES */
+    .card-bento { border-radius: 30px; border: 1px solid var(--bg-sage); background: var(--white); }
+    .icon-square { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-danger-light { background: #fef2f2; }
+    .bg-neon { background: var(--theme-accent); }
+
+    .badge-node { padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 4px 15px; border-radius: 50px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+    .badge-outline-sage { padding: 8px 20px; border: 2px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.75rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); }
+    .btn-minimal { background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; font-weight: 900; text-transform: uppercase; text-decoration: none; transition: 0.3s; }
+    .btn-close-custom { border-radius: 50%; background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); text-decoration: none; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.06); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+</style>
+{% endblock %}

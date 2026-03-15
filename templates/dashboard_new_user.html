@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome | Eduplex{% endblock %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-3 p-lg-4 p-xl-5 page-load-animation">
+
+    <div class="row mb-4 mb-xl-5 gy-3 animate-fade-up" style="--delay: 0s;">
+        <div class="col-12 text-center text-lg-start">
+            <div class="d-inline-flex align-items-center gap-2 mb-3">
+                <span
+                    class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1 fw-bold smallest ls-1 d-flex align-items-center gap-2 shadow-sm">
+                    <span class="pulse-dot bg-warning rounded-circle" style="width: 6px; height: 6px;"></span> SETUP
+                    PENDING
+                </span>
+            </div>
+            <h1 class="display-5 fw-black text-theme-dark tracking-tighter m-0 line-height-1">
+                Welcome to Eduplex, <br>
+                <span class="text-gradient">{{ request.user.first_name|default:request.user.username|title }}</span>.
+            </h1>
+        </div>
+    </div>
+
+    <div class="row justify-content-center justify-content-lg-start mb-4 mb-xl-5 animate-fade-up"
+        style="--delay: 0.1s;">
+        <div class="col-xl-8 col-lg-10">
+            <div class="modern-card bg-white border-0 shadow-sm overflow-hidden position-relative group-hover">
+
+                <div
+                    class="bg-warning bg-opacity-10 border-bottom border-warning border-opacity-25 px-4 py-3 d-flex align-items-center gap-3">
+                    <i class="bi bi-exclamation-circle-fill text-warning fs-5"></i>
+                    <span class="fw-bold text-theme-dark" style="font-size: 0.85rem;">Action Required: Profile Identity
+                        Incomplete</span>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-column flex-md-row align-items-center gap-4 gap-md-5">
+
+                        <div class="position-relative flex-shrink-0 mb-3 mb-md-0">
+                            <div class="position-absolute top-50 start-50 translate-middle rounded-circle border border-warning warning-pulse"
+                                style="width: 115px; height: 115px;"></div>
+                            <div class="position-absolute top-50 start-50 translate-middle rounded-circle bg-warning bg-opacity-10"
+                                style="width: 130px; height: 130px;"></div>
+
+                            <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username }}&background=f8faf9&color=0f3822&size=120&bold=true"
+                                class="rounded-circle shadow-sm position-relative z-2 border border-4 border-white"
+                                style="width: 100px; height: 100px; object-fit: cover;">
+
+                            <div class="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm z-3"
+                                style="transform: translate(-10%, -10%);">
+                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center text-white"
+                                    style="width: 24px; height: 24px; font-size: 0.7rem;">
+                                    <i class="bi bi-lock-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center text-md-start w-100 z-2 position-relative">
+                            <h4 class="fw-black text-theme-dark tracking-tight mb-2">{{ title }}</h4>
+                            <p class="fw-medium text-muted mb-4" style="font-size: 0.95rem; line-height: 1.5;">{{
+                                message }}</p>
+
+                            <div
+                                class="d-inline-flex align-items-center gap-3 bg-light border px-4 py-2 rounded-pill shadow-sm transition-all hover-bg-white">
+                                <span class="fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem; letter-spacing: 1px;">Status Code</span>
+                                <div class="vr bg-secondary opacity-25"></div>
+                                <span class="fw-black text-theme-dark font-monospace" style="font-size: 0.85rem;">{{
+                                    status_code }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 g-xl-4 mb-5">
+        <div class="col-12 animate-fade-up" style="--delay: 0.15s;">
+            <h6 class="fw-bold text-muted text-uppercase ls-1 mb-1 smallest">Recommended Actions</h6>
+        </div>
+
+        <div class="col-xl-4 col-md-6 flex-fill animate-fade-up" style="--delay: 0.2s;">
+            <div class="modern-card bg-white shadow-sm h-100 p-4 p-xl-5 d-flex flex-column group-hover">
+                <div class="icon-squircle bg-sage text-theme-dark shadow-sm mb-4">
+                    <i class="bi bi-person-lines-fill fs-5"></i>
+                </div>
+                <h5 class="fw-black text-theme-dark mb-2 tracking-tight">Update Your Data</h5>
+                <p class="text-muted fw-medium mb-4 flex-grow-1" style="font-size: 0.85rem; line-height: 1.5;">Ensure
+                    your profile information is accurate. Any discrepancies may delay your network access clearance.</p>
+                <div class="mt-auto">
+                    <a href="{% url 'dashboard:my_profile' %}"
+                        class="btn btn-theme-dark w-100 rounded-pill fw-bold text-uppercase ls-1 transition-all shadow-sm"
+                        style="font-size: 0.75rem; padding: 12px;">View Profile</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 flex-fill animate-fade-up" style="--delay: 0.25s;">
+            <div class="modern-card bg-white shadow-sm h-100 p-4 p-xl-5 d-flex flex-column group-hover">
+                <div class="icon-squircle bg-sage text-theme-dark shadow-sm mb-4">
+                    <i class="bi bi-envelope-paper-fill fs-5"></i>
+                </div>
+                <h5 class="fw-black text-theme-dark mb-2 tracking-tight">Contact Registry</h5>
+                <p class="text-muted fw-medium mb-0 flex-grow-1" style="font-size: 0.85rem; line-height: 1.5;">If you
+                    require immediate access, please contact the Main Administrative Office to expedite your Identity
+                    Provisioning.</p>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-12 flex-fill animate-fade-up" style="--delay: 0.3s;">
+            <div class="modern-card border-0 shadow-sm h-100 p-4 p-xl-5 position-relative overflow-hidden text-white d-flex flex-column justify-content-center group-hover"
+                style="background: linear-gradient(135deg, #0f3822 0%, #217346 100%);">
+                <div class="position-absolute end-0 bottom-0 opacity-10 pointer-events-none transition-all group-hover-scale"
+                    style="font-size: 10rem; margin: -30px -20px; line-height: 1;">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+
+                <div class="position-relative z-2">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-hourglass-split text-theme-accent fs-5"></i>
+                        <h6 class="fw-bold text-white opacity-75 m-0 text-uppercase ls-1 smallest">Est. Processing Time
+                        </h6>
+                    </div>
+                    <h1 class="fw-black tracking-tighter m-0 text-white line-height-1" style="font-size: 3.5rem;">24-48
+                        <span class="opacity-50 fw-bold" style="font-size: 1.2rem; vertical-align: super;">HRS</span>
+                    </h1>
+                    <p class="fw-medium mt-3 mb-0 opacity-75" style="font-size: 0.85rem;">Automated account
+                        synchronization occurs daily at 00:00 UTC.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #f8faf9;
+        --white: #ffffff;
+        --sage: #e8f0eb;
+    }
+
+    body {
+        background-color: var(--bg-light);
+        color: var(--theme-dark);
+    }
+
+    .theme-wrapper {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* TYPOGRAPHY */
+    .fw-black {
+        font-weight: 800;
+    }
+
+    .tracking-tighter {
+        letter-spacing: -1px !important;
+    }
+
+    .tracking-tight {
+        letter-spacing: -0.5px !important;
+    }
+
+    .line-height-1 {
+        line-height: 1.1;
+    }
+
+    .ls-1 {
+        letter-spacing: 0.5px !important;
+    }
+
+    .smallest {
+        font-size: 0.72rem;
+    }
+
+    .text-theme-dark {
+        color: var(--theme-dark) !important;
+    }
+
+    /* GRADIENT TEXT */
+    .text-gradient {
+        background: linear-gradient(135deg, var(--theme-dark) 0%, var(--theme-accent-dark) 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* ==========================================
+       MODERN SAAS CARDS (Stripe/Linear Style)
+       ========================================== */
+    .modern-card {
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .group-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08) !important;
+        border-color: #cbd5e1;
+    }
+
+    .group-hover:hover .group-hover-scale {
+        transform: scale(1.1);
+    }
+
+    .hover-bg-white:hover {
+        background-color: #ffffff !important;
+    }
+
+    .bg-sage {
+        background-color: var(--sage) !important;
+    }
+
+    .icon-squircle {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pointer-events-none {
+        pointer-events: none;
+    }
+
+    .z-2 {
+        z-index: 2;
+    }
+
+    .z-3 {
+        z-index: 3;
+    }
+
+    /* BUTTONS */
+    .btn-theme-dark {
+        background-color: var(--theme-dark);
+        color: var(--white);
+        border: 1px solid var(--theme-dark);
+    }
+
+    .btn-theme-dark:hover {
+        background-color: #0a2617;
+        color: var(--theme-accent);
+        border-color: #0a2617;
+    }
+
+    /* ANIMATIONS & PHYSICS */
+    .animate-fade-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: var(--delay, 0s);
+    }
+
+    @keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .pulse-dot {
+        animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+        0% {
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+        }
+    }
+
+    .warning-pulse {
+        animation: warningRing 2s infinite;
+    }
+
+    @keyframes warningRing {
+        0% {
+            transform: translate(-50%, -50%) scale(0.95);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translate(-50%, -50%) scale(1.3);
+            opacity: 0;
+        }
+    }
+
+    .transition-all {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+</style>
+{% endblock %}

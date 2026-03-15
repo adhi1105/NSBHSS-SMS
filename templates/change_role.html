@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4 border-0" style="max-width: 500px; width: 100%; border-radius: 20px;">
+        <div class="card-body">
+            <h3 class="fw-bold text-center mb-4">Change User Role</h3>
+            
+            <div class="alert alert-info small">
+                <i class="bi bi-info-circle-fill me-1"></i>
+                This will update the user's permissions and generate a default profile if one is missing.
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Target Username</label>
+                    <input type="text" name="username" class="form-control form-control-lg" placeholder="e.g. teacher_math" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Select New Role</label>
+                    <select name="role" class="form-select form-select-lg" required>
+                        <option value="" selected disabled>Choose Role...</option>
+                        <option value="Student">Student</option>
+                        <option value="Teacher">Teacher</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                        Update Role & Profile
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center mt-3">
+                <a href="{% url 'home' %}" class="text-decoration-none text-muted">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-7 col-xxl-8" style="min-width: 0;">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech flex-shrink-0">ANALYTICS_NODE_v2.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50 text-truncate">
+                    Resource Management Matrix
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1 text-truncate w-100">
+                Workload <span class="theme-accent-text-dark">Analytics</span>
+            </h1>
+            <div class="d-flex align-items-center gap-2 mt-3 text-theme-dark fw-bold">
+                <div class="status-pulse-wrapper d-flex align-items-center flex-shrink-0"><span class="status-dot animate-pulse"></span></div>
+                <span class="smallest ls-1 fw-black text-nowrap uppercase opacity-75">Telemetry_State:</span> 
+                <span class="smallest ls-1 fw-black text-nowrap text-theme-accent-dark uppercase">Capacity_Sync_Active</span>
+            </div>
+        </div>
+        
+        <div class="col-xl-5 col-xxl-4 d-flex flex-wrap justify-content-xl-end gap-2">
+            {% if request.user.is_superuser %}
+            <a href="{% url 'staff:auto_distribute' %}" 
+               class="btn-terminal-action danger text-nowrap shadow-sm justify-content-center"
+               onclick="return confirm('⚠️ SYSTEM OVERRIDE: This will WIPE all current allocations and strictly re-assign teachers based on their designation. This is calculated for ~32 teachers (~4 classes each). Proceed?');">
+                <i class="bi bi-magic me-2"></i>AUTO_DISTRIBUTE
+            </a>
+            {% endif %}
+
+            <a href="{% url 'staff:allocation_list' %}" class="btn-terminal-action standard text-nowrap shadow-sm justify-content-center">
+                <i class="bi bi-diagram-3 me-2"></i>MANAGE_ALLOCATIONS
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 transition-fade">
+        {% for teacher in teachers %}
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card card-terminal border-0 h-100 text-center terminal-node-card shadow-sm position-relative">
+                
+                <div class="position-absolute top-0 start-0 m-3">
+                    <div class="terminal-badge-status border bg-white shadow-sm m-0">
+                        {% if teacher.subject_count == 0 %}
+                            <span class="dot-mini bg-secondary"></span>
+                            <span class="smallest fw-black uppercase text-secondary">IDLE_NODE</span>
+                        {% elif teacher.subject_count > 5 %}
+                            <span class="dot-mini bg-danger animate-pulse-danger"></span>
+                            <span class="smallest fw-black uppercase text-danger">OVERLOADED</span>
+                        {% else %}
+                            <span class="dot-mini bg-success"></span>
+                            <span class="smallest fw-black uppercase text-success">BALANCED</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body p-4 d-flex flex-column align-items-center mt-4">
+                    
+                    <div class="terminal-avatar-wrapper mb-3 flex-shrink-0">
+                        {% if teacher.photo %}
+                            <img src="{{ teacher.photo.url }}" class="avatar-terminal shadow-sm" width="80" height="80">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ teacher.user.get_full_name }}&background=0f3822&color=cbfb45&size=128&bold=true" class="avatar-terminal shadow-sm" width="80" height="80">
+                        {% endif %}
+                    </div>
+                    
+                    <h5 class="fw-black text-theme-dark mb-1 tracking-tighter text-capitalize text-truncate w-100">{{ teacher.user.get_full_name }}</h5>
+                    <p class="smallest fw-bold text-muted uppercase ls-1 mb-4 text-truncate w-100 opacity-75">{{ teacher.designation|default:"General Staff" }}</p>
+                    
+                    <div class="terminal-data-strip w-100 p-3 mb-4 border text-start bg-white">
+                        <div class="d-flex justify-content-between align-items-end mb-2">
+                            <span class="label-micro m-0 text-truncate">CURRENT_LOAD</span>
+                            <span class="smallest fw-black text-theme-dark">{{ teacher.subject_count }} <span class="opacity-50">/ 5 MAX</span></span>
+                        </div>
+                        
+                        <div class="progress bg-dark bg-opacity-10 shadow-inner" style="height: 6px; border-radius: 10px;">
+                            <div class="progress-bar 
+                                {% if teacher.subject_count > 5 %}bg-danger
+                                {% elif teacher.subject_count == 0 %}bg-secondary
+                                {% else %}bg-theme-accent{% endif %}" 
+                                role="progressbar" 
+                                style="width: {% widthratio teacher.subject_count 6 100 %}%;" 
+                                aria-valuenow="{{ teacher.subject_count }}" aria-valuemin="0" aria-valuemax="6">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-2 text-end">
+                            <span class="label-micro m-0 opacity-75 {% if teacher.subject_count > 5 %}text-danger{% endif %}">
+                                {% if teacher.subject_count > 5 %}
+                                    CAPACITY_EXCEEDED
+                                {% elif teacher.subject_count == 0 %}
+                                    ZERO_ALLOCATION
+                                {% else %}
+                                    OPTIMAL_CAPACITY
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto w-100 d-grid">
+                        <a href="{% url 'staff:staff_detail' teacher.id %}" class="btn-terminal-outline w-100 text-nowrap">VIEW_SCHEDULE_MATRIX</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="empty-terminal-state p-5 rounded-5 border-dashed border-dark opacity-50 mx-auto" style="max-width: 600px;">
+                <div class="icon-sq-modern bg-theme-dark text-theme-accent mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
+                    <i class="bi bi-bar-chart-line"></i>
+                </div>
+                <h4 class="fw-black text-theme-dark mt-3 uppercase ls-2">Zero Data Nodes Detected</h4>
+                <p class="smallest fw-bold text-muted uppercase ls-1 mb-0">No teaching staff records found to analyze in the current matrix.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    :root { 
+        --bg-sage: #e8f0eb; --theme-dark: #0f3822; --theme-accent: #cbfb45; 
+        --theme-accent-dark: #217346; --bg-light: #fdfdfc; --white: #ffffff; 
+    }
+
+    /* BLUEPRINT BASELINE */
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); overflow-x: hidden; }
+    .registry-blueprint { background-image: radial-gradient(var(--bg-sage) 1.5px, transparent 1.5px); background-size: 30px 30px; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .display-title { font-weight: 900; font-size: 3rem; letter-spacing: -2px; }
+    .tracking-tighter { letter-spacing: -1.2px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; } .ls-2 { letter-spacing: 1.5px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .text-nowrap { white-space: nowrap !important; }
+    .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .label-micro { font-size: 0.55rem; font-weight: 900; color: rgba(15, 56, 34, 0.6); text-transform: uppercase; letter-spacing: 1px; display: block; }
+    
+    /* TERMINAL COMPONENTS */
+    .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; }
+    .terminal-node-card { background: #ffffff; border: 2px solid var(--white); border-radius: 24px; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    
+    .terminal-avatar-wrapper { position: relative; padding: 8px; border: 1.5px solid var(--bg-sage); border-radius: 50%; transition: 0.4s; display: inline-block; }
+    .avatar-terminal { border-radius: 50%; object-fit: cover; border: 4px solid var(--white); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .terminal-node-card:hover .avatar-terminal { transform: scale(1.05); border-color: var(--theme-accent); }
+    .terminal-node-card:hover .terminal-avatar-wrapper { border-style: solid; border-color: var(--theme-dark); }
+
+    .terminal-data-strip { background: #fdfdfd; border-radius: 16px; border: 1px solid rgba(15, 56, 34, 0.05) !important; }
+    .icon-sq-modern { border-radius: 16px; display: flex; align-items: center; justify-content: center; }
+
+    /* INDICATORS & BUTTONS */
+    .terminal-badge-status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; }
+    .dot-mini { width: 8px; height: 8px; border-radius: 50%; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #cbfb45; }
+    
+    .btn-terminal-action { border: none; padding: 12px 24px; border-radius: 12px; font-weight: 900; font-size: 0.68rem; text-transform: uppercase; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; }
+    .btn-terminal-action.standard { background: var(--white); color: var(--theme-dark); border: 2px solid var(--bg-sage); }
+    .btn-terminal-action.danger { background: #fee2e2; color: #dc2626; border: 2px solid #fecaca; }
+    .btn-terminal-action:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 56, 34, 0.08); border-color: var(--theme-dark); }
+
+    .btn-terminal-outline { background: transparent; border: 2px solid var(--theme-dark); color: var(--theme-dark); border-radius: 12px; font-weight: 900; font-size: 0.65rem; padding: 12px; text-transform: uppercase; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .btn-terminal-outline:hover { background: var(--theme-dark); color: var(--theme-accent); border-color: var(--theme-dark); }
+
+    /* UTILITIES */
+    .bg-theme-accent { background-color: var(--theme-accent) !important; }
+    .shadow-soft { box-shadow: 0 15px 35px rgba(15, 56, 34, 0.05); }
+    .shadow-inner { box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+    .border-dashed { border: 2px dashed var(--bg-sage) !important; }
+
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    
+    @keyframes pulse-neon { 0% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0.6); } 70% { box-shadow: 0 0 0 8px rgba(203, 251, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0); } }
+    .animate-pulse { animation: pulse-neon 2s infinite; }
+    
+    @keyframes pulse-danger { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6); } 70% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+    .animate-pulse-danger { animation: pulse-danger 2s infinite; }
+
+    .terminal-node-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(15, 56, 34, 0.1) !important; }
+</style>
+{% endblock %}

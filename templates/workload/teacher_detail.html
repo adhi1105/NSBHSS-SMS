@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div class="d-flex align-items-center gap-3">
+            {% if is_admin %}
+            <a href="{% url 'staff:workload' %}" class="btn btn-white border rounded-circle shadow-sm hover-lift transition-all d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;" title="Back to Workload Dashboard">
+                <i class="bi bi-arrow-left fs-5 text-dark"></i>
+            </a>
+            {% endif %}
+            
+            <div>
+                <h6 class="text-uppercase text-primary fw-bold smallest ls-1 mb-1">Workload Detail</h6>
+                <h2 class="fw-bolder text-dark m-0 tracking-tighter">{{ teacher.user.get_full_name }}</h2>
+            </div>
+        </div>
+
+        <div class="bg-white px-4 py-2 rounded-pill shadow-sm border d-flex align-items-center gap-2 card-lift">
+            <div class="pulse-container position-relative me-1">
+                <div class="pulse-dot bg-primary"></div>
+            </div>
+            <i class="bi bi-briefcase-fill text-primary"></i>
+            <span class="fw-bold text-dark smallest text-uppercase ls-1">{{ total_load }} Assigned Subjects</span>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm rounded-4 text-white overflow-hidden position-relative card-lift" style="background: linear-gradient(135deg, #0d6efd 0%, #4facfe 100%);">
+                <div class="card-body p-4 position-relative z-1">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white text-primary rounded-4 me-4 display-6 fw-bold d-flex align-items-center justify-content-center shadow-sm" style="width: 70px; height: 70px;">
+                            {{ teacher.user.first_name|first }}
+                        </div>
+                        <div>
+                            <h3 class="fw-bolder mb-1 text-white">{{ teacher.user.get_full_name }}</h3>
+                            <p class="mb-0 text-white-50 fw-medium">
+                                <i class="bi bi-person-badge me-1"></i>{{ teacher.designation|default:"Faculty" }} &bull; 
+                                <i class="bi bi-building me-1"></i>{{ teacher.department|default:"General Dept." }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="position-absolute top-0 end-0 bg-white opacity-10 rounded-circle" style="width: 300px; height: 300px; margin-right: -100px; margin-top: -150px;"></div>
+                <div class="position-absolute bottom-0 end-0 bg-white opacity-10 rounded-circle" style="width: 150px; height: 150px; margin-right: 100px; margin-bottom: -50px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center mb-3">
+        <h5 class="fw-bolder text-dark m-0">Assigned Classes & Subjects</h5>
+        <div class="ms-auto">
+            <span class="badge bg-light text-muted border rounded-pill px-3 py-1 smallest fw-bold uppercase ls-1">Academic Year 2025-2026</span>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-uppercase smallest text-muted rounded-start-3">Classroom</th>
+                        <th class="py-3 text-uppercase smallest text-muted">Subject</th>
+                        <th class="py-3 text-uppercase smallest text-muted">Type</th>
+                        <th class="py-3 text-end pe-4 text-uppercase smallest text-muted rounded-end-3">Weekly Load</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    {% for alloc in allocations %}
+                    <tr>
+                        <td class="ps-4 py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="icon-square bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    <i class="bi bi-door-open-fill"></i>
+                                </div>
+                                <div>
+                                    <span class="fw-bold text-dark d-block">Std {{ alloc.classroom.standard }}-{{ alloc.classroom.division }}</span>
+                                    <span class="smallest text-muted fw-bold text-uppercase ls-1">{{ alloc.classroom.stream.name|default:"General" }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3">
+                            <span class="fw-bold text-dark">{{ alloc.subject.name }}</span>
+                            <div class="smallest text-muted fw-medium">Code: {{ alloc.subject.code|default:"---" }}</div>
+                        </td>
+                        <td class="py-3">
+                            {% if alloc.subject.is_practical %}
+                                <span class="badge bg-warning-soft text-warning border border-warning-subtle rounded-pill px-3 py-1">Practical</span>
+                            {% else %}
+                                <span class="badge bg-info-soft text-info border border-info-subtle rounded-pill px-3 py-1">Theory</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4 py-3">
+                            <span class="fw-bolder text-dark fs-5">{{ alloc.sessions_per_week|default:"--" }}</span>
+                            <small class="text-muted fw-medium ms-1">hrs/wk</small>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <div class="icon-square bg-light text-muted rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="bi bi-journal-x fs-3"></i>
+                            </div>
+                            <h5 class="fw-bolder text-dark">No Subjects Assigned</h5>
+                            <p class="text-muted small mx-auto" style="max-width: 300px;">This teacher has not been allocated any subjects for the current academic term yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    /* TYPOGRAPHY & CORE */
+    .fw-black { font-weight: 900; }
+    .tracking-tighter { letter-spacing: -1px; }
+    .ls-1 { letter-spacing: 1px; }
+    .smallest { font-size: 0.70rem; }
+    
+    /* SOFT COLORS */
+    .bg-primary-soft { background-color: #eff6ff; color: #3b82f6; }
+    .bg-info-soft { background-color: #ecfeff; color: #06b6d4; }
+    .bg-warning-soft { background-color: #fefce8; color: #eab308; }
+
+    /* BUTTONS & INTERACTIONS */
+    .btn-white { background-color: #ffffff; color: #374151; }
+    .btn-white:hover { background-color: #f9fafb; border-color: #d1d5db !important; color: #111827; }
+    
+    .transition-all { transition: all 0.25s ease-in-out; }
+    .card-lift { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    .card-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06)!important; }
+    .hover-lift:hover { transform: translateY(-3px); background-color: #ffffff !important; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+    /* ANIMATIONS */
+    .page-load-animation { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(13, 110, 253, 0); } 100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); } }
+</style>
+{% endblock %}

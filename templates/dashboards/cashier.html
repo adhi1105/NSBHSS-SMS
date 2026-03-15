@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon" style="letter-spacing: 1.5px;">FINANCE NODE</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Operational Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Cashier <span class="theme-accent-text-dark">Workspace</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span class="ls-1">TERMINAL STATE:</span> 
+                <span class="uppercase ls-2 fw-black opacity-75">Ready for Transaction Inflow</span>
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 h-100">
+            <div class="badge-outline-sage px-4 py-3 bg-white shadow-soft d-flex align-items-center gap-3">
+                <i class="bi bi-shield-check theme-accent-text-dark fs-5"></i>
+                <span class="fw-black smallest text-theme-dark text-uppercase ls-2">Verified Ledger Sync</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        
+        <div class="col-xl-3 col-lg-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift text-center bg-white overflow-hidden">
+                <div class="card-body p-4 p-lg-5 d-flex flex-column align-items-center">
+                    <div class="icon-square-xl bg-theme-dark text-theme-accent mb-4 shadow-sm">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <h5 class="fw-black text-theme-dark mb-2 tracking-tighter ls-1">Collect Fees</h5>
+                    <p class="smallest fw-bold text-muted uppercase ls-1 mb-5 line-height-lg">Process term cycles, uniform nodes, and generate high-fidelity receipts.</p>
+                    
+                    <div class="mt-auto w-100">
+                        <a href="{% url 'fees:cashier_search' %}" class="btn-neon-premium w-100 py-3 shadow-soft">
+                            NEW SETTLEMENT
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift text-center bg-white overflow-hidden">
+                <div class="card-body p-4 p-lg-5 d-flex flex-column align-items-center">
+                    <div class="icon-square-xl bg-danger-light text-danger mb-4 shadow-sm">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <h5 class="fw-black text-theme-dark mb-2 tracking-tighter ls-1">Defaulter Nodes</h5>
+                    <p class="smallest fw-bold text-muted uppercase ls-1 mb-5 line-height-lg">Audit class-wise risk profiles and execute automated fiscal reminders.</p>
+                    
+                    <div class="mt-auto w-100">
+                        <a href="{% url 'fees:index' %}" class="btn-outline-modern w-100 py-3 rounded-pill fw-black">
+                            VIEW LIABILITIES
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift text-center bg-white overflow-hidden">
+                <div class="card-body p-4 p-lg-5 d-flex flex-column align-items-center">
+                    <div class="icon-square-xl bg-sage text-theme-dark mb-4 shadow-sm">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                    <h5 class="fw-black text-theme-dark mb-2 tracking-tighter ls-1">Invoices</h5>
+                    <p class="smallest fw-bold text-muted uppercase ls-1 mb-5 line-height-lg">Deploy custom billing nodes for bulk events, transport, or lab cycles.</p>
+                    
+                    <div class="mt-auto w-100">
+                        <a href="{% url 'fees:invoice_generator' %}" class="btn-outline-modern w-100 py-3 rounded-pill fw-black">
+                            MANAGE DOCUMENTATION
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift text-center bg-white overflow-hidden">
+                <div class="card-body p-4 p-lg-5 d-flex flex-column align-items-center">
+                    <div class="icon-square-xl bg-light text-theme-dark mb-4 shadow-sm">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <h5 class="fw-black text-theme-dark mb-2 tracking-tighter ls-1">Ledger Sync</h5>
+                    <p class="smallest fw-bold text-muted uppercase ls-1 mb-5 line-height-lg">Audit fragments, process node refunds, and reprint institutional receipts.</p>
+                    
+                    <div class="mt-auto w-100">
+                        <a href="{% url 'fees:cashier_search' %}" class="btn-outline-modern w-100 py-3 rounded-pill fw-black">
+                            AUDIT HISTORY
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.5px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .line-height-1 { line-height: 1; }
+    .line-height-lg { line-height: 1.6; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* CARDS & COMPONENTS */
+    .card-bento { border-radius: 35px; border: 1.5px solid var(--bg-sage); }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-danger-light { background: #fef2f2; }
+    .icon-square-xl { width: 75px; height: 75px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 14px 32px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; font-size: 0.75rem; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(203, 251, 69, 0.4); }
+    
+    .btn-outline-modern { border: 2.5px solid var(--bg-sage); color: var(--theme-dark); font-size: 0.75rem; text-transform: uppercase; font-weight: 900; transition: 0.3s; letter-spacing: 0.5px; }
+    .btn-outline-modern:hover { background: var(--theme-dark); color: var(--theme-accent); border-color: var(--theme-dark); }
+
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 5px 14px; border-radius: 50px; font-weight: 900; text-transform: uppercase; }
+    .badge-outline-sage { padding: 6px 16px; border: 2.5px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; }
+    .card-lift:hover { transform: translateY(-10px); border-color: var(--theme-dark); box-shadow: 0 25px 50px rgba(15, 56, 34, 0.08) !important; }
+    .card-lift:hover .icon-square-xl { transform: scale(1.1) rotate(5deg); }
+</style>
+{% endblock %}

@@ -1,0 +1,786 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="profile-dashboard-wrapper container-fluid page-load-animation pb-5">
+
+    <!-- 1. HERO COVER & IDENTITY CARD -->
+    <div class="row mb-5 position-relative z-1">
+        <div class="col-12 px-0 px-md-3">
+            <div class="card overflow-hidden border-0 profile-hero-card shadow-lg glass-node-premium">
+                <!-- Animated Gradient Cover -->
+                <div class="profile-cover position-relative">
+                    <div class="cover-gradient-mesh"></div>
+                    <div class="cover-overlay"></div>
+
+                    <div class="position-absolute top-0 end-0 m-4 z-2 d-none d-md-flex align-items-center gap-2">
+                        <span class="badge-node-tech shadow-sm">IDENTITY_NODE_v3.1</span>
+                        <div class="status-pulse-wrapper d-flex align-items-center bg-white bg-opacity-10 backdrop-blur rounded-pill px-3 py-1 border border-white border-opacity-25"
+                            style="backdrop-filter: blur(10px);">
+                            <span class="status-dot animate-pulse me-2"></span>
+                            <span class="smallest ls-1 fw-black text-white uppercase">
+                                {{ role|default:"Standard" }}_Access
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Avatar & Quick Info -->
+            <div class="card-body px-4 px-lg-5 pb-4 pt-0 d-flex flex-column flex-md-row gap-4 align-items-center align-items-md-end position-relative"
+                style="margin-top: -65px; z-index: 3;">
+
+                <div class="position-relative hero-avatar-wrapper flex-shrink-0">
+                    {% if profile.photo %}
+                    <img src="{{ profile.photo.url }}" class="hero-avatar shadow-lg bg-white">
+                    {% else %}
+                    <div class="hero-avatar shadow-lg bg-theme-dark text-theme-accent d-flex align-items-center justify-content-center fw-black"
+                        style="font-size: 4rem;">
+                        {{ user.first_name|default:user.username|slice:":1"|upper }}
+                    </div>
+                    {% endif %}
+                    <span
+                        class="hero-status-dot position-absolute bottom-0 end-0 bg-success border border-white rounded-circle shadow-sm"></span>
+                </div>
+
+                <div class="text-center text-md-start mb-2 flex-grow-1">
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
+                        <h2 class="display-title-sm text-theme-dark tracking-tighter m-0 fw-black text-capitalize">
+                            {{ user.get_full_name|default:user.username }}</h2>
+                        {% if request.user.is_superuser %}
+                        <i class="bi bi-patch-check-fill text-primary" style="font-size: 1.25rem;"
+                            title="Root Administrator"></i>
+                        {% endif %}
+                    </div>
+                    <p class="smallest fw-bold text-muted uppercase ls-2 m-0">{{ user.email }}</p>
+                </div>
+
+                <div
+                    class="d-flex flex-wrap flex-md-column flex-lg-row align-items-center justify-content-center gap-2 mb-2">
+                    <span
+                        class="badge-terminal bg-theme-dark text-theme-accent shadow-sm border border-dark border-opacity-10 px-4 py-2">
+                        <i class="bi bi-person-badge me-2"></i>{{ role|default:"STANDARD"|upper }} NODE
+                    </span>
+
+                    {% if role == 'Student' %}
+                    <span
+                        class="badge-terminal bg-white text-theme-dark border shadow-sm px-4 py-2 fw-black tracking-tighter">
+                        ID: #{{ profile.student_id|default:"PENDING" }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. MODERN TAB NAVIGATION -->
+<div class="row mb-4 z-2 position-relative">
+    <div class="col-12 px-0 px-md-3">
+        <ul class="nav nav-pills custom-pills d-flex flex-nowrap overflow-auto gap-2 p-2 bg-white rounded-4 shadow-sm border"
+            id="profileTab" role="tablist">
+            <li class="nav-item flex-shrink-0" role="presentation">
+                <button class="nav-link active rounded-pill fw-bold" id="overview-tab" data-bs-toggle="tab"
+                    data-bs-target="#overview" type="button" role="tab"><i class="bi bi-cpu me-2"></i> Operational
+                    Overview</button>
+            </li>
+            <li class="nav-item flex-shrink-0" role="presentation">
+                <button class="nav-link rounded-pill fw-bold" id="security-tab" data-bs-toggle="tab"
+                    data-bs-target="#security" type="button" role="tab"><i class="bi bi-shield-lock me-2"></i>
+                    Access & Security</button>
+            </li>
+            {% if role == 'Administrator' or role == 'Admin' %}
+            <li class="nav-item flex-shrink-0" role="presentation">
+                <button class="nav-link rounded-pill fw-bold text-primary" id="registry-tab" data-bs-toggle="tab"
+                    data-bs-target="#registry" type="button" role="tab"><i class="bi bi-people-fill me-2"></i> Live
+                    Directory</button>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<!-- 3. TAB CONTENT -->
+<div class="tab-content z-2 position-relative" id="profileTabContent">
+
+    <!-- A. OVERVIEW TAB -->
+    <div class="tab-pane fade show active" id="overview" role="tabpanel">
+
+        <!-- Telemetry Row (Top) -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-4">
+                <div
+                    class="terminal-data-strip border bg-white shadow-soft p-4 rounded-4 hover-lift h-100 position-relative overflow-hidden">
+                    <div class="position-absolute align-items-center justify-content-center d-flex text-white"
+                        style="top: -20px; right: -20px; width: 100px; height: 100px; background: var(--theme-dark); border-radius: 50%; opacity: 0.05;">
+                        <i class="bi bi-telephone" style="font-size: 3rem; margin-top: 20px; margin-right: 20px;"></i>
+                    </div>
+                    <label class="label-micro text-theme-dark mb-3"><i
+                            class="bi bi-telephone-fill me-2 opacity-50"></i>COMMS_LINK</label>
+                    <h4 class="fw-black text-theme-dark tracking-tighter m-0">
+                        {% if role == 'Student' %}
+                        {{ profile.primary_phone|default:"UNASSIGNED" }}
+                        {% else %}
+                        {{ profile.phone|default:"UNASSIGNED" }}
+                        {% endif %}
+                    </h4>
+                </div>
+            </div>
+
+            {% if profile.address %}
+            <div class="col-md-6 col-lg-4">
+                <div
+                    class="terminal-data-strip border bg-white shadow-soft p-4 rounded-4 hover-lift h-100 position-relative overflow-hidden">
+                    <div class="position-absolute align-items-center justify-content-center d-flex text-white"
+                        style="top: -20px; right: -20px; width: 100px; height: 100px; background: var(--theme-accent-dark); border-radius: 50%; opacity: 0.05;">
+                        <i class="bi bi-geo-alt" style="font-size: 3rem; margin-top: 20px; margin-right: 20px;"></i>
+                    </div>
+                    <label class="label-micro text-theme-dark mb-3"><i
+                            class="bi bi-geo-alt-fill me-2 opacity-50"></i>PHYSICAL_LOCATION</label>
+                    <h5 class="fw-bold text-theme-dark lh-sm m-0">{{ profile.address }}</h5>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if role == 'Student' %}
+            <div class="col-md-6 col-lg-4">
+                <div
+                    class="terminal-data-strip border bg-white shadow-soft p-4 rounded-4 hover-lift h-100 position-relative overflow-hidden">
+                    <div class="position-absolute align-items-center justify-content-center d-flex text-white"
+                        style="top: -20px; right: -20px; width: 100px; height: 100px; background: var(--theme-dark); border-radius: 50%; opacity: 0.05;">
+                        <i class="bi bi-door-open" style="font-size: 3rem; margin-top: 20px; margin-right: 20px;"></i>
+                    </div>
+                    <label class="label-micro text-theme-dark mb-3"><i
+                            class="bi bi-door-open-fill me-2 opacity-50"></i>ASSIGNED_CLASSROOM</label>
+                    <h4 class="fw-black text-theme-dark tracking-tighter m-0">{{ academic.class|default:"PENDING" }}
+                    </h4>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Role Specific Data Row (Bottom) -->
+        <div class="card card-terminal border-0 shadow-sm glass-node h-100 overflow-hidden">
+            <div class="card-body p-4 p-lg-5 position-relative">
+                {% if role == 'Student' %}
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <div
+                            class="data-block glass-block p-4 p-lg-5 h-100 rounded-4 position-relative overflow-hidden hover-lift border border-2 border-theme shadow-sm">
+                            <div class="block-glow bg-theme-accent opacity-25"></div>
+                            <label class="label-micro text-muted mb-2 position-relative z-1">ACADEMIC_STREAM</label>
+                            <div class="fw-black text-theme-dark display-6 tracking-tighter position-relative z-1">
+                                {{ academic.stream|default:"CORE_GENERAL" }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div
+                            class="data-block glass-block p-4 p-lg-5 h-100 rounded-4 position-relative overflow-hidden hover-lift border border-2 border-theme-accent shadow-sm">
+                            <div class="block-glow bg-primary opacity-10"></div>
+                            <label class="label-micro text-muted mb-2 position-relative z-1">DATE_OF_BIRTH</label>
+                            <div class="fw-black text-theme-dark display-6 tracking-tighter position-relative z-1">
+                                {{ profile.date_of_birth|date:"d M Y"|upper|default:"NOT_RECORDED" }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="subject-matrix-wrapper border border-2 border-dark border-opacity-10 p-5 rounded-4 bg-light-sage position-relative overflow-hidden">
+                    <i class="bi bi-journal-bookmark position-absolute opacity-10"
+                        style="font-size: 15rem; bottom: -50px; right: -20px; color: var(--theme-dark);"></i>
+                    <label class="label-micro text-theme-dark mb-4 position-relative z-1"><i
+                            class="bi bi-journal-bookmark-fill me-2 opacity-50"></i>ACTIVE_SUBJECT_MATRIX</label>
+                    <div class="d-flex flex-wrap gap-3 position-relative z-1">
+                        {% for sub in academic.subjects %}
+                        {% if sub and sub != '-' %}
+                        <span
+                            class="badge-terminal bg-theme-dark text-theme-accent border-0 shadow-sm px-4 py-2 fw-black text-uppercase tracking-tighter fs-6 rounded-pill hover-lift">
+                            {{ sub.name|default:sub }}
+                        </span>
+                        {% endif %}
+                        {% empty %}
+                        <span class="smallest fw-bold text-muted uppercase ls-1 bg-white px-3 py-2 rounded-2">No
+                            subjects mapped yet.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if role == 'Teacher' or role == 'Staff' %}
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div
+                            class="data-block glass-block p-5 h-100 rounded-4 border-start border-5 border-theme shadow-sm hover-lift bg-white">
+                            <label class="label-micro text-muted mb-3 d-flex align-items-center gap-2"><i
+                                    class="bi bi-diagram-2"></i> DEPARTMENT</label>
+                            <div class="fw-black text-theme-dark display-6 tracking-tighter text-uppercase">{{
+                                profile.department|default:"ACADEMICS" }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div
+                            class="data-block glass-block p-5 h-100 rounded-4 border-start border-5 border-theme-accent shadow-sm hover-lift bg-white">
+                            <label class="label-micro text-muted mb-3 d-flex align-items-center gap-2"><i
+                                    class="bi bi-person-badge"></i> DESIGNATION</label>
+                            <div class="fw-black text-theme-dark display-6 tracking-tighter text-uppercase">{{
+                                profile.designation|default:"FACULTY_MEMBER" }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if not role == 'Student' and not role == 'Teacher' and not role == 'Staff' %}
+                <div class="text-center py-5">
+                    <i class="bi bi-fingerprint opacity-25" style="font-size: 5rem;"></i>
+                    <h4 class="fw-black tracking-tighter mt-3 text-muted">Awaiting specific operational data
+                        payload...</h4>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- B. SECURITY & ACCESS TAB -->
+    <div class="tab-pane fade" id="security" role="tabpanel">
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="card card-terminal border-0 shadow-sm glass-node">
+                    <div class="card-header bg-transparent border-bottom-faint p-4">
+                        <h6 class="smallest fw-black uppercase ls-2 m-0 text-muted">Authorization Protocols</h6>
+                    </div>
+                    <div class="card-body p-4 p-lg-5">
+
+                        <div class="row g-4">
+                            {% if role == 'Administrator' or role == 'Admin' or request.user.is_superuser %}
+                            <div class="col-lg-6">
+                                <div
+                                    class="privilege-card p-4 rounded-4 border-start border-5 border-danger bg-danger bg-opacity-10 d-flex gap-4 align-items-start hover-lift h-100">
+                                    <div class="icon-sq-micro bg-danger text-white flex-shrink-0 fs-4"
+                                        style="width: 50px; height: 50px;"><i class="bi bi-shield-lock-fill"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-black tracking-tighter m-0 text-danger">
+                                            ROOT_ADMINISTRATIVE_ACCESS</h5>
+                                        <p class="smallest fw-bold opacity-75 m-0 mt-2 line-height-1">Full override
+                                            control over system nodes, configurations, role assignments, and
+                                            database management.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if role == 'Cashier' or request.user.is_superuser %}
+                            <div class="col-lg-6">
+                                <div
+                                    class="privilege-card p-4 rounded-4 border-start border-5 border-success bg-success bg-opacity-10 d-flex gap-4 align-items-start hover-lift h-100">
+                                    <div class="icon-sq-micro bg-success text-white flex-shrink-0 fs-4"
+                                        style="width: 50px; height: 50px;"><i class="bi bi-cash-coin"></i></div>
+                                    <div>
+                                        <h5 class="fw-black tracking-tighter m-0 text-success">
+                                            FINANCIAL_LEDGER_ACCESS</h5>
+                                        <p class="smallest fw-bold opacity-75 m-0 mt-2 line-height-1">Authorized for
+                                            fee collections, payment processing, transaction reversal, and financial
+                                            reporting.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if role == 'Librarian' or request.user.is_superuser %}
+                            <div class="col-lg-6">
+                                <div
+                                    class="privilege-card p-4 rounded-4 border-start border-5 border-info bg-info bg-opacity-10 d-flex gap-4 align-items-start hover-lift h-100">
+                                    <div class="icon-sq-micro bg-info text-white flex-shrink-0 fs-4"
+                                        style="width: 50px; height: 50px;"><i class="bi bi-book-half"></i></div>
+                                    <div>
+                                        <h5 class="fw-black tracking-tighter m-0 text-info">
+                                            LIBRARY_INVENTORY_CONTROL</h5>
+                                        <p class="smallest fw-bold opacity-75 m-0 mt-2 line-height-1">Authorized for
+                                            asset check-in/out, physical catalogue management, fines processing, and
+                                            barcode issuing.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if role == 'Office_Staff' or request.user.is_superuser %}
+                            <div class="col-lg-6">
+                                <div
+                                    class="privilege-card p-4 rounded-4 border-start border-5 border-warning bg-warning bg-opacity-10 d-flex gap-4 align-items-start hover-lift h-100">
+                                    <div class="icon-sq-micro bg-warning text-dark flex-shrink-0 fs-4"
+                                        style="width: 50px; height: 50px;"><i class="bi bi-building"></i></div>
+                                    <div>
+                                        <h5 class="fw-black tracking-tighter m-0 text-warning text-dark">
+                                            FRONT_DESK_OPERATIONS</h5>
+                                        <p class="smallest fw-bold opacity-75 m-0 mt-2 line-height-1">Authorized for
+                                            admissions intake, basic registry queries, timetable tracking, and
+                                            general student lifecycle tasks.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if role == 'Teacher' or role == 'Staff' %}
+                            <div class="col-lg-6">
+                                <div
+                                    class="privilege-card p-4 rounded-4 border-start border-5 border-primary bg-primary bg-opacity-10 d-flex gap-4 align-items-start hover-lift h-100">
+                                    <div class="icon-sq-micro bg-primary text-white flex-shrink-0 fs-4"
+                                        style="width: 50px; height: 50px;"><i class="bi bi-journal-text"></i></div>
+                                    <div>
+                                        <h5 class="fw-black tracking-tighter m-0 text-primary">ACADEMIC_OPERATIONS
+                                        </h5>
+                                        <p class="smallest fw-bold opacity-75 m-0 mt-2 line-height-1">Authorized to
+                                            mark attendance, assign grades, manage class schedules, and upload LMS
+                                            materials.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if role == 'Student' %}
+                            <div class="col-lg-6">
+                                <div
+                                    class="privilege-card p-4 rounded-4 border-start border-5 border-secondary bg-secondary bg-opacity-10 d-flex gap-4 align-items-start hover-lift h-100">
+                                    <div class="icon-sq-micro bg-secondary text-white flex-shrink-0 fs-4"
+                                        style="width: 50px; height: 50px;"><i class="bi bi-person-video3"></i></div>
+                                    <div>
+                                        <h5 class="fw-black tracking-tighter m-0 text-secondary">
+                                            STANDARD_NODE_ACCESS</h5>
+                                        <p class="smallest fw-bold opacity-75 m-0 mt-2 line-height-1">View-only
+                                            access to personal grades, attendance, timetable, library assets, and
+                                            fee ledgers.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="mt-5 border-top pt-4">
+                            <label class="label-micro text-muted mb-3">SYSTEM IDENTIFIERS</label>
+                            <div class="d-flex flex-wrap gap-3">
+                                <code
+                                    class="code-fragment bg-light border px-3 py-2 rounded-3 text-dark fw-bold shadow-sm">UID: {{ user.id|stringformat:"04d" }}</code>
+                                <code
+                                    class="code-fragment bg-light border px-3 py-2 rounded-3 text-dark fw-bold shadow-sm d-flex align-items-center"><i class="bi bi-door-closed-fill me-2 opacity-50"></i> Last Online: {{ user.last_login|date:"d M Y, H:i"|default:"Unknown" }}</code>
+                                <code
+                                    class="code-fragment bg-light border px-3 py-2 rounded-3 text-dark fw-bold shadow-sm d-flex align-items-center"><i class="bi bi-calendar-check me-2 opacity-50"></i> Date Joined: {{ user.date_joined|date:"d M Y" }}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- C. LIVE REGISTRY (ADMIN ONLY) -->
+    {% if role == 'Administrator' or role == 'Admin' %}
+    <div class="tab-pane fade" id="registry" role="tabpanel">
+        <div class="card card-terminal border-0 shadow-lg glass-node overflow-hidden">
+            <div
+                class="card-header bg-white border-bottom p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-sq-micro bg-theme-dark text-white shadow-sm flex-shrink-0 fs-5"
+                        style="width: 44px; height: 44px;"><i class="bi bi-people-fill"></i></div>
+                    <div>
+                        <h5 class="fw-black tracking-tighter text-theme-dark m-0">Active User Directory</h5>
+                        <span class="smallest fw-bold opacity-50 uppercase ls-1">Monitoring System Access
+                            Configurations</span>
+                    </div>
+                </div>
+                <code
+                    class="code-fragment text-success bg-success bg-opacity-10 px-3 py-2 rounded-pill border border-success border-opacity-25 shadow-sm fw-black"><span class="status-dot animate-pulse me-2"></span>LIVE_SYNC (50)</code>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0 custom-admin-table table-hover">
+                    <thead class="bg-light-sage bg-opacity-50 border-bottom-faint">
+                        <tr>
+                            <th class="ps-4 py-3 smallest fw-black uppercase text-theme-dark ls-1 text-nowrap">
+                                Identity Node</th>
+                            <th class="py-3 smallest fw-black uppercase text-theme-dark ls-1 text-nowrap">Role
+                                Matrix</th>
+                            <th
+                                class="py-3 smallest fw-black uppercase text-theme-dark ls-1 text-nowrap d-none d-md-table-cell">
+                                Comms Link</th>
+                            <th
+                                class="py-3 smallest fw-black uppercase text-theme-dark ls-1 text-nowrap d-none d-lg-table-cell">
+                                Init Date</th>
+                            <th class="pe-4 py-3 smallest fw-black uppercase text-theme-dark ls-1 text-end text-nowrap">
+                                Execution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in admin_user_list %}
+                        <tr class="transition-all">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="icon-sq-micro bg-theme-dark text-theme-accent fw-black shadow-sm flex-shrink-0"
+                                        style="border-radius: 12px; height: 40px; width: 40px;">
+                                        {{ u.username|slice:":1"|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-black text-theme-dark tracking-tighter fs-6">{{ u.username }}
+                                        </div>
+                                        <div class="d-flex align-items-center gap-1 mt-1">
+                                            <span class="dot-mini bg-success opacity-75"></span>
+                                            <span class="label-micro text-success m-0"
+                                                style="font-size: 0.5rem;">SYS_ONLINE</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge-terminal border fw-black text-uppercase shadow-sm px-3 py-1 rounded-pill
+                                        {% if u.role == 'Cashier' %}bg-success text-white border-success
+                                        {% elif u.role == 'Librarian' %}bg-info text-white border-info
+                                        {% elif u.role == 'Office_Staff' %}bg-warning text-dark border-warning
+                                        {% elif u.role == 'Admin' %}bg-danger text-white border-danger
+                                        {% else %}bg-theme-dark text-theme-accent border-dark{% endif %}">
+                                    {{ u.role }}
+                                </span>
+                            </td>
+                            <td class="d-none d-md-table-cell">
+                                <span class="smallest fw-bold text-muted bg-light px-2 py-1 rounded">{{
+                                    u.email|default:"NULL_LINK" }}</span>
+                            </td>
+                            <td class="d-none d-lg-table-cell">
+                                <code
+                                    class="code-fragment bg-transparent text-muted fw-bold">{{ u.joined|date:"d_M_Y"|upper }}</code>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="/admin/auth/user/{{ u.id }}/password/" target="_blank"
+                                    class="btn btn-sm btn-outline-danger shadow-sm rounded-pill fw-bold text-uppercase"
+                                    style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                    <i class="bi bi-key-fill me-1"></i>Reset
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="opacity-25 mb-3"><i class="bi bi-database-slash display-4"></i></div>
+                                <h6 class="fw-black uppercase ls-2 text-muted m-0">Empty_Registry</h6>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    /* TYPOGRAPHY */
+    .fw-black {
+        font-weight: 900;
+    }
+
+    .display-title-sm {
+        font-size: 2.2rem;
+        line-height: 1.1;
+    }
+
+    .tracking-tighter {
+        letter-spacing: -1.2px !important;
+    }
+
+    .ls-1 {
+        letter-spacing: 0.5px !important;
+    }
+
+    .ls-2 {
+        letter-spacing: 1.5px !important;
+    }
+
+    .smallest {
+        font-size: 0.72rem;
+        line-height: 1.2;
+    }
+
+    .label-micro {
+        font-size: 0.55rem;
+        font-weight: 900;
+        color: rgba(15, 56, 34, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        display: block;
+    }
+
+    /* BACKGROUNDS & GLASSMORPHISM */
+    .glass-node-premium {
+        background: rgba(255, 255, 255, 0.98);
+        border: 2px solid var(--white);
+        border-radius: 28px;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+
+    .glass-block {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+    }
+
+    .bg-light-sage {
+        background: #f4f8f6;
+    }
+
+    .border-theme {
+        border-color: var(--theme-dark) !important;
+    }
+
+    .border-theme-accent {
+        border-color: var(--theme-accent) !important;
+    }
+
+    /* COMPONENTS */
+    .badge-node-tech {
+        background: var(--white);
+        color: var(--theme-dark);
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-weight: 900;
+        font-size: 0.65rem;
+    }
+
+    .terminal-data-strip {
+        transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .icon-sq-micro {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .dot-mini {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* UTILITIES */
+    .shadow-soft {
+        box-shadow: 0 15px 35px rgba(15, 56, 34, 0.05) !important;
+    }
+
+    .hover-lift {
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(15, 56, 34, 0.08) !important;
+    }
+
+    .border-bottom-faint {
+        border-bottom: 1px solid rgba(15, 56, 34, 0.08);
+    }
+
+    .code-fragment {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.75rem;
+    }
+
+    /* PROFILE OVERRIDES */
+    .profile-hero-card {
+        border-radius: 30px;
+    }
+
+    .profile-cover {
+        height: 260px;
+        width: 100%;
+        border-radius: 30px 30px 0 0;
+        overflow: hidden;
+    }
+
+    /* Dynamic Animated Gradient Mesh */
+    .cover-gradient-mesh {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: radial-gradient(at 0% 0%, rgba(203, 251, 69, 0.6) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, rgba(15, 56, 34, 0.9) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(203, 251, 69, 0.4) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, rgba(33, 115, 70, 0.8) 0px, transparent 50%);
+        background-color: var(--theme-dark);
+        animation: pulse-mesh 15s ease infinite alternate;
+        background-size: 200% 200%;
+    }
+
+    .cover-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
+    }
+
+    .hero-avatar-wrapper {
+        padding: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        display: inline-block;
+    }
+
+    .hero-avatar {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--white);
+        transition: transform 0.5s;
+    }
+
+    .hero-avatar-wrapper:hover .hero-avatar {
+        transform: scale(1.05) rotate(-2deg);
+    }
+
+    .hero-status-dot {
+        width: 20px;
+        height: 20px;
+        border-width: 3px !important;
+        margin: 12px;
+    }
+
+    /* Data Block Accents */
+    .data-block .block-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        filter: blur(40px);
+        transition: 0.5s;
+    }
+
+    .data-block:hover .block-glow {
+        transform: scale(1.5);
+        opacity: 0.4;
+    }
+
+    /* Custom Navbar Tabs */
+    .custom-pills .nav-link {
+        color: var(--text-muted);
+        padding: 12px 24px;
+        font-size: 0.9rem;
+        transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .custom-pills .nav-link:hover {
+        color: var(--theme-dark);
+        background: rgba(15, 56, 34, 0.05);
+    }
+
+    .custom-pills .nav-link.active {
+        background: var(--theme-dark);
+        color: var(--theme-accent) !important;
+        box-shadow: 0 10px 20px rgba(15, 56, 34, 0.15);
+    }
+
+    /* Table Styling */
+    .custom-admin-table th {
+        font-size: 0.7rem;
+        color: rgba(15, 56, 34, 0.5);
+        border: none;
+    }
+
+    .custom-admin-table td {
+        border-bottom: 1px solid rgba(15, 56, 34, 0.05);
+        vertical-align: middle;
+    }
+
+    .custom-admin-table tbody tr:hover {
+        background-color: rgba(244, 248, 246, 0.6) !important;
+    }
+
+    /* ANIMATIONS */
+    @keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .page-load-animation {
+        animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pulse-mesh {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        100% {
+            background-position: 100% 50%;
+        }
+    }
+
+    @keyframes pulse-neon {
+        0% {
+            box-shadow: 0 0 0 0 rgba(203, 251, 69, 0.6);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(203, 251, 69, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(203, 251, 69, 0);
+        }
+    }
+
+    .animate-pulse {
+        animation: pulse-neon 2s infinite;
+    }
+
+    /* Media Query Overrides */
+    @media (max-width: 768px) {
+        .profile-cover {
+            height: 180px;
+        }
+
+        .hero-avatar {
+            width: 100px;
+            height: 100px;
+            border-width: 3px;
+        }
+
+        .hero-avatar-wrapper {
+            margin-top: -30px;
+        }
+
+        .display-title-sm {
+            font-size: 1.6rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card border-0 shadow-lg rounded-5 overflow-hidden entry-card" style="max-width: 420px; width:100%;">
+        
+        <div class="card-header bg-dark border-0 p-4 text-center">
+            <h3 class="text-white fw-black mb-1 tracking-tighter">{{ day }}</h3>
+            <div class="badge bg-primary rounded-pill px-3 py-2 fw-bold small">Period {{ slot.period_number }}</div>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <form method="POST">
+                {% csrf_token %}
+
+                <div id="statusAlert" class="mb-4 d-none">
+                    <div class="p-3 rounded-4 d-flex align-items-center gap-3 transition-3">
+                        <div id="statusIcon" class="fs-4"></div>
+                        <div>
+                            <div class="smallest fw-bold text-uppercase ls-1" id="statusTitle">Checking...</div>
+                            <div class="small fw-medium" id="statusMessage"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="smallest fw-bold text-uppercase ls-2 text-primary mb-2 d-block">Choose Subject</label>
+                    <select name="subject" id="subjectSelect" class="form-select py-3 rounded-4 fw-bold shadow-none border-2" required>
+                        <option value="" selected disabled>Select subject...</option>
+                        {% for subject in subjects %}
+                            <option value="{{ subject.id }}">{{ subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-grid gap-3 mt-5">
+                    <button type="submit" id="submitBtn" class="btn btn-dark rounded-pill py-3 fw-bold transition-3 shadow-sm">
+                        Confirm Assignment
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-link text-muted smallest fw-bold text-decoration-none">CANCEL</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    document.getElementById('subjectSelect').addEventListener('change', function() {
+        const subjectId = this.value;
+        const statusAlert = document.getElementById('statusAlert');
+        const statusMessage = document.getElementById('statusMessage');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusIcon = document.getElementById('statusIcon');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Reset and Show
+        statusAlert.classList.remove('d-none');
+        statusAlert.firstElementChild.className = "p-3 rounded-4 d-flex align-items-center gap-3 bg-light";
+        statusTitle.innerText = "Verifying...";
+        statusMessage.innerText = "Checking teacher availability...";
+
+        fetch(`/timetable/check-conflict/?subject_id=${subjectId}&classroom_id={{ classroom.id }}&day={{ day }}&slot_id={{ slot.id }}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.conflict) {
+                    statusAlert.firstElementChild.className = "p-3 rounded-4 d-flex align-items-center gap-3 bg-danger-subtle text-danger border border-danger";
+                    statusIcon.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i>';
+                    statusTitle.innerText = "Conflict Detected";
+                    statusMessage.innerText = data.message;
+                    submitBtn.disabled = true;
+                    submitBtn.classList.replace('btn-dark', 'btn-outline-danger');
+                } else {
+                    statusAlert.firstElementChild.className = "p-3 rounded-4 d-flex align-items-center gap-3 bg-success-subtle text-success border border-success";
+                    statusIcon.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+                    statusTitle.innerText = "Verified Available";
+                    statusMessage.innerText = "Teacher: " + data.teacher_name;
+                    submitBtn.disabled = false;
+                    submitBtn.classList.replace('btn-outline-danger', 'btn-dark');
+                }
+            });
+    });
+</script>
+
+<style>
+    .fw-black { font-weight: 900; }
+    .ls-2 { letter-spacing: 2px; }
+    .ls-1 { letter-spacing: 1px; }
+    .smallest { font-size: 0.65rem; }
+    .rounded-5 { border-radius: 2rem !important; }
+    .transition-3 { transition: all 0.3s ease; }
+    .entry-card { animation: slideIn 0.4s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+{% endblock %}

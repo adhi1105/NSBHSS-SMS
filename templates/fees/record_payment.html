@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <a href="{% url 'fees:student_invoices' invoice.student.id %}" class="btn-close-custom shadow-soft transition-all d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <span class="badge-pill-neon" style="letter-spacing: 1px;">Collection Point</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Financial Settlement</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Process <span class="theme-accent-text-dark">Payment</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span style="letter-spacing: 0.5px;">Protocol:</span> 
+                <span class="uppercase ls-1 fw-black opacity-75">Manual Entry Node</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-5 justify-content-center">
+        <div class="col-xl-4 col-lg-5">
+            <div class="card card-bento border-0 shadow-soft overflow-hidden h-100 bg-white">
+                <div class="card-body p-4 p-lg-5">
+                    <span class="smallest fw-black text-theme-dark opacity-50 uppercase ls-2 mb-3 d-block">System Invoice #{{ invoice.id }}</span>
+                    <h3 class="fw-black text-theme-dark mb-1 tracking-tighter">{{ invoice.structure.fee_type.name }}</h3>
+                    <p class="smallest fw-bold text-muted uppercase ls-1 mb-5">{{ invoice.student.user.get_full_name }} • {{ invoice.student.classroom.name }}</p>
+                    
+                    <div class="p-4 bg-light-sage rounded-xl border border-dashed border-dark mb-5">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="smallest fw-black text-theme-dark uppercase ls-1">Base Node Value</span>
+                            <span class="fw-black text-theme-dark">₹{{ invoice.original_amount|intcomma }}</span>
+                        </div>
+
+                        {% if invoice.fine_amount > 0 %}
+                        <div class="d-flex justify-content-between mb-3 text-danger">
+                            <span class="smallest fw-black uppercase ls-1"><i class="bi bi-exclamation-circle-fill me-1"></i>Late Penalty</span>
+                            <span class="fw-black">+ ₹{{ invoice.fine_amount|intcomma }}</span>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between mb-3 theme-accent-text-dark">
+                            <span class="smallest fw-black uppercase ls-1">Synchronized Funds</span>
+                            <span class="fw-black">- ₹{{ invoice.paid_amount|intcomma }}</span>
+                        </div>
+                        
+                        <div class="divider-dashed my-3"></div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="smallest fw-black text-theme-dark uppercase ls-2">Balance Payable</span>
+                            <span class="fs-3 fw-black text-danger tracking-tighter">₹{{ invoice.balance|intcomma }}</span>
+                        </div>
+                    </div>
+
+                    <h6 class="smallest fw-black text-theme-dark text-uppercase ls-3 mb-4">Node History</h6>
+                    <div class="transaction-stack">
+                        {% for payment in invoice.payments.all %}
+                        <div class="d-flex justify-content-between py-2 border-bottom-dashed">
+                            <div>
+                                <div class="smallest fw-black text-theme-dark">₹{{ payment.amount|intcomma }}</div>
+                                <div class="smallest fw-bold text-muted uppercase" style="font-size: 0.6rem;">VIA {{ payment.mode }}</div>
+                            </div>
+                            <span class="smallest fw-bold text-muted uppercase">{{ payment.date|date:"M d, Y" }}</span>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4 opacity-50">
+                            <p class="smallest fw-black text-theme-dark uppercase ls-1">No previous fragments recorded</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-5 col-lg-7">
+            <div class="card card-bento border-0 shadow-soft overflow-hidden h-100">
+                <div class="card-header bg-theme-dark p-4 border-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+                        <h4 class="text-white fw-black m-0 tracking-tighter">Settlement Entry</h4>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-lg-5 bg-white">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Transaction Quantum (₹)</label>
+                            {{ form.amount }}
+                            {% if form.amount.errors %}
+                                <div class="text-danger smallest mt-2 fw-black"><i class="bi bi-exclamation-triangle"></i> {{ form.amount.errors.0 }}</div>
+                            {% endif %}
+                            <div class="smallest fw-bold text-muted mt-2 uppercase ls-1 opacity-75">Maximum allowable: ₹{{ invoice.balance|intcomma }}</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Protocol Mode</label>
+                            {{ form.mode }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Node Reference (UPI/Cheque/Ref)</label>
+                            {{ form.transaction_id }}
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Qualitative Remarks</label>
+                            {{ form.remarks }}
+                        </div>
+
+                        <div class="d-flex flex-column gap-3">
+                            <button type="submit" class="btn-neon-premium w-100 py-3 shadow-soft hover-lift">
+                                <i class="bi bi-shield-check-fill me-2"></i>Execute Settlement
+                            </button>
+                            
+                            <a href="{% url 'fees:index' %}" class="text-center text-decoration-none smallest fw-black text-theme-dark opacity-50 uppercase ls-2 transition-all hover-opacity-100">
+                                Discard & Return to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.2rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.2px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* FORM INPUTS: PURE BLACK FOR CLARITY */
+    input, select, textarea { 
+        width: 100%;
+        border-radius: 15px !important; 
+        border: 2px solid var(--bg-sage) !important; 
+        padding: 14px 18px !important; 
+        font-size: 1rem !important; 
+        font-weight: 700 !important;      
+        color: #000000 !important;
+        background: var(--white) !important;
+        transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--theme-dark) !important; box-shadow: 0 10px 20px rgba(15, 56, 34, 0.05) !important; outline: none; }
+
+    /* CARDS & COMPONENTS */
+    .card-bento { border-radius: 40px; border: 2px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    .divider-dashed { border-top: 2px dashed var(--bg-sage); }
+    .rounded-xl { border-radius: 25px; }
+    
+    .icon-square { width: 55px; height: 55px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(203, 251, 69, 0.4); }
+    
+    .btn-close-custom { border-radius: 50%; background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); text-decoration: none; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.08); }
+    .transition-all { transition: 0.3s ease; }
+    .hover-opacity-100:hover { opacity: 1 !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .hover-lift:hover { transform: translateY(-3px); }
+</style>
+{% endblock %}

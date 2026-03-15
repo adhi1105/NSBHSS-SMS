@@ -1,0 +1,629 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-3 p-lg-4 p-xl-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 mb-xl-5 gap-4 animate-fade-up"
+        style="--delay: 0s;">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div
+                    class="modern-badge bg-theme-accent text-theme-dark px-3 py-1 fw-bold rounded-pill smallest ls-1 d-flex align-items-center gap-2 shadow-sm border border-theme-accent border-opacity-50">
+                    <i class="bi bi-whatsapp"></i> BROADCAST
+                </div>
+                <span class="text-uppercase smallest fw-bold ls-2 text-muted">Communication Hub</span>
+            </div>
+            <h1 class="display-5 fw-black text-theme-dark tracking-tighter m-0 line-height-1">
+                WhatsApp <span class="text-gradient">Bulk Messenger</span>
+            </h1>
+            <p class="text-muted mt-2 fw-medium">Notify target audiences instantly across the entire institution.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'communication:api_settings' %}"
+                class="btn btn-dark rounded-pill shadow-sm d-flex align-items-center gap-2 fw-bold text-white hover-scale transition-all">
+                <i class="bi bi-gear-fill text-theme-accent"></i> API Settings
+            </a>
+            <a href="{% url 'home' %}"
+                class="btn btn-outline-dark rounded-pill shadow-sm d-flex align-items-center gap-2 fw-bold hover-scale transition-all">
+                <i class="bi bi-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Feedback Messages -->
+    {% if messages %}
+    <div class="animate-fade-up mb-4" style="--delay: 0.1s;">
+        {% for message in messages %}
+        <div
+            class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} border-0 shadow-sm rounded-4 d-flex align-items-center gap-3 fade show">
+            <i
+                class="bi {% if message.tags == 'error' %}bi-exclamation-triangle-fill{% elif message.tags == 'success' %}bi-check-circle-fill{% else %}bi-info-circle-fill{% endif %} fs-4"></i>
+            <div class="fw-bold">{{ message }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row g-4 align-items-stretch">
+        <!-- Main Form Column -->
+        <div class="col-12 animate-fade-up" style="--delay: 0.1s;">
+            <div
+                class="modern-card bg-white p-4 p-xl-5 group-hover shadow-lg rounded-4 border-0 position-relative overflow-hidden">
+                <!-- Background decorative blob -->
+                <div class="position-absolute top-0 end-0 opacity-10 pe-none"
+                    style="transform: translate(20%, -20%); width: 300px; height: 300px; background: radial-gradient(circle, var(--theme-accent) 0%, transparent 70%); border-radius: 50%;">
+                </div>
+
+                <form method="POST" action="{% url 'communication:bulk_whatsapp' %}" class="position-relative z-1">
+                    {% csrf_token %}
+
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="badge bg-dark text-white rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; font-size: 1.1rem;">1</div>
+                        <h5 class="fw-black text-theme-dark m-0 tracking-tighter">Select Target Audience</h5>
+                    </div>
+
+                    <div class="row g-3 mb-5">
+                        <div class="col-6 col-md-3">
+                            <label class="audience-card d-block cursor-pointer position-relative h-100">
+                                <input type="checkbox" name="target_groups" value="students"
+                                    class="d-none target-checkbox">
+                                <div
+                                    class="card h-100 bg-light rounded-4 p-2 p-md-3 transition-all text-center border-indicator shadow-sm">
+                                    <div class="icon-squircle mx-auto bg-white text-dark mb-2 shadow-sm d-flex align-items-center justify-content-center"
+                                        style="width: 45px; height: 45px; border-radius: 12px;">
+                                        <i class="bi bi-mortarboard-fill fs-5"></i>
+                                    </div>
+                                    <h6 class="fw-bold m-0 text-dark text-nowrap" style="font-size: 0.85rem;">Students
+                                    </h6>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="col-6 col-md-3">
+                            <label class="audience-card d-block cursor-pointer position-relative h-100">
+                                <input type="checkbox" name="target_groups" value="parents"
+                                    class="d-none target-checkbox">
+                                <div
+                                    class="card h-100 bg-light rounded-4 p-2 p-md-3 transition-all text-center border-indicator shadow-sm">
+                                    <div class="icon-squircle mx-auto bg-white text-dark mb-2 shadow-sm d-flex align-items-center justify-content-center"
+                                        style="width: 45px; height: 45px; border-radius: 12px;">
+                                        <i class="bi bi-people-fill fs-5"></i>
+                                    </div>
+                                    <h6 class="fw-bold m-0 text-dark text-nowrap" style="font-size: 0.85rem;">Parents
+                                    </h6>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="col-6 col-md-3">
+                            <label class="audience-card d-block cursor-pointer position-relative h-100">
+                                <input type="checkbox" name="target_groups" value="teachers"
+                                    class="d-none target-checkbox">
+                                <div
+                                    class="card h-100 bg-light rounded-4 p-2 p-md-3 transition-all text-center border-indicator shadow-sm">
+                                    <div class="icon-squircle mx-auto bg-white text-dark mb-2 shadow-sm d-flex align-items-center justify-content-center"
+                                        style="width: 45px; height: 45px; border-radius: 12px;">
+                                        <i class="bi bi-person-badge-fill fs-5"></i>
+                                    </div>
+                                    <h6 class="fw-bold m-0 text-dark text-nowrap" style="font-size: 0.85rem;">Teachers
+                                    </h6>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="col-6 col-md-3">
+                            <label class="audience-card d-block cursor-pointer position-relative h-100">
+                                <input type="checkbox" name="target_groups" value="staff"
+                                    class="d-none target-checkbox">
+                                <div
+                                    class="card h-100 bg-light rounded-4 p-2 p-md-3 transition-all text-center border-indicator shadow-sm">
+                                    <div class="icon-squircle mx-auto bg-white text-dark mb-2 shadow-sm d-flex align-items-center justify-content-center"
+                                        style="width: 45px; height: 45px; border-radius: 12px;">
+                                        <i class="bi bi-building-gear fs-5"></i>
+                                    </div>
+                                    <h6 class="fw-bold m-0 text-dark text-nowrap" style="font-size: 0.85rem;">Support
+                                        Staff</h6>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="filter-wrapper animate-fade-up d-none" id="filterControls">
+                        <div
+                            class="p-3 p-md-4 bg-light rounded-4 mb-5 border border-dark border-opacity-10 position-relative">
+                            <h6
+                                class="fw-bold text-dark text-uppercase smallest ls-1 mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-funnel-fill text-muted"></i> Refine Audience <span
+                                    class="badge bg-secondary opacity-50 fw-normal">Optional</span>
+                            </h6>
+                            <div class="row g-4">
+                                <div class="col-md-6" id="classroomFilterFilter" style="display: none;">
+                                    <label class="form-label fw-bold smallest text-muted mb-1">ClassRoom
+                                        (Students/Parents)</label>
+                                    <select
+                                        class="form-select bg-white border-0 shadow-sm rounded-3 py-2 cursor-pointer"
+                                        id="classroomSelect" name="classroom_id">
+                                        <option value="">All Classes</option>
+                                        {% for c in classrooms %}
+                                        <option value="{{ c.id }}">{{ c.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6" id="departmentFilterFilter" style="display: none;">
+                                    <label class="form-label fw-bold smallest text-muted mb-1">Department
+                                        (Teachers/Staff)</label>
+                                    <select
+                                        class="form-select bg-white border-0 shadow-sm rounded-3 py-2 cursor-pointer"
+                                        id="departmentSelect" name="department_id">
+                                        <option value="">All Departments</option>
+                                        {% for d in departments %}
+                                        <option value="{{ d.id }}">{{ d.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="recipientTableContainer" class="mb-5 d-none animate-fade-up">
+                        <div class="d-flex justify-content-between align-items-end mb-3 px-1">
+                            <div>
+                                <h6 class="fw-black text-dark m-0 tracking-tighter fs-5">Recipient List Review
+                                </h6>
+                                <p class="smallest text-muted m-0 mt-1 d-flex align-items-center gap-1"><i
+                                        class="bi bi-info-circle"></i> Deselect individuals to exclude them from this
+                                    broadcast.</p>
+                            </div>
+                            <span
+                                class="modern-badge bg-theme-dark text-theme-accent px-3 py-1 fw-bold rounded-pill shadow-sm d-flex align-items-center gap-2"
+                                id="recipientCountBadge">
+                                <i class="bi bi-people-fill"></i> <span id="countNumber">0</span> Selected
+                            </span>
+                        </div>
+                        <div class="table-responsive border border-light rounded-4 shadow-sm bg-white overflow-auto"
+                            style="max-height: 400px; scrollbar-width: thin;">
+                            <table class="table table-borderless table-hover align-middle mb-0" id="recipientTable">
+                                <thead style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);"
+                                    class="sticky-top z-2 border-bottom border-light">
+                                    <tr>
+                                        <th style="width: 50px;" class="text-center py-3">
+                                            <input class="form-check-input custom-checkbox" type="checkbox"
+                                                id="selectAllCheckbox" checked>
+                                        </th>
+                                        <th class="smallest text-uppercase ls-1 text-muted fw-bold py-3">Recipient
+                                            Details</th>
+                                        <th class="smallest text-uppercase ls-1 text-muted fw-bold py-3 text-end pe-4">
+                                            Contact Logic</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recipientTableBody" class="smallest">
+                                    <!-- Populated by JS -->
+                                    <tr>
+                                        <td colspan="3" class="text-center py-5 text-muted">
+                                            <div class="spinner-border text-theme-accent mb-3" role="status"
+                                                style="width: 3rem; height: 3rem; border-width: 0.25em;"></div>
+                                            <h6 class="fw-bold tracking-tighter">Compiling Recipients...</h6>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr class="border-dark opacity-10 my-5">
+
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="badge bg-dark text-white rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; font-size: 1.1rem;">2</div>
+                        <h5 class="fw-black text-theme-dark m-0 tracking-tighter">Compose Message</h5>
+                    </div>
+
+                    <div class="mb-4 position-relative">
+                        <textarea name="message_text" id="messageText"
+                            class="form-control bg-light border-0 rounded-4 p-4 shadow-sm modern-textarea" rows="6"
+                            placeholder="Type your official broadcast message here...&#10;&#10;e.g. 'Dear Parents, please be advised that school will be closed tomorrow due to weather conditions.'"
+                            required
+                            style="resize: none; font-size: 1.05rem; line-height: 1.6; padding-bottom: 60px !important;"></textarea>
+
+                        <!-- Format helper -->
+                        <div
+                            class="position-absolute bottom-0 start-0 p-3 ms-2 mb-1 align-items-center gap-2 d-none d-md-flex">
+                            <span class="badge bg-white text-dark shadow-sm border border-light py-2 px-3"><i
+                                    class="bi bi-type-bold"></i> *Bold*</span>
+                            <span class="badge bg-white text-dark shadow-sm border border-light py-2 px-3"><i
+                                    class="bi bi-type-italic"></i> _Italic_</span>
+                            <span class="badge bg-white text-dark shadow-sm border border-light py-2 px-3"><i
+                                    class="bi bi-type-strikethrough"></i> ~Strike~</span>
+                        </div>
+
+                        <div class="position-absolute bottom-0 end-0 p-3 text-muted smallest fw-bold font-monospace bg-white m-3 rounded-3 shadow-sm border border-light"
+                            style="padding: 6px 12px !important;">
+                            <span id="charCount" class="text-theme-dark fs-6">0</span> Chars
+                        </div>
+                    </div>
+
+                    <div
+                        class="alert alert-warning border-0 bg-opacity-10 shadow-sm rounded-4 d-flex gap-3 mb-5 align-items-center">
+                        <div class="bg-warning bg-opacity-25 p-2 rounded-circle fs-4 text-warning d-flex align-items-center justify-content-center"
+                            style="width: 45px; height: 45px;">
+                            <i class="bi bi-shield-exclamation"></i>
+                        </div>
+                        <p class="mb-0 smallest fw-bold text-dark opacity-75">
+                            This message will be dispatched immediately via your active API Provider. Ensure all
+                            audiences and text are verified before sending.
+                        </p>
+                    </div>
+
+                    <button type="submit"
+                        class="btn bg-theme-accent text-theme-dark w-100 py-4 rounded-pill fw-black ls-1 fs-5 shadow-lg d-flex align-items-center justify-content-center gap-3 hover-scale hover-glow transition-all position-relative overflow-hidden group">
+                        <span class="position-relative z-1 d-flex align-items-center gap-2">
+                            <i class="bi bi-send-fill fs-4"></i> DISPATCH BROADCAST
+                        </span>
+                        <!-- Button gloss effect -->
+                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-white opacity-25"
+                            style="transform: skewX(-20deg) translateX(-150%); transition: transform 0.5s;"
+                            id="btnGloss"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- History/Stats Column -->
+        <div class="col-12 animate-fade-up" style="--delay: 0.2s;">
+            <div
+                class="modern-card bg-theme-dark text-white p-4 p-xl-5 d-flex flex-column group-hover border-0 shadow-lg position-relative overflow-hidden rounded-4">
+
+                <!-- Cool decorative background element -->
+                <div class="position-absolute top-0 end-0 opacity-10 pe-none" style="transform: translate(30%, -30%);">
+                    <i class="bi bi-broadcast" style="font-size: 15rem;"></i>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-5 position-relative z-1">
+                    <h5 class="fw-black m-0 tracking-tighter ls-1 text-white">Transmission Log</h5>
+                    <div class="bg-theme-accent bg-opacity-25 text-theme-accent rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px;">
+                        <i class="bi bi-clock-history fs-5"></i>
+                    </div>
+                </div>
+
+                <div class="position-relative z-1">
+                    {% if history %}
+                    <div class="row g-4">
+                        {% for record in history %}
+                        <div class="col-md-6 col-lg-4">
+                            <div
+                                class="p-4 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-10 transition-all hover-scale position-relative overflow-hidden group h-100 d-flex flex-column">
+                                <!-- left accent bar -->
+                                <div class="position-absolute top-0 start-0 h-100 bg-theme-accent" style="width: 4px;">
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-3 ms-3">
+                                    <span
+                                        class="badge bg-white text-dark fw-bold smallest ls-1 px-3 py-2 custom-shadow">
+                                        {{ record.target_group|upper }}
+                                    </span>
+                                    <span
+                                        class="smallest text-white opacity-75 font-monospace d-flex align-items-center gap-2 bg-dark bg-opacity-50 px-2 py-1 rounded-2">
+                                        <i class="bi bi-clock"></i> {{ record.created_at|date:"M d, H:i" }}
+                                    </span>
+                                </div>
+
+                                <div
+                                    class="bg-dark bg-opacity-25 p-3 rounded-4 mb-4 ms-3 border border-white border-opacity-10 custom-shadow flex-grow-1">
+                                    <p class="smallest opacity-75 mb-0 text-truncate fst-italic text-white lh-base">
+                                        "{{ record.message_text }}"
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="d-flex flex-column ms-3 mt-auto pr-2 border-top border-white border-opacity-10 pt-3">
+                                    <div class="row g-2 text-white font-monospace smallest w-100 align-items-end">
+                                        <div class="col-6 d-flex flex-column text-start">
+                                            <span class="opacity-50 text-uppercase d-block mb-1"
+                                                style="font-size: 0.6rem; letter-spacing: 1px;">Attempted</span>
+                                            <span class="fw-bold fs-5 text-nowrap d-block">
+                                                <script>document.write(String("{{ record.total_recipients }}").trim());</script>
+                                            </span>
+                                        </div>
+                                        <div class="col-6 d-flex flex-column text-end">
+                                            <span class="text-theme-accent opacity-75 text-uppercase d-block mb-1"
+                                                style="font-size: 0.6rem; letter-spacing: 1px;">Delivered</span>
+                                            <span class="text-theme-accent fw-bold fs-5 text-nowrap d-block">
+                                                <i class="bi bi-check-all"></i>
+                                                <script>document.write(String("{{ record.successful_deliveries }}").trim());</script>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div
+                        class="py-5 d-flex flex-column align-items-center justify-content-center opacity-50 text-center">
+                        <div class="bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3"
+                            style="width: 80px; height: 80px;">
+                            <i class="bi bi-journal-x fs-1"></i>
+                        </div>
+                        <h6 class="fw-bold tracking-tighter">No Active Logs</h6>
+                        <p class="smallest">Your transmission history will display here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Theme Variables & Utility Classes (Local overrides) */
+    :root {
+        --theme-accent: #cbfb45;
+        --theme-dark: #0f3822;
+    }
+
+    .bg-theme-accent {
+        background-color: var(--theme-accent) !important;
+    }
+
+    .text-theme-accent {
+        color: var(--theme-accent) !important;
+    }
+
+    .bg-theme-dark {
+        background-color: var(--theme-dark) !important;
+    }
+
+    .text-theme-dark {
+        color: var(--theme-dark) !important;
+    }
+
+    /* Premium aesthetics */
+    .custom-shadow {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .border-indicator {
+        border-bottom: 4px solid transparent !important;
+    }
+
+    .target-checkbox:checked+.card {
+        background-color: rgba(203, 251, 69, 0.05) !important;
+        border-bottom-color: var(--theme-accent) !important;
+        transform: translateY(-4px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .target-checkbox:checked+.card .icon-squircle {
+        background-color: var(--theme-dark) !important;
+        color: var(--theme-accent) !important;
+        transform: scale(1.1);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .modern-textarea:focus {
+        box-shadow: 0 0 0 4px rgba(203, 251, 69, 0.25) !important;
+        background-color: #fff !important;
+        outline: none;
+    }
+
+    .custom-checkbox {
+        width: 1.35em;
+        height: 1.35em;
+        cursor: pointer;
+        border-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .custom-checkbox:checked {
+        background-color: var(--theme-dark);
+        border-color: var(--theme-dark);
+    }
+
+    .modern-row:hover {
+        background-color: rgba(0, 0, 0, 0.015);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+    .hover-glow:hover {
+        box-shadow: 0 10px 25px rgba(203, 251, 69, 0.4) !important;
+    }
+
+    /* Button Gloss Animation on Hover */
+    button[type="submit"]:hover #btnGloss {
+        transform: skewX(-20deg) translateX(250%) !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const textarea = document.getElementById('messageText');
+        const charCount = document.getElementById('charCount');
+        const countNumber = document.getElementById('countNumber');
+        const checkboxes = document.querySelectorAll('.target-checkbox');
+
+        const filterControls = document.getElementById('filterControls');
+        const classFilter = document.getElementById('classroomFilterFilter');
+        const deptFilter = document.getElementById('departmentFilterFilter');
+        const classSelect = document.getElementById('classroomSelect');
+        const deptSelect = document.getElementById('departmentSelect');
+
+        const tableContainer = document.getElementById('recipientTableContainer');
+        const tableBody = document.getElementById('recipientTableBody');
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const submitBtn = document.querySelector('button[type="submit"]');
+
+        // Setup Character counter
+        textarea.addEventListener('input', function () {
+            charCount.textContent = this.value.length;
+            if (this.value.length > 500) {
+                charCount.classList.add('text-danger');
+            } else {
+                charCount.classList.remove('text-danger');
+            }
+        });
+
+        // Setup Select All
+        selectAllCheckbox.addEventListener('change', function () {
+            const tableCheckboxes = document.querySelectorAll('.recipient-checkbox');
+            tableCheckboxes.forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateRecipientCountBadge();
+        });
+
+        // Event Listeners for refreshing the list
+        checkboxes.forEach(cb => cb.addEventListener('change', handleFilterChange));
+        classSelect.addEventListener('change', fetchRecipients);
+        deptSelect.addEventListener('change', fetchRecipients);
+
+        function handleFilterChange() {
+            let showStudentFilters = false;
+            let showStaffFilters = false;
+            let anyChecked = false;
+
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    anyChecked = true;
+                    if (cb.value === 'students' || cb.value === 'parents') showStudentFilters = true;
+                    if (cb.value === 'teachers' || cb.value === 'staff') showStaffFilters = true;
+                }
+            });
+
+            // Toggle filter visibility
+            if (anyChecked) {
+                filterControls.classList.remove('d-none');
+                tableContainer.classList.remove('d-none');
+            } else {
+                filterControls.classList.add('d-none');
+                tableContainer.classList.add('d-none');
+                tableBody.innerHTML = '';
+                updateRecipientCountBadge(0);
+                return; // Nothing selected to fetch
+            }
+
+            classFilter.style.display = showStudentFilters ? 'block' : 'none';
+            deptFilter.style.display = showStaffFilters ? 'block' : 'none';
+
+            // Re-fetch using criteria
+            fetchRecipients();
+        }
+
+        function fetchRecipients() {
+            const selectedGroups = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+            if (selectedGroups.length === 0) return;
+
+            // Loading state
+            tableBody.innerHTML = `
+            <tr>
+                <td colspan="3" class="text-center py-5 text-muted">
+                    <div class="spinner-border text-theme-accent mb-3" role="status" style="width: 2.5rem; height: 2.5rem; border-width: 0.2em;"></div>
+                    <h6 class="fw-bold tracking-tighter">Locating Recipients...</h6>
+                </td>
+            </tr>`;
+            submitBtn.disabled = true;
+
+            // Construct query parameters
+            const url = new URL("{% url 'communication:api_filter_users' %}", window.location.origin);
+            selectedGroups.forEach(g => url.searchParams.append('target_groups[]', g));
+
+            if (classSelect.value) url.searchParams.append('classroom_id', classSelect.value);
+            if (deptSelect.value) url.searchParams.append('department_id', deptSelect.value);
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    populateTable(data.recipients);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch recipients:", err);
+                    tableBody.innerHTML = `<tr><td colspan="3" class="text-center py-5 text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill fs-3 d-block mb-2"></i> Error loading datatable.</td></tr>`;
+                });
+        }
+
+        function populateTable(recipients) {
+            tableBody.innerHTML = '';
+
+            if (recipients.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="3" class="text-center py-5 text-muted fw-bold"><div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;"><i class="bi bi-person-x fs-2"></i></div><br>No users matching this criteria found.</td></tr>`;
+                updateRecipientCountBadge(0);
+                submitBtn.disabled = true;
+                return;
+            }
+
+            let html = '';
+            recipients.forEach((r, index) => {
+                // Determine a background color based on index for variety
+                const colors = ['bg-primary', 'bg-success', 'bg-info', 'bg-warning', 'bg-danger', 'bg-secondary'];
+                const colorClass = colors[index % colors.length];
+                const initial = r.name.charAt(0).toUpperCase();
+
+                html += `
+                <tr class="modern-row transition-all border-bottom border-light">
+                    <td class="text-center py-3">
+                        <input class="form-check-input custom-checkbox recipient-checkbox mt-2" type="checkbox" name="selected_phones[]" value="${r.phone}" checked onchange="updateRecipientCountBadge()">
+                    </td>
+                    <td class="py-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="${colorClass} bg-opacity-10 text-dark fw-bold d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 45px; height: 45px; font-size: 1.1rem; border: 1px solid rgba(0,0,0,0.05);">
+                                ${initial}
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">${r.name}</h6>
+                                <span class="smallest text-muted fw-medium">${r.role}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 text-end pe-4">
+                        <div class="badge bg-light text-dark border border-secondary border-opacity-25 px-3 py-2 rounded-pill font-monospace fw-medium shadow-sm d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-telephone-fill text-success"></i> ${r.phone}
+                        </div>
+                    </td>
+                </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+            selectAllCheckbox.checked = true;
+            updateRecipientCountBadge();
+            submitBtn.disabled = false;
+        }
+
+        // Must attach this globally to be reachable by the inline onchange event above
+        window.updateRecipientCountBadge = function () {
+            const checkedBoxes = document.querySelectorAll('.recipient-checkbox:checked').length;
+            const totalBoxes = document.querySelectorAll('.recipient-checkbox').length;
+
+            countNumber.innerText = checkedBoxes;
+
+            if (checkedBoxes === 0) submitBtn.disabled = true;
+            else submitBtn.disabled = false;
+
+            selectAllCheckbox.checked = (checkedBoxes === totalBoxes && totalBoxes > 0);
+        }
+    });
+</script>
+{% endblock content %}

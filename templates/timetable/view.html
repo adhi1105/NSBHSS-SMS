@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load timetable_extras %}
+
+{% block content %}
+<div class="container-fluid p-4 page-load">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+        <div class="header-group">
+            <h1 class="h3 fw-black text-dark tracking-tight mb-1">
+                Class <span class="text-primary">Schedule</span>
+            </h1>
+            <p class="text-muted small fw-medium">
+                Standard: <span class="text-dark fw-bold">{{ classroom.name }}</span> 
+                {% if classroom.stream %}• <span class="badge bg-light text-primary border rounded-pill">{{ classroom.stream }}</span>{% endif %}
+            </p>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <button class="btn btn-white shadow-sm border rounded-pill px-4 fw-bold small" onclick="window.print()">
+                <i class="bi bi-printer me-2"></i>Print PDF
+            </button>
+            {% if is_staff_user %}
+            <a href="{% url 'timetable:manage_timetable' %}" class="btn btn-dark shadow-sm rounded-pill px-4 fw-bold small">
+                <i class="bi bi-pencil-square me-2"></i>Edit Grid
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    
+    <div class="card border-0 shadow-sm rounded-5 overflow-hidden border bg-white viewer-card">
+        <div class="table-responsive custom-scrollbar">
+            <table class="table mb-0 align-middle text-center view-table">
+                <thead>
+                    <tr>
+                        <th class="sticky-col bg-light py-4 text-uppercase smallest ls-2 fw-black text-muted">Time</th>
+                        {% for day in days %}
+                        <th class="py-4 text-uppercase smallest ls-2 fw-black text-dark">{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for slot in time_slots %}
+                    <tr {% if slot.is_break %}class="break-row"{% endif %}>
+                        <td class="sticky-col bg-light border-end">
+                            <div class="fw-bold text-dark small">P{{ slot.period_number }}</div>
+                            <div class="smallest text-muted fw-medium">{{ slot.start_time|time:"H:i" }}</div>
+                        </td>
+
+                        {% for day in days %}
+                        <td class="slot-cell p-2">
+                            {% with entry=timetable_data|get_item:day|get_item:slot.id %}
+                                {% if entry %}
+                                    <div class="entry-box transition-3">
+                                        <div class="subject-code">{{ entry.subject.code|default:"SUB" }}</div>
+                                        <div class="subject-name text-truncate">{{ entry.subject.name }}</div>
+                                        <div class="teacher-tag mt-2">
+                                            <div class="avatar-circle">{{ entry.staff.user.first_name|first }}</div>
+                                            <span>{{ entry.staff.user.get_full_name }}</span>
+                                        </div>
+                                    </div>
+                                {% elif slot.is_break %}
+                                    <div class="break-content">
+                                        <i class="bi bi-cup-hot mb-1"></i>
+                                        <div class="ls-1 fw-black">INTERVAL</div>
+                                    </div>
+                                {% else %}
+                                    <div class="empty-marker">—</div>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 1. CORE STYLE & ANIMATION */
+    .page-load { animation: fadeIn 0.5s ease-out; }
+    .fw-black { font-weight: 900; }
+    .tracking-tight { letter-spacing: -1.5px; }
+    .ls-2 { letter-spacing: 2px; }
+    .ls-1 { letter-spacing: 1px; }
+    .smallest { font-size: 0.65rem; }
+    .transition-3 { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .rounded-5 { border-radius: 1.5rem !important; }
+
+    /* 2. TABLE DENSITY & STICKY */
+    .view-table { table-layout: fixed; min-width: 1000px; }
+    .sticky-col { 
+        position: sticky; left: 0; z-index: 5; 
+        width: 100px; border-right: 1px solid #f1f5f9; 
+    }
+
+    /* 3. ENTRY BOX DESIGN */
+    .entry-box {
+        background: #fff;
+        padding: 12px;
+        border-radius: 1rem;
+        border: 1px solid #f1f5f9;
+        text-align: left;
+    }
+    .entry-box:hover {
+        border-color: #0061ff;
+        background: #f8fafc;
+        transform: translateY(-3px);
+    }
+    .subject-code { font-size: 0.6rem; font-weight: 800; color: #0061ff; margin-bottom: 2px; }
+    .subject-name { font-size: 0.8rem; font-weight: 800; color: #1e293b; line-height: 1.2; }
+    
+    .teacher-tag {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 0.65rem; font-weight: 600; color: #64748b;
+    }
+    .avatar-circle {
+        width: 18px; height: 18px; border-radius: 50%;
+        background: #1e293b; color: #fff; display: flex;
+        align-items: center; justify-content: center; font-size: 0.5rem;
+    }
+
+    /* 4. BREAK & EMPTY STATES */
+    .break-row { background: #fdfaf3 !important; }
+    .break-content {
+        color: #d97706; opacity: 0.6; font-size: 0.6rem;
+    }
+    .empty-marker { color: #e2e8f0; font-weight: 900; }
+
+    /* 5. PRINT OPTIMIZATION */
+    @media print {
+        .btn, .header-group p { display: none !important; }
+        .viewer-card { border: none !important; box-shadow: none !important; }
+        .view-table { min-width: 100% !important; }
+        .sticky-col { position: static !important; }
+    }
+
+    /* CUSTOM SCROLLBAR */
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+{% endblock %}

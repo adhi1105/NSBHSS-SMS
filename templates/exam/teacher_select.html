@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="header-group mb-5">
+        <div class="d-flex align-items-center gap-3 mb-2">
+            <span class="badge-pill-neon">Secure Node</span>
+            <h6 class="text-uppercase smallest fw-black ls-3 m-0 opacity-50">Examination Infrastructure</h6>
+        </div>
+        <h1 class="title-heavy text-theme-dark tracking-tighter m-0 line-height-1">
+            Gradebook <span class="theme-accent-text-dark">Access</span>
+        </h1>
+        <p class="text-muted fw-medium mt-2 mb-0 d-flex align-items-center gap-2">
+            <span class="status-dot animate-pulse"></span>
+            Authenticated Session / Faculty Grading Portal
+        </p>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-xl-5 col-lg-6">
+            <div class="card-bento p-4 p-lg-5 border-0 shadow-soft">
+                
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} rounded-pill px-4 fw-black smallest border-0 shadow-sm mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="selection-step mb-4">
+                    <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-3 opacity-50">01. Select Active Exam</label>
+                    <div class="pill-select-wrapper">
+                        <select id="exam_id" class="smooth-select-custom">
+                            {% for e in exams %}
+                            <option value="{{ e.id }}">{{ e.name }}</option>
+                            {% empty %}
+                            <option disabled selected>No Active Sessions Available</option>
+                            {% endfor %}
+                        </select>
+                        <i class="bi bi-chevron-down select-icon-custom"></i>
+                    </div>
+                </div>
+
+                <div class="selection-step mb-4">
+                    <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-3 opacity-50">02. Assigned Classroom</label>
+                    <div class="pill-select-wrapper">
+                        <select id="class_id" class="smooth-select-custom" onchange="filterSubjects()">
+                            <option value="" disabled {% if not selected_class_id %}selected{% endif %}>Identify Batch...</option>
+                            {% for c in classes %}
+                            <option value="{{ c.id }}" {% if c.id|stringformat:"s" == selected_class_id %}selected{% endif %}>
+                                {{ c.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <i class="bi bi-door-open-fill select-icon-custom"></i>
+                    </div>
+                </div>
+
+                <div class="selection-step mb-5">
+                    <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-3 opacity-50">03. Allocated Subject</label>
+                    <div class="pill-select-wrapper {% if not selected_class_id %}opacity-30{% endif %}">
+                        <select id="subject_id" class="smooth-select-custom" {% if not selected_class_id %}disabled{% endif %}>
+                            <option value="" disabled {% if not selected_class_id %}selected{% endif %}>
+                                {% if not selected_class_id %}Awaiting batch selection...{% else %}Pick Subject{% endif %}
+                            </option>
+                            {% for s in subjects %}
+                            <option value="{{ s.id }}">{{ s.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <i class="bi bi-journal-bookmark-fill select-icon-custom"></i>
+                    </div>
+                </div>
+
+                <button onclick="goToEntry()" class="btn-neon-premium w-100 py-3 shadow-soft card-lift">
+                    Initialize Gradebook <i class="bi bi-arrow-right-short fs-4 ms-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="guideline-card p-4 rounded-xl border-0 shadow-soft h-100 bg-theme-dark text-white position-relative overflow-hidden">
+                <i class="bi bi-shield-check position-absolute opacity-10" style="font-size: 12rem; right: -20px; bottom: -30px;"></i>
+                <div class="position-relative z-1">
+                    <h6 class="theme-accent-text fw-black text-uppercase smallest ls-3 mb-4">Faculty Guidelines</h6>
+                    <div class="d-flex flex-column gap-4">
+                        <div class="guideline-item d-flex gap-3">
+                            <div class="bullet-box">01</div>
+                            <p class="smallest fw-bold opacity-75 m-0 line-height-lg">Access is restricted to subjects specifically allocated to your workload for this term.</p>
+                        </div>
+                        <div class="guideline-item d-flex gap-3">
+                            <div class="bullet-box">02</div>
+                            <p class="smallest fw-bold opacity-75 m-0 line-height-lg">Sessions are locked by the Registrar once data validation is complete.</p>
+                        </div>
+                        <div class="guideline-item d-flex gap-3">
+                            <div class="bullet-box">03</div>
+                            <p class="smallest fw-bold opacity-75 m-0 line-height-lg">Grades (A+ to E) are auto-calculated in real-time based on SCERT standards.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--bg-light);
+        min-height: 100vh;
+    }
+
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; line-height: 0.9; }
+    .tracking-tighter { letter-spacing: -2.5px; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-2 { letter-spacing: 2px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.7rem; }
+    .theme-accent-text { color: var(--theme-accent); }
+    .theme-accent-text-dark { color: #2a8b58; }
+    .line-height-lg { line-height: 1.6; }
+
+    /* COMPONENTS */
+    .card-bento {
+        background: var(--white);
+        border-radius: 40px;
+        box-shadow: 0 20px 60px rgba(15, 56, 34, 0.05);
+    }
+    
+    .guideline-card { background: var(--theme-dark); border-radius: 40px; }
+    .bullet-box {
+        min-width: 35px; height: 35px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.7rem; font-weight: 900; color: var(--theme-accent);
+    }
+
+    .badge-pill-neon {
+        background: var(--theme-accent);
+        color: var(--theme-dark);
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-weight: 900;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+    }
+
+    /* SELECTS */
+    .pill-select-wrapper { position: relative; }
+    .smooth-select-custom {
+        width: 100%;
+        padding: 18px 25px;
+        padding-right: 50px;
+        border-radius: 20px;
+        background: var(--bg-sage);
+        border: 2px solid transparent;
+        font-weight: 800;
+        color: var(--theme-dark);
+        font-size: 0.9rem;
+        appearance: none;
+        cursor: pointer;
+        transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .smooth-select-custom:focus {
+        background: var(--white);
+        border-color: var(--theme-dark);
+        outline: none;
+        box-shadow: 0 10px 30px rgba(15, 56, 34, 0.08);
+    }
+    .select-icon-custom {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--theme-dark);
+        opacity: 0.5;
+        pointer-events: none;
+        font-size: 1.2rem;
+    }
+
+    /* BUTTONS */
+    .btn-neon-premium {
+        background: var(--theme-dark);
+        color: var(--theme-accent);
+        border: none;
+        padding: 18px;
+        border-radius: 50px;
+        font-weight: 900;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+        transition: 0.4s;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .btn-neon-premium:hover {
+        background: var(--theme-accent);
+        color: var(--theme-dark);
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(203, 251, 69, 0.3);
+    }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .shadow-soft { box-shadow: 0 20px 50px rgba(15, 56, 34, 0.08) !important; }
+    .card-lift { transition: transform 0.4s ease, box-shadow 0.4s ease; }
+    
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<script>
+function filterSubjects() {
+    let cls = document.getElementById('class_id').value;
+    const url = new URL(window.location);
+    url.searchParams.set('classroom', cls);
+    window.location.href = url.href;
+}
+
+function goToEntry() {
+    let exam = document.getElementById('exam_id').value;
+    let cls = document.getElementById('class_id').value;
+    let sub = document.getElementById('subject_id').value;
+    
+    if (!exam || !cls || !sub) {
+        alert("Action Suspended: Please ensure Exam, Batch, and Subject are valid.");
+        return;
+    }
+    window.location.href = `/exam/marks/enter/${exam}/${cls}/${sub}/`;
+}
+</script>
+{% endblock %}

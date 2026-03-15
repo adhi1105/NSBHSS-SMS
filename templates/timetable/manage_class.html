@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h6 class="text-uppercase text-warning fw-bold small mb-1 ls-1">Class Teacher Tools</h6>
+            <h2 class="fw-bolder m-0 text-dark">Timetable: Std {{ classroom.standard }}-{{ classroom.division }}</h2>
+        </div>
+        <a href="{% url 'staff:teacher_portal' %}" class="btn btn-white border rounded-pill px-4 py-2 fw-semibold shadow-sm">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} rounded-4 shadow-sm fw-medium border-0 alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-xl-3 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 card-lift">
+                <div class="card-header bg-white border-0 p-4 pb-0">
+                    <h5 class="fw-bold m-0"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Slot</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="add_period" value="1">
+                        
+                        <div class="mb-3">
+                            <label class="form-label smallest text-muted fw-bold text-uppercase">Day of Week</label>
+                            <select name="day" class="form-select rounded-3 bg-light border-0" required>
+                                {% for day in days %}
+                                    <option value="{{ day }}">{{ day }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label smallest text-muted fw-bold text-uppercase">Period</label>
+                            <select name="period" class="form-select rounded-3 bg-light border-0" required>
+                                {% for p in periods %}
+                                    <option value="{{ p }}">Period {{ p }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label smallest text-muted fw-bold text-uppercase">Subject & Teacher</label>
+                            <select name="allocation" class="form-select rounded-3 bg-light border-0" required>
+                                <option value="" disabled selected>Select from allocations...</option>
+                                {% for alloc in allocations %}
+                                    <option value="{{ alloc.id }}">{{ alloc.subject.name }} ({{ alloc.staff.user.first_name }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary-soft text-primary w-100 rounded-pill fw-bold shadow-sm py-2 transition-all">
+                            Save Slot
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-9 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-bordered border-light align-middle mb-0 text-center" style="min-width: 800px;">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="py-3 text-uppercase smallest text-muted border-end" style="width: 12%;">Day</th>
+                                {% for p in periods %}
+                                    <th class="py-3 text-uppercase smallest text-muted border-end" style="width: 11%;">Period {{ p }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day in days %}
+                            <tr>
+                                <td class="fw-bold bg-light border-end py-4">{{ day }}</td>
+                                
+                                {% for p in periods %}
+                                    <td class="p-2 position-relative hover-reveal border-end">
+                                        {% for key, slot in schedule.items %}
+                                            {% if key == day %}
+                                                {% for p_key, p_slot in slot.items %}
+                                                    {% if p_key == p|stringformat:"s" %}
+                                                        <div class="bg-primary-soft rounded-3 p-2 h-100 d-flex flex-column justify-content-center">
+                                                            <strong class="text-primary small d-block text-truncate" title="{{ p_slot.subject.name }}">{{ p_slot.subject.name }}</strong>
+                                                            <span class="smallest text-muted text-truncate">{{ p_slot.teacher.user.first_name }}</span>
+                                                            
+                                                            <form method="POST" class="position-absolute top-0 end-0 m-1 delete-btn-form" onsubmit="return confirm('Clear this period?');">
+                                                                {% csrf_token %}
+                                                                <input type="hidden" name="delete_period" value="1">
+                                                                <input type="hidden" name="slot_id" value="{{ p_slot.id }}">
+                                                                <button type="submit" class="btn btn-sm btn-danger rounded-circle p-0 d-flex align-items-center justify-content-center shadow" style="width: 20px; height: 20px;">
+                                                                    <i class="bi bi-x smallest text-white"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        <div class="empty-slot text-muted opacity-25 smallest fw-bold">-</div>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .ls-1 { letter-spacing: 0.5px; }
+    .smallest { font-size: 0.70rem; }
+    .bg-primary-soft { background-color: #eff6ff; }
+    .btn-primary-soft { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .btn-primary-soft:hover { background-color: #dbeafe; }
+    .card-lift { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    .card-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06)!important; }
+    
+    /* Hover Reveal for Delete Button */
+    .delete-btn-form { opacity: 0; transition: opacity 0.2s; }
+    .hover-reveal:hover .delete-btn-form { opacity: 1; }
+    
+    /* Hide empty hyphen if content exists */
+    .bg-primary-soft + .empty-slot { display: none; }
+</style>
+{% endblock %}

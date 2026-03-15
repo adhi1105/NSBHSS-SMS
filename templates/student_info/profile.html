@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="row align-items-end mb-4 gy-4 position-relative" style="z-index: 10;">
+        <div class="col-xl-7 col-xxl-8">
+            <nav aria-label="breadcrumb" class="mb-2">
+                <ol class="breadcrumb d-flex align-items-center gap-2 m-0 p-0">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'student_info:index' %}" class="fw-bold text-muted text-decoration-none transition-all hover-theme-dark text-nowrap" style="font-size: 0.85rem;">
+                            <i class="bi bi-arrow-left me-1"></i> Student Registry
+                        </a>
+                    </li>
+                    <li class="text-muted opacity-25" style="font-size: 0.8rem;">/</li>
+                    <li class="breadcrumb-item active fw-bold text-theme-dark text-nowrap text-truncate" aria-current="page" style="font-size: 0.85rem; max-width: 150px;">
+                        {{ student.user.first_name }}
+                    </li>
+                </ol>
+            </nav>
+            <div class="d-flex align-items-center gap-3">
+                <h1 class="fw-black text-theme-dark m-0 line-height-1 tracking-tighter text-nowrap text-truncate" style="font-size: 2.4rem;">
+                    {{ student.user.get_full_name }}
+                </h1>
+                <span class="badge {% if student.is_active %}bg-success-soft text-success border border-success border-opacity-25{% else %}bg-danger-soft text-danger border border-danger border-opacity-25{% endif %} rounded-pill px-3 py-2 fw-bold shadow-sm d-none d-sm-inline-flex align-items-center gap-2" style="font-size: 0.75rem;">
+                    <span class="status-dot {% if student.is_active %}bg-success animate-pulse{% else %}bg-danger{% endif %}"></span>
+                    {% if student.is_active %}Active Enrollment{% else %}Inactive / Archived{% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="col-xl-5 col-xxl-4 d-flex flex-wrap justify-content-xl-end gap-2 hide-on-print">
+            <button onclick="window.print()" class="btn btn-white shadow-sm border fw-bold px-4 py-2 text-nowrap transition-all hover-lift" style="border-radius: 12px; font-size: 0.85rem;">
+                <i class="bi bi-printer me-2 text-muted"></i> Extract PDF
+            </button>
+            <a href="{% url 'student_info:edit' student.student_id %}" class="btn btn-theme-dark shadow-sm fw-bold px-4 py-2 text-nowrap transition-all hover-lift" style="border-radius: 12px; font-size: 0.85rem;">
+                <i class="bi bi-pencil-square me-2 text-theme-accent"></i> Modify Record
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-xl-4 d-flex flex-column">
+            <div class="card border-0 shadow-sm bento-card text-center h-100 position-relative overflow-hidden d-flex flex-column">
+                
+                <div class="bg-theme-dark w-100 position-relative" style="height: 140px; border-bottom: 4px solid var(--theme-accent);">
+                    <div class="position-absolute w-100 h-100 opacity-10" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 10px 10px;"></div>
+                    
+                    <div class="position-absolute top-0 start-0 m-3 text-start">
+                        <span class="d-block text-white opacity-50 fw-bold" style="font-size: 0.6rem; letter-spacing: 1px;">REGISTRY ID</span>
+                        <span class="text-white fw-bold font-monospace tracking-wide"><i class="bi bi-upc-scan me-1 text-theme-accent"></i>{{ student.student_id }}</span>
+                    </div>
+                </div>
+
+                <div class="position-relative mx-auto" style="margin-top: -65px; z-index: 2;">
+                    <div class="avatar-ring {% if student.is_active %}ring-success{% else %}ring-danger{% endif %} rounded-circle p-1 bg-white shadow-sm d-inline-block transition-all hover-lift">
+                        <img src="https://ui-avatars.com/api/?name={{ student.user.get_full_name }}&background=f4f8f6&color=0f3822&size=160&bold=true" class="rounded-circle" width="120" height="120" alt="Student Profile" style="object-fit: cover;">
+                    </div>
+                </div>
+                
+                <div class="p-4 d-flex flex-column flex-grow-1">
+                    <h3 class="fw-black text-theme-dark mb-1 text-truncate w-100">{{ student.user.get_full_name }}</h3>
+                    <p class="text-muted fw-bold mb-4" style="font-size: 0.85rem;"><i class="bi bi-person-badge me-1"></i> Student Node</p>
+
+                    <div class="mt-auto bg-light-sage rounded-4 p-3 border">
+                        <div class="row g-0 align-items-center">
+                            <div class="col-6 text-center border-end border-light-subtle px-2">
+                                <span class="d-block text-muted fw-bold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Classroom</span>
+                                <span class="fw-black text-theme-dark fs-5 text-truncate d-block">{{ student.classroom.name }}</span>
+                            </div>
+                            <div class="col-6 text-center px-2">
+                                <span class="d-block text-muted fw-bold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Roll Index</span>
+                                <span class="fw-black text-theme-dark fs-5 text-truncate d-block font-monospace">{{ student.roll_number|default:"--" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-8">
+            <div class="row g-4 h-100">
+                
+                <div class="col-lg-6 d-flex">
+                    <div class="card border-0 shadow-sm bento-card p-4 w-100 transition-all hover-lift-sm">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="icon-squircle bg-theme-dark text-theme-accent shadow-sm">
+                                <i class="bi bi-hdd-network-fill"></i>
+                            </div>
+                            <h6 class="fw-black text-theme-dark text-uppercase m-0" style="font-size: 0.8rem; letter-spacing: 0.5px;">System Identity</h6>
+                        </div>
+                        
+                        <div class="d-flex flex-column gap-3">
+                            <div class="data-pod bg-light rounded-3 p-3 border">
+                                <span class="data-label">Auth Username</span>
+                                <div class="d-flex align-items-center justify-content-between mt-1">
+                                    <span class="fw-bold text-theme-dark font-monospace" id="username-text">@{{ student.user.username }}</span>
+                                    <button onclick="copyUsername()" class="btn btn-sm btn-white border shadow-sm text-muted rounded-2 py-1 px-2 hide-on-print" id="copy-btn" title="Copy to clipboard">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="data-pod bg-light rounded-3 p-3 border">
+                                <span class="data-label">Secure Email Link</span>
+                                <div class="mt-1">
+                                    {% if student.user.email %}
+                                        <a href="mailto:{{ student.user.email }}" class="fw-bold text-theme-dark text-decoration-none transition-all hover-theme-accent-dark d-block text-truncate" style="font-size: 0.95rem;">
+                                            <i class="bi bi-envelope-paper-fill text-muted me-1"></i> {{ student.user.email }}
+                                        </a>
+                                    {% else %}
+                                        <span class="fw-bold text-muted fst-italic d-block text-truncate" style="font-size: 0.95rem;">[ Not Configured ]</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 d-flex">
+                    <div class="card border-0 shadow-sm bento-card p-4 w-100 transition-all hover-lift-sm">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="icon-squircle bg-light-sage text-theme-dark border shadow-sm">
+                                <i class="bi bi-cpu-fill"></i>
+                            </div>
+                            <h6 class="fw-black text-theme-dark text-uppercase m-0" style="font-size: 0.8rem; letter-spacing: 0.5px;">Academic Core</h6>
+                        </div>
+                        
+                        <div class="d-flex flex-column gap-3">
+                            <div class="data-pod bg-light rounded-3 p-3 border border-start border-4 border-theme-dark">
+                                <span class="data-label">Academic Stream Matrix</span>
+                                <span class="fw-black text-theme-dark d-block mt-1" style="font-size: 0.95rem;">
+                                    {% if student.stream %}{{ student.stream.name }}{% else %}<span class="opacity-50 fw-normal">Unassigned Node</span>{% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="data-pod bg-light rounded-3 p-2 border h-100 text-center">
+                                        <span class="data-label text-center">Primary Lang</span>
+                                        <span class="fw-bold text-theme-dark d-block mt-1" style="font-size: 0.85rem;">{{ student.first_language.name|default:"--" }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="data-pod bg-light rounded-3 p-2 border h-100 text-center">
+                                        <span class="data-label text-center">Secondary Lang</span>
+                                        <span class="fw-bold text-theme-dark d-block mt-1" style="font-size: 0.85rem;">{{ student.second_language.name|default:"--" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex">
+                    <div class="card border-0 shadow-sm bento-card p-4 w-100 transition-all hover-lift-sm">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="icon-squircle bg-theme-accent text-theme-dark shadow-sm">
+                                <i class="bi bi-shield-shaded"></i>
+                            </div>
+                            <h6 class="fw-black text-theme-dark text-uppercase m-0" style="font-size: 0.8rem; letter-spacing: 0.5px;">Guardian & Telemetry</h6>
+                        </div>
+                        
+                        <div class="row g-4">
+                            <div class="col-md-6 border-end-md border-light-subtle">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="p-2 bg-light rounded-3 text-muted border"><i class="bi bi-person-bounding-box"></i></div>
+                                    <div>
+                                        <span class="data-label">Guardian Override (Father)</span>
+                                        <span class="fw-black text-theme-dark d-block mt-1 fs-6">{{ student.father_name|default:"[ Data Unavailable ]" }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-start gap-3 mt-4">
+                                    <div class="p-2 bg-danger-soft text-danger rounded-3 border border-danger border-opacity-25 animate-pulse"><i class="bi bi-telephone-inbound-fill"></i></div>
+                                    <div>
+                                        <span class="data-label text-danger">Emergency Comms Link</span>
+                                        {% if student.emergency_phone %}
+                                            <a href="tel:{{ student.emergency_phone }}" class="fw-black text-danger text-decoration-none transition-all hover-theme-dark d-block mt-1 fs-6 font-monospace">{{ student.emergency_phone }}</a>
+                                        {% else %}
+                                            <span class="fw-bold text-muted fst-italic d-block mt-1 fs-6 font-monospace">-- ---- ----</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 ps-md-4 d-flex flex-column">
+                                <span class="data-label mb-2"><i class="bi bi-geo-alt-fill text-muted me-1"></i> Physical Coordinates</span>
+                                <div class="bg-light-sage rounded-3 p-3 border flex-grow-1">
+                                    <p class="fw-bold text-theme-dark m-0 lh-base font-monospace text-uppercase" style="font-size: 0.85rem;">
+                                        {{ student.address|default:"[ Location data unavailable in registry cache. ]" }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root { 
+        --bg-sage: #e8f0eb; 
+        --theme-dark: #0f3822; 
+        --theme-accent: #cbfb45; 
+        --theme-accent-dark: #217346; 
+        --bg-light: #f4f5f7; /* Slightly cooler gray background for pop */
+        --white: #ffffff; 
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        background-color: var(--bg-light);
+        color: var(--theme-dark);
+    }
+
+    /* Print Protocol */
+    @media print {
+        .hide-on-print { display: none !important; }
+        .theme-wrapper { background: #fff !important; padding: 0 !important; }
+        .bento-card { box-shadow: none !important; border: 1px solid #e5e7eb !important; break-inside: avoid; }
+        .registry-blueprint { background-image: none !important; }
+        .bg-theme-dark { background: #eee !important; color: #000 !important; border: none !important;}
+        .text-white { color: #000 !important; }
+    }
+
+    /* Base Styling */
+    .registry-blueprint { 
+        background-color: var(--bg-light); 
+        background-image: radial-gradient(rgba(15, 56, 34, 0.05) 1.5px, transparent 1.5px); 
+        background-size: 30px 30px; 
+        min-height: 100vh; 
+    }
+
+    .fw-black { font-weight: 900; }
+    .tracking-tighter { letter-spacing: -1px !important; }
+    .tracking-wide { letter-spacing: 2px !important; }
+    .bg-light-sage { background-color: #f8faf9; }
+    .border-light-subtle { border-color: rgba(15, 56, 34, 0.08) !important; }
+
+    /* Bento Cards & Interactions */
+    .bento-card {
+        background: #ffffff;
+        border-radius: 24px;
+        border: 1px solid rgba(15, 56, 34, 0.04);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+    }
+    
+    .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(15, 56, 34, 0.08) !important; }
+    .hover-lift-sm:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(15, 56, 34, 0.05) !important; border-color: rgba(15, 56, 34, 0.1) !important;}
+    .hover-theme-dark:hover { color: var(--theme-dark) !important; }
+    .hover-theme-accent-dark:hover { color: var(--theme-accent-dark) !important; text-decoration: underline !important; }
+
+    /* Precision Data Labels */
+    .data-label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+
+    /* Icon Squircles */
+    .icon-squircle {
+        width: 42px; height: 42px;
+        border-radius: 12px; /* Apple-style squircle */
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    /* Avatar Ring Status */
+    .avatar-ring { border: 4px solid transparent; }
+    .ring-success { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+    .ring-danger { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); }
+
+    /* Buttons */
+    .btn-theme-dark { background-color: var(--theme-dark); color: var(--white); border: 1px solid var(--theme-dark); }
+    .btn-theme-dark:hover { background-color: #0a2617; color: var(--theme-accent); }
+    .btn-white { background-color: var(--white); color: var(--theme-dark); border: 1px solid #e5e7eb; }
+    .btn-white:hover { background-color: var(--bg-sage); border-color: var(--theme-dark); }
+
+    /* Badges & Status */
+    .bg-success-soft { background-color: #ecfdf5; }
+    .bg-danger-soft { background-color: #fef2f2; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    
+    @keyframes pulse { 0% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    .animate-pulse { animation: pulse 2s infinite; }
+
+    /* Page Load Animation */
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    
+    /* Utilities */
+    @media (min-width: 768px) {
+        .border-end-md { border-right: 1px solid rgba(15, 56, 34, 0.08); }
+    }
+</style>
+
+<script>
+    // 1. One-Click Copy Username Functionality
+    function copyUsername() {
+        const textToCopy = document.getElementById("username-text").innerText.replace('@', '');
+        const btn = document.getElementById("copy-btn");
+        const originalHTML = btn.innerHTML;
+        
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            // Visual Feedback
+            btn.innerHTML = `<i class="bi bi-check2-circle text-success"></i>`;
+            btn.classList.add("border-success", "bg-success-soft");
+            btn.classList.remove("text-muted");
+            
+            // Revert after 2 seconds
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove("border-success", "bg-success-soft");
+                btn.classList.add("text-muted");
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            alert("Clipboard access denied by browser.");
+        });
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Terminal | {{ node_title }}{% endblock %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-3 p-lg-4 p-xl-5 page-load-animation">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 mb-xl-5 gap-4 animate-fade-up"
+        style="--delay: 0s;">
+        <div>
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="d-flex align-items-center gap-2 bg-white border px-2 py-1 rounded-2 shadow-sm">
+                    <span class="pulse-dot bg-success rounded-circle" style="width: 8px; height: 8px;"></span>
+                    <span class="fw-bold text-theme-dark text-uppercase font-monospace"
+                        style="font-size: 0.65rem; letter-spacing: 0.5px;">{{ node_id|default:"SYS_NODE" }}</span>
+                </div>
+                <span class="text-muted fw-medium text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Secure
+                    Terminal Access</span>
+            </div>
+            <h1 class="display-5 fw-black text-theme-dark tracking-tight m-0 line-height-1">
+                {{ node_title }}
+            </h1>
+            <p class="text-muted fw-medium mt-3 mb-0" style="font-size: 0.9rem;">
+                Welcome back, <span class="text-theme-dark fw-bold">{{
+                    request.user.first_name|default:request.user.username }}</span>.
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center">
+            <a href="{% url primary_link %}"
+                class="btn btn-theme-dark rounded-pill shadow-sm px-4 py-2 fw-bold d-flex align-items-center gap-2 transition-all hover-lift-sm w-100 w-md-auto justify-content-center"
+                style="font-size: 0.85rem;">
+                <i class="bi {{ icon }} fs-5 theme-accent-text"></i> {{ primary_action }}
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 g-xl-4 mb-5">
+
+        <div class="col-xl-4 col-md-6 animate-fade-up" style="--delay: 0.1s;">
+            <div
+                class="modern-card bg-white h-100 d-flex flex-column position-relative overflow-hidden group-hover shadow-sm">
+                <svg class="sparkline-bg" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <path d="M0,30 L20,20 L40,25 L60,10 L80,15 L100,5 L100,30 Z" fill="rgba(15, 56, 34, 0.03)"></path>
+                    <polyline points="0,30 20,20 40,25 60,10 80,15 100,5" fill="none" stroke="rgba(15, 56, 34, 0.1)"
+                        stroke-width="0.5" class="draw-line"></polyline>
+                </svg>
+
+                <div class="p-4 p-xl-5 d-flex flex-column h-100 z-2 position-relative pointer-events-none">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="icon-squircle bg-light text-theme-dark border shadow-sm">
+                            <i class="bi bi-graph-up-arrow fs-5"></i>
+                        </div>
+                        <span class="badge bg-light text-muted border rounded-2 px-2 py-1 font-monospace"
+                            style="font-size: 0.65rem;">DATA_PT_01</span>
+                    </div>
+                    <div class="mt-auto">
+                        <p class="text-muted fw-bold smallest text-uppercase ls-1 m-0 mb-1 text-truncate">{{
+                            stat_1_label }}</p>
+                        <h2 class="fw-black text-theme-dark m-0 tracking-tight line-height-1"
+                            style="font-size: 2.2rem;">
+                            <span class="count-up" data-target="{{ stat_1_val|default:'0' }}">{{ stat_1_val }}</span>
+                        </h2>
+                    </div>
+                </div>
+                <div class="card-spotlight"></div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 animate-fade-up" style="--delay: 0.15s;">
+            <div
+                class="modern-card bg-theme-dark text-white h-100 d-flex flex-column position-relative overflow-hidden group-hover border-0 shadow-sm">
+                <div class="p-4 p-xl-5 d-flex flex-column h-100 z-2 position-relative pointer-events-none">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="icon-squircle bg-white bg-opacity-10 text-theme-accent shadow-sm">
+                            <i class="bi bi-exclamation-circle fs-5"></i>
+                        </div>
+                        <span
+                            class="badge bg-white bg-opacity-10 text-white border border-white border-opacity-10 rounded-2 px-2 py-1 font-monospace"
+                            style="font-size: 0.65rem;">DATA_PT_02</span>
+                    </div>
+                    <div class="mt-auto">
+                        <p class="theme-accent-text fw-bold smallest text-uppercase ls-1 m-0 mb-1 text-truncate">{{
+                            stat_2_label }}</p>
+                        <h2 class="fw-black m-0 tracking-tight line-height-1 text-white" style="font-size: 2.2rem;">
+                            <span class="count-up" data-target="{{ stat_2_val|default:'0' }}">{{ stat_2_val }}</span>
+                        </h2>
+                    </div>
+                </div>
+                <div class="position-absolute top-0 end-0 w-100 h-100 z-1 opacity-50"
+                    style="background: radial-gradient(circle at top right, rgba(203,251,69,0.15), transparent 60%); pointer-events: none;">
+                </div>
+                <div class="card-spotlight"></div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-12 animate-fade-up" style="--delay: 0.2s;">
+            <div class="modern-card bg-white border h-100 d-flex flex-column shadow-sm group-hover p-4 p-xl-5">
+                <h6
+                    class="fw-bold text-theme-dark m-0 mb-4 d-flex align-items-center justify-content-between pointer-events-none">
+                    System Access Links
+                    <i class="bi bi-link-45deg text-muted fs-5"></i>
+                </h6>
+
+                <div class="d-flex flex-column gap-2 mt-auto">
+                    <a href="{% url 'dashboard:my_profile' %}"
+                        class="action-link-row d-flex align-items-center justify-content-between p-3 rounded-3 bg-light border transition-all text-decoration-none">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-person-badge text-theme-dark fs-5"></i>
+                            <span class="fw-bold text-theme-dark" style="font-size: 0.85rem;">My Access Profile</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-muted fs-5 transition-all action-arrow"></i>
+                    </a>
+
+                    {% if role == 'Dept_Admin' or role == 'Office_Staff' %}
+                    <a href="{% url 'attendance:index' %}"
+                        class="action-link-row d-flex align-items-center justify-content-between p-3 rounded-3 bg-light border transition-all text-decoration-none">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-calendar-check text-theme-dark fs-5"></i>
+                            <span class="fw-bold text-theme-dark" style="font-size: 0.85rem;">Review Attendance</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-muted fs-5 transition-all action-arrow"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #f8faf9;
+        --white: #ffffff;
+        --sage: #e8f0eb;
+    }
+
+    body {
+        background-color: var(--bg-light);
+        color: var(--theme-dark);
+    }
+
+    .theme-wrapper {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* TYPOGRAPHY */
+    .fw-black {
+        font-weight: 800;
+    }
+
+    .tracking-tight {
+        letter-spacing: -0.5px !important;
+    }
+
+    .line-height-1 {
+        line-height: 1.1;
+    }
+
+    .ls-1 {
+        letter-spacing: 0.5px !important;
+    }
+
+    .smallest {
+        font-size: 0.72rem;
+    }
+
+    .text-theme-dark {
+        color: var(--theme-dark) !important;
+    }
+
+    .theme-accent-text {
+        color: var(--theme-accent) !important;
+    }
+
+    /* BUTTONS */
+    .btn-theme-dark {
+        background-color: var(--theme-dark);
+        color: var(--white);
+        border: 1px solid var(--theme-dark);
+    }
+
+    .btn-theme-dark:hover {
+        background-color: #0a2617;
+        border-color: #0a2617;
+        color: var(--white);
+    }
+
+    /* ==========================================
+       MODERN SAAS CARDS
+       ========================================== */
+    .modern-card {
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .group-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08) !important;
+        border-color: #cbd5e1;
+    }
+
+    /* Interactive Spotlight */
+    .card-spotlight {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        z-index: 1;
+        background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(0, 0, 0, 0.02), transparent 40%);
+    }
+
+    .modern-card.bg-theme-dark .card-spotlight {
+        background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.05), transparent 40%);
+    }
+
+    .modern-card:hover .card-spotlight {
+        opacity: 1;
+    }
+
+    /* UI Components */
+    .bg-theme-dark {
+        background-color: var(--theme-dark) !important;
+    }
+
+    .bg-sage {
+        background-color: var(--sage) !important;
+    }
+
+    .icon-squircle {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pointer-events-none {
+        pointer-events: none;
+    }
+
+    .z-2 {
+        z-index: 2;
+    }
+
+    .z-3 {
+        z-index: 3;
+    }
+
+    /* Action Links */
+    .action-link-row:hover {
+        background-color: #ffffff !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .action-link-row:hover .action-arrow {
+        transform: translateX(4px);
+        color: var(--theme-dark) !important;
+    }
+
+    /* Sparklines */
+    .sparkline-bg {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 45%;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
+    .draw-line {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: draw 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: 0.2s;
+    }
+
+    @keyframes draw {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    /* ANIMATIONS & PHYSICS */
+    .animate-fade-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: var(--delay, 0s);
+    }
+
+    @keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .pulse-dot {
+        animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+        0% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+    }
+
+    .hover-lift-sm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(15, 56, 34, 0.05) !important;
+    }
+
+    .transition-all {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+        // 1. Clean Spotlight Effect
+        const modernCards = document.querySelectorAll('.modern-card');
+        modernCards.forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // 2. Smooth Number Counters with Formatting
+        const counters = document.querySelectorAll('.count-up');
+        counters.forEach(counter => {
+            const rawTarget = counter.getAttribute('data-target').replace(/,/g, '');
+            const target = parseInt(rawTarget, 10);
+
+            // Fallback for non-numeric data
+            if (isNaN(target) || target <= 0) {
+                counter.innerText = counter.getAttribute('data-target');
+                return;
+            }
+
+            const duration = 1200;
+            const frameRate = 1000 / 60;
+            const totalFrames = Math.round(duration / frameRate);
+            let frame = 0;
+
+            const updateCounter = setInterval(() => {
+                frame++;
+                const progress = 1 - Math.pow(1 - (frame / totalFrames), 3); // Cubic Ease Out
+                const current = Math.round(target * progress);
+
+                counter.innerText = current.toLocaleString('en-IN');
+
+                if (frame >= totalFrames) {
+                    clearInterval(updateCounter);
+                    counter.innerText = target.toLocaleString('en-IN');
+                }
+            }, frameRate);
+        });
+
+    });
+</script>
+{% endblock %}

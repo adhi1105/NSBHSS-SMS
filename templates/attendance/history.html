@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <a href="{% url 'attendance:select_class' %}" class="btn-close-custom shadow-soft transition-all d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <span class="badge-pill-neon" style="letter-spacing: 1.5px;">HISTORY NODE</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Temporal Attendance Registry</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                {{ classroom.name }} <span class="theme-accent-text-dark">History</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span class="ls-1">ARCHIVE STATE:</span> 
+                <span class="uppercase ls-2 fw-black opacity-75">Verified Log Synchronized</span>
+            </p>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <div class="badge-outline-sage px-4 py-3 bg-white shadow-soft d-flex align-items-center gap-3">
+                <i class="bi bi-calendar-check theme-accent-text-dark fs-5"></i>
+                <span class="fw-black smallest text-theme-dark text-uppercase ls-2">Institutional Record</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-lg-9">
+            
+            {% if session %}
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white">
+                            <div class="card-body p-4 text-center">
+                                <h6 class="fw-black text-muted smallest text-uppercase ls-3 mb-3">PRESENT_NODE</h6>
+                                <h2 class="fw-black text-theme-dark m-0 tracking-tighter" style="font-size: 3rem;">{{ total_present }}</h2>
+                                <div class="badge-node bg-success-light text-success mt-3 ls-1">NODE ACTIVE</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-theme-dark text-white">
+                            <div class="card-body p-4 text-center">
+                                <h6 class="fw-black theme-accent-text smallest text-uppercase ls-3 mb-3">ABSENT_NODE</h6>
+                                <h2 class="fw-black text-white m-0 tracking-tighter" style="font-size: 3rem;">{{ total_absent }}</h2>
+                                <div class="badge-node bg-danger-light text-danger mt-3 ls-1">FRAGMENT GAP</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white">
+                            <div class="card-body p-4 d-flex flex-column align-items-center justify-content-center text-center">
+                                <span class="badge-outline-sage border-theme smallest fw-black uppercase ls-1 mb-3">
+                                    {{ selected_date|date:"l, F d, Y" }}
+                                </span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-sq bg-sage text-theme-dark rounded-2 d-flex align-items-center justify-content-center fw-black" style="width:32px; height:32px; font-size: 0.8rem;">
+                                        {{ session.taken_by.user.first_name|first|default:"A" }}
+                                    </div>
+                                    <small class="smallest fw-bold text-muted uppercase ls-1">
+                                        Faculty: <span class="text-theme-dark">{{ session.taken_by.user.get_full_name|default:"ADMIN_PROTOCOL" }}</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5 bg-white">
+                    <div class="card-header bg-sage p-4 border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-black text-theme-dark m-0 tracking-tighter ls-1">Detailed Log Fragments</h5>
+                        <span class="smallest fw-black text-theme-dark opacity-50 uppercase ls-2">Verified List</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                                <tr class="border-bottom border-light">
+                                    <th class="ps-4 py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Registry ID</th>
+                                    <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Student Nomenclature</th>
+                                    <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-center">Status Node</th>
+                                    <th class="pe-4 py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-end">Faculty Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in records %}
+                                <tr class="border-bottom-dashed">
+                                    <td class="ps-4 py-4">
+                                        <code class="smallest fw-black text-theme-dark bg-light-sage px-2 py-1 rounded-2 ls-1">#{{ record.student.roll_number|default:record.student.id }}</code>
+                                    </td>
+                                    <td class="py-4">
+                                        <span class="fw-black text-theme-dark fs-6 tracking-normal text-capitalize">{{ record.student.user.get_full_name }}</span>
+                                    </td>
+                                    <td class="text-center py-4">
+                                        {% if record.status == 'present' %}
+                                            <span class="badge-node bg-neon text-theme-dark ls-1">PRESENT</span>
+                                        {% elif record.status == 'absent' %}
+                                            <span class="badge-node bg-danger-light text-danger ls-1">ABSENT</span>
+                                        {% else %}
+                                            <span class="badge-node bg-warning-light text-warning ls-1">{{ record.status|upper }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="pe-4 py-4 text-end">
+                                        <p class="smallest fw-bold text-muted m-0 italic-style">
+                                            {{ record.remarks|default:"NODE_STABLE" }}
+                                        </p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="card card-bento border-0 shadow-soft py-5 text-center bg-white h-100 d-flex align-items-center justify-content-center">
+                    <div class="card-body p-5">
+                        <div class="bg-light-sage d-inline-flex p-5 rounded-circle mb-4 border border-dashed border-dark opacity-25">
+                            <i class="bi bi-calendar-x display-1 text-theme-dark"></i>
+                        </div>
+                        <h3 class="fw-black text-theme-dark tracking-normal">No Registry Node Found</h3>
+                        <p class="text-muted fw-medium small mx-auto mb-5" style="max-width: 400px;">Zero attendance protocols detected for <span class="text-theme-dark fw-black">{{ selected_date|date:"F d, Y" }}</span>.</p>
+                        
+                        <a href="{% url 'attendance:mark_attendance' classroom.id %}" class="btn-neon-premium px-5 py-3 shadow-soft">
+                            INITIALIZE TODAY'S NODE
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card card-bento border-0 shadow-soft h-100 bg-white overflow-hidden">
+                <div class="card-header bg-theme-dark p-4 border-0">
+                    <h6 class="fw-black m-0 text-uppercase text-white smallest ls-3">
+                        <i class="bi bi-clock-history me-2 theme-accent-text"></i>History Log
+                    </h6>
+                </div>
+                
+                <div class="p-4 bg-light-sage border-bottom-dashed">
+                    <form method="GET">
+                        <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Jump to Date Node</label>
+                        <input type="date" name="date" class="form-control-modern" 
+                               value="{{ selected_date|date:'Y-m-d' }}" onchange="this.form.submit()">
+                    </form>
+                </div>
+
+                <div class="list-group list-group-flush custom-scrollbar" style="max-height: 600px; overflow-y: auto;">
+                    {% for sess in available_sessions %}
+                    <a href="?date={{ sess.date|date:'Y-m-d' }}" 
+                       class="list-group-item list-group-item-action py-4 px-4 border-0 d-flex justify-content-between align-items-center transition-all
+                       {% if sess.date == selected_date %}active-node{% endif %}">
+                        <div>
+                            <div class="fw-black small uppercase ls-1 {% if sess.date == selected_date %}theme-accent-text-dark{% else %}text-theme-dark{% endif %}">
+                                {{ sess.date|date:"M d, Y" }}
+                            </div>
+                            <small class="smallest fw-bold text-muted uppercase ls-1">{{ sess.date|date:"l" }}</small>
+                        </div>
+                        {% if sess.date == selected_date %}
+                            <div class="status-dot animate-pulse"></div>
+                        {% else %}
+                            <i class="bi bi-chevron-right smallest text-theme-dark opacity-25"></i>
+                        {% endif %}
+                    </a>
+                    {% empty %}
+                    <div class="p-5 text-center opacity-25">
+                        <i class="bi bi-inbox display-4"></i>
+                        <p class="mt-3 smallest fw-black uppercase ls-2">Zero History Found</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.8px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .line-height-1 { line-height: 1; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+    .italic-style { font-style: italic; opacity: 0.7; }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 30px; border: 1.5px solid var(--bg-sage); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-success-light { background: #ecfdf5; }
+    .bg-danger-light { background: #fef2f2; }
+    .bg-warning-light { background: #fffbeb; }
+    .bg-neon { background: var(--theme-accent); }
+    
+    .icon-square { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* INPUTS: PURE BLACK VISIBILITY */
+    .form-control-modern {
+        width: 100%; border-radius: 15px !important; border: 2.5px solid var(--theme-dark) !important; 
+        padding: 12px 15px !important; font-size: 0.9rem !important; font-weight: 800 !important;      
+        color: #000000 !important; background: var(--white) !important;
+    }
+
+    /* BADGES & NODES */
+    .badge-node { padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 5px 14px; border-radius: 50px; font-weight: 900; text-transform: uppercase; }
+    .badge-outline-sage { padding: 6px 16px; border: 2.1px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+    .border-theme { border-color: var(--theme-dark) !important; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 14px 32px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; font-size: 0.8rem; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(203, 251, 69, 0.4); }
+    .btn-close-custom { border-radius: 50%; background: var(--white); border: 2.1px solid var(--bg-sage); color: var(--theme-dark); text-decoration: none; }
+
+    /* SIDEBAR NAVIGATION */
+    .active-node { background-color: #f4f8f6 !important; border-left: 5px solid var(--theme-accent-dark) !important; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--bg-sage); border-radius: 10px; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.6; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; }
+    .card-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(15, 56, 34, 0.08); }
+</style>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-8 col-xxl-9">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech flex-shrink-0">INGESTION_NODE_V1</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50 text-truncate">
+                    Mass Data Synchronization
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1 text-truncate">
+                Bulk <span class="theme-accent-text-dark">Import</span>
+            </h1>
+            <div class="d-flex align-items-center gap-2 mt-3 text-theme-dark fw-bold">
+                <div class="status-pulse-wrapper d-flex align-items-center flex-shrink-0"><span class="status-dot animate-pulse"></span></div>
+                <span class="smallest ls-1 fw-black text-nowrap uppercase opacity-75">Link_State:</span> 
+                <span class="smallest ls-1 fw-black text-nowrap text-theme-accent-dark uppercase">Awaiting_Data_Payload</span>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-xxl-3 d-flex justify-content-xl-end">
+            <a href="{% url 'student_info:index' %}" class="btn-terminal-action danger text-nowrap shadow-sm w-100 justify-content-center">
+                <i class="bi bi-x-circle-fill me-2"></i>ABORT_IMPORT
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-xxl-7">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative overflow-hidden">
+                <code class="code-fragment position-absolute top-0 end-0 m-4 text-theme-dark opacity-50 d-none d-md-block">CSV_PARSER_01</code>
+                
+                <div class="card-body p-4 p-lg-5">
+                    
+                    <div class="terminal-data-strip p-4 mb-5 border" style="background-color: rgba(203, 251, 69, 0.05); border-color: rgba(203, 251, 69, 0.3) !important;">
+                        <div class="d-flex align-items-center gap-3 mb-3 border-bottom-faint pb-3">
+                            <div class="icon-sq-micro bg-theme-dark text-theme-accent shadow-sm flex-shrink-0">
+                                <i class="bi bi-info-circle-fill"></i>
+                            </div>
+                            <h6 class="fw-black text-theme-dark m-0 tracking-tighter uppercase ls-1">Format Constraints</h6>
+                        </div>
+                        <ul class="terminal-list list-unstyled m-0 d-flex flex-column gap-3">
+                            <li class="d-flex gap-3 align-items-start">
+                                <i class="bi bi-check-square-fill theme-accent-text-dark mt-1"></i>
+                                <span class="smallest fw-bold text-theme-dark uppercase ls-1 opacity-75">Payload must be a strictly encoded <span class="fw-black opacity-100">.CSV</span> file.</span>
+                            </li>
+                            <li class="d-flex gap-3 align-items-start">
+                                <i class="bi bi-check-square-fill theme-accent-text-dark mt-1"></i>
+                                <span class="smallest fw-bold text-theme-dark uppercase ls-1 opacity-75">Column sequence: <code class="fw-black text-theme-dark px-1 bg-white border rounded ms-1">First Name | Last Name | Email | Class Name | Phone</code></span>
+                            </li>
+                            <li class="d-flex gap-3 align-items-start">
+                                <i class="bi bi-check-square-fill theme-accent-text-dark mt-1"></i>
+                                <span class="smallest fw-bold text-theme-dark uppercase ls-1 opacity-75">The "Class Name" string must exactly match a registered system node (e.g., "Class 10-A").</span>
+                            </li>
+                            <li class="d-flex gap-3 align-items-start">
+                                <i class="bi bi-shield-lock-fill theme-accent-text-dark mt-1"></i>
+                                <span class="smallest fw-bold text-theme-dark uppercase ls-1 opacity-75">Initial authentication key defaults to <code class="fw-black text-theme-dark px-1 bg-white border rounded ms-1">password123</code>.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" class="terminal-form">
+                        {% csrf_token %}
+                        
+                        <div class="mb-5">
+                            <label class="label-micro mb-2">TARGET_PAYLOAD (.CSV)</label>
+                            <div class="file-upload-wrapper position-relative">
+                                {{ form.csv_file }}
+                                
+                                <div class="file-upload-overlay d-flex flex-column align-items-center justify-content-center p-5 border-dashed rounded-4 bg-light-sage transition-all">
+                                    <div class="icon-sq-modern bg-white text-theme-dark shadow-sm mb-3">
+                                        <i class="bi bi-cloud-arrow-up-fill fs-4"></i>
+                                    </div>
+                                    <span class="fw-black text-theme-dark ls-1 text-center">CLICK TO BROWSE OR DRAG FILE HERE</span>
+                                    <span class="smallest fw-bold text-muted uppercase mt-2 text-center">MAXIMUM PERMITTED SIZE: 5MB</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mt-4 pt-4 border-top-faint gap-3">
+                            <div class="d-flex align-items-center gap-2 text-muted">
+                                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                                <span class="smallest fw-bold ls-1 uppercase text-truncate">Ensure payload conforms to system standards.</span>
+                            </div>
+                            <button type="submit" class="btn-terminal-action neon shadow-soft px-5 py-3 text-nowrap justify-content-center">
+                                <i class="bi bi-hdd-network-fill me-2"></i>EXECUTE_IMPORT
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root { 
+        --bg-sage: #e8f0eb; --theme-dark: #0f3822; --theme-accent: #cbfb45; 
+        --theme-accent-dark: #217346; --bg-light: #fdfdfc; --white: #ffffff; 
+    }
+
+    /* BLUEPRINT BASELINE */
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); overflow-x: hidden; }
+    .registry-blueprint { background-image: radial-gradient(var(--bg-sage) 1.5px, transparent 1.5px); background-size: 30px 30px; }
+    
+    /* TYPOGRAPHY & LABELS */
+    .fw-black { font-weight: 900; }
+    .display-title { font-weight: 900; font-size: 3rem; letter-spacing: -2px; }
+    .tracking-tighter { letter-spacing: -1.2px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; } 
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .text-nowrap { white-space: nowrap !important; }
+    .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .label-micro { font-size: 0.58rem; font-weight: 900; color: rgba(15, 56, 34, 0.6); text-transform: uppercase; letter-spacing: 1.5px; display: block; }
+    
+    /* TERMINAL COMPONENTS */
+    .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; }
+    .glass-node { background: rgba(255, 255, 255, 0.95); border: 2px solid var(--white); border-radius: 24px; }
+    .terminal-data-strip { background: #fdfdfd; border-radius: 16px; }
+    .code-fragment { font-family: monospace; font-size: 0.7rem; font-weight: 900; background: rgba(15, 56, 34, 0.06); padding: 4px 10px; border-radius: 6px; }
+    .border-top-faint { border-top: 1px solid rgba(15, 56, 34, 0.1); }
+    .border-bottom-faint { border-bottom: 1px solid rgba(15, 56, 34, 0.1); }
+    
+    .icon-sq-micro { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .icon-sq-modern { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+
+    /* DROPZONE ENGINEERING */
+    .bg-light-sage { background: #f4f8f6; }
+    .border-dashed { border: 2px dashed rgba(15, 56, 34, 0.2); }
+    .file-upload-wrapper input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 10;
+    }
+    .file-upload-overlay { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .file-upload-wrapper:hover .file-upload-overlay {
+        background-color: rgba(203, 251, 69, 0.05);
+        border-color: var(--theme-accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(15, 56, 34, 0.05);
+    }
+    .file-upload-wrapper:hover .icon-sq-modern {
+        background-color: var(--theme-dark) !important;
+        color: var(--theme-accent) !important;
+    }
+
+    /* BUTTONS */
+    .btn-terminal-action { border: none; padding: 12px 24px; border-radius: 12px; font-weight: 900; font-size: 0.68rem; text-transform: uppercase; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; }
+    .btn-terminal-action.neon { background: var(--theme-accent); color: var(--theme-dark); }
+    .btn-terminal-action.danger { background: #fee2e2; color: #dc2626; border: 2px solid #fecaca; }
+    .btn-terminal-action:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 56, 34, 0.08); }
+
+    /* UTILITIES */
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; }
+    .shadow-soft { box-shadow: 0 15px 35px rgba(15, 56, 34, 0.05); }
+    .transition-all { transition: all 0.3s ease; }
+
+    /* STATUS PULSE */
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #cbfb45; }
+    @keyframes pulse-neon { 0% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0.6); } 70% { box-shadow: 0 0 0 8px rgba(203, 251, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0); } }
+    .animate-pulse { animation: pulse-neon 2s infinite; }
+</style>
+{% endblock %}

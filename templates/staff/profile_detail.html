@@ -1,0 +1,550 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="d-flex align-items-center justify-content-between mb-4 position-relative" style="z-index: 10;">
+        <div>
+            <a href="{% url 'staff:staff_list' %}" class="btn btn-sm btn-light border shadow-sm rounded-pill fw-bold text-muted px-3 py-2 transition-all hover-sage futuristic-btn">
+                <i class="bi bi-arrow-left me-2"></i> Back to Directory
+            </a>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-none d-md-flex align-items-center gap-2 text-theme-dark bg-white border rounded-pill px-3 py-1 shadow-sm font-monospace" style="font-size: 0.7rem;">
+                <span class="status-dot neon-success animate-pulse"></span>
+                <span id="sys-clock" class="fw-bold">00:00:00</span>
+                <span class="opacity-50">| 14ms ping</span>
+            </div>
+            
+            <span class="badge-node-tech shadow-sm border border-theme-accent" id="boot-sequence" data-text="PROFILE_NODE_v5.0_ONLINE"></span>
+        </div>
+    </div>
+
+    <div class="card border-0 mb-4 p-4 p-lg-5 position-relative overflow-hidden shadow-lg futuristic-hero" style="border-radius: 24px; background: linear-gradient(145deg, #0a2416 0%, var(--theme-dark) 100%); color: #ffffff;">
+        
+        <div class="hero-grid-overlay position-absolute top-0 start-0 w-100 h-100 opacity-25" style="pointer-events: none; z-index: 0;"></div>
+        <div class="position-absolute top-0 end-0 bg-theme-accent" style="width: 400px; height: 400px; border-radius: 50%; filter: blur(120px); opacity: 0.15; margin-top: -150px; margin-right: -150px; z-index: 0;"></div>
+        
+        <div class="row align-items-center position-relative" style="z-index: 1;">
+            <div class="col-auto">
+                <div class="position-relative">
+                    <div class="avatar-glow position-absolute top-50 start-50 translate-middle rounded-circle bg-theme-accent animate-pulse-fast" style="width: 135px; height: 135px; filter: blur(15px); opacity: 0.6;"></div>
+                    <img src="https://ui-avatars.com/api/?name={{ staff.user.get_full_name }}&background=cbfb45&color=0f3822&size=256&bold=true" class="rounded-circle shadow-lg position-relative border-glass" style="width: 120px; height: 120px; border: 3px solid var(--theme-accent); object-fit: cover;">
+                    
+                    <div class="position-absolute bottom-0 end-0 rounded-circle border border-dark border-3 {% if staff.user.is_staff and staff.user.is_active %}neon-success{% else %}bg-danger{% endif %}" style="width: 24px; height: 24px; margin-bottom: 5px; margin-right: 5px; box-shadow: 0 0 10px {% if staff.user.is_staff and staff.user.is_active %}#10b981{% else %}#ef4444{% endif %};" title="System Access Active"></div>
+                </div>
+            </div>
+            
+            <div class="col mt-4 mt-md-0">
+                <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+                    <h1 class="display-5 fw-black text-white m-0 tracking-tighter text-glow">{{ staff.user.get_full_name }}</h1>
+                    <div class="d-flex align-items-center gap-2">
+                        {% if staff.is_teaching_staff %}
+                            <span class="badge bg-theme-accent text-theme-dark border border-theme-accent smallest fw-black uppercase ls-1 px-3 py-2 rounded-pill shadow-sm"><i class="bi bi-person-video3 me-1"></i> FACULTY</span>
+                        {% else %}
+                            <span class="badge bg-secondary text-white border border-secondary smallest fw-black uppercase ls-1 px-3 py-2 rounded-pill shadow-sm"><i class="bi bi-building-gear me-1"></i> NON-TEACHING</span>
+                        {% endif %}
+                        <span class="badge bg-transparent text-theme-accent border border-theme-accent smallest fw-black uppercase ls-1 px-3 py-2 rounded-pill">{{ staff.role }}</span>
+                    </div>
+                </div>
+                
+                <h5 class="fw-bold text-white opacity-75 mb-3" style="letter-spacing: -0.5px;">{{ staff.designation }} <span class="text-theme-accent mx-2">&bull;</span> {{ staff.department.name|default:"General Department" }}</h5>
+                
+                <div class="d-flex flex-wrap gap-4 mt-3">
+                    <div class="d-flex align-items-center text-white opacity-75 fw-bold font-monospace" style="font-size: 0.85rem;">
+                        <div class="icon-box-small bg-white bg-opacity-10 rounded-3 me-2 d-flex align-items-center justify-content-center text-theme-accent border border-white border-opacity-10" style="width: 32px; height: 32px;">
+                            <i class="bi bi-fingerprint"></i>
+                        </div>
+                        SYS_ID: <span class="glitch-hover ms-1">{{ staff.staff_id|default:"PENDING" }}</span>
+                    </div>
+                    <div class="d-flex align-items-center text-white opacity-75 fw-bold font-monospace" style="font-size: 0.85rem;">
+                        <div class="icon-box-small bg-white bg-opacity-10 rounded-3 me-2 d-flex align-items-center justify-content-center text-theme-accent border border-white border-opacity-10" style="width: 32px; height: 32px;">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        JOIN: {{ staff.joining_date|date:"Y-m-d"|default:"N/A" }}
+                    </div>
+                    <div class="d-flex align-items-center text-white opacity-75 fw-bold font-monospace" style="font-size: 0.85rem;">
+                        <div class="icon-box-small bg-white bg-opacity-10 rounded-3 me-2 d-flex align-items-center justify-content-center text-theme-accent border border-white border-opacity-10" style="width: 32px; height: 32px;">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        AUTH: <span class="{% if staff.user.is_active %}text-theme-accent{% else %}text-danger{% endif %} ms-1">{% if staff.user.is_active %}GRANTED{% else %}DENIED{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-xl-auto mt-4 mt-xl-0 d-flex flex-row flex-xl-column gap-2 border-start border-white border-opacity-10 ps-xl-4 hide-on-print">
+                
+                <button onclick="window.print()" class="btn w-100 rounded-pill fw-bold py-2 shadow-sm text-nowrap btn-outline-light transition-all futuristic-btn" style="font-size: 0.8rem;">
+                    <i class="bi bi-file-earmark-arrow-down-fill me-1"></i> Extract Dossier
+                </button>
+
+                {% if staff.user.email %}
+                <a href="mailto:{{ staff.user.email }}" class="btn w-100 rounded-pill fw-bold py-2 shadow-sm text-nowrap btn-outline-accent transition-all futuristic-btn" style="font-size: 0.8rem;">
+                    <i class="bi bi-envelope-paper-fill me-1"></i> Transmit Data
+                </a>
+                {% endif %}
+
+                {% if request.user.is_superuser or request.user.groups.all.0.name == 'Admin' %}
+                    <form action="{% url 'staff:sync_staff_roles' staff.id %}" method="POST" class="m-0 w-100">
+                        {% csrf_token %}
+                        {% if staff.user.groups.all.0.name == 'Dept_Admin' %}
+                            <button type="submit" name="revoke_dept_admin" class="btn w-100 rounded-pill fw-bold py-2 shadow-lg text-nowrap futuristic-btn btn-danger-glow mt-1" onclick="return confirm('Revoke Admin Access?')">
+                                <i class="bi bi-shield-minus me-1"></i> Revoke Root
+                            </button>
+                        {% else %}
+                            <button type="submit" name="make_dept_admin" class="btn w-100 rounded-pill fw-bold py-2 shadow-lg text-nowrap futuristic-btn btn-accent-glow mt-1" onclick="return confirm('Elevate to Dept Admin?')">
+                                <i class="bi bi-shield-plus me-1"></i> Elevate Root
+                            </button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" id="cards-container">
+        
+        <div class="col-xl-4 col-lg-5 d-flex flex-column gap-4">
+            
+            <div class="card border-0 p-4 detail-card futuristic-panel shadow-sm">
+                <h6 class="fw-black text-theme-dark text-uppercase ls-1 mb-4 border-bottom pb-2" style="font-size: 0.8rem;">Communications Protocol</h6>
+                
+                <ul class="list-unstyled m-0 d-flex flex-column gap-3">
+                    <li class="d-flex align-items-start hover-highlight p-2 rounded-3 transition-all">
+                        <div class="icon-box bg-light-sage rounded-3 me-3 d-flex align-items-center justify-content-center text-theme-dark mt-1 shadow-sm border border-sage" style="width: 38px; height: 38px;">
+                            <i class="bi bi-envelope-at-fill"></i>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase;">Secure Email</span>
+                            {% if staff.user.email %}
+                                <a href="mailto:{{ staff.user.email }}" class="fw-bold text-primary text-wrap text-break text-decoration-none" style="font-size: 0.95rem;">{{ staff.user.email }}</a>
+                            {% else %}
+                                <span class="fw-bold text-dark opacity-50" style="font-size: 0.95rem;">Not Configured</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start hover-highlight p-2 rounded-3 transition-all">
+                        <div class="icon-box bg-light-sage rounded-3 me-3 d-flex align-items-center justify-content-center text-theme-dark mt-1 shadow-sm border border-sage" style="width: 38px; height: 38px;">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase;">Voice Link</span>
+                            {% if staff.phone %}
+                                <a href="tel:{{ staff.phone }}" class="fw-bold text-primary text-decoration-none font-monospace" style="font-size: 0.95rem;">{{ staff.phone }}</a>
+                            {% else %}
+                                <span class="fw-bold text-dark opacity-50" style="font-size: 0.95rem;">Not Configured</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start hover-highlight p-2 rounded-3 transition-all">
+                        <div class="icon-box bg-light-sage rounded-3 me-3 d-flex align-items-center justify-content-center text-theme-dark mt-1 shadow-sm border border-sage" style="width: 38px; height: 38px;">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase;">Physical Coordinates</span>
+                            <span class="fw-bold text-dark text-wrap" style="font-size: 0.9rem;">{{ staff.address|default:"Not Configured" }}</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card border-0 p-4 detail-card futuristic-panel shadow-sm">
+                <h6 class="fw-black text-theme-dark text-uppercase ls-1 mb-4 border-bottom pb-2" style="font-size: 0.8rem;">Security & Auth Node</h6>
+                
+                <div class="mb-3">
+                    <span class="d-block text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Knowledge Base</span>
+                    <div class="bg-light rounded-3 p-3 border fw-bold text-dark d-flex align-items-center" style="font-size: 0.9rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                        <i class="bi bi-mortarboard-fill text-theme-accent-dark me-2"></i>
+                        {{ staff.qualification|default:"Documentation Pending" }}
+                    </div>
+                </div>
+                
+                <div>
+                    <span class="d-block text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Auth Identity String</span>
+                    <div class="bg-light rounded-3 p-3 border d-flex align-items-center justify-content-between" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                        <span class="text-theme-dark font-monospace fw-bold" id="username-text" style="font-size: 0.95rem;">{{ staff.user.username }}</span>
+                        <button onclick="copyUsername()" class="btn btn-sm btn-white border shadow-sm text-muted rounded-pill hide-on-print" id="copy-btn">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 flex-grow-1 overflow-hidden shadow-sm hide-on-print" style="border-radius: 20px; background: #0a0a0a;">
+                <div class="bg-black p-2 border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
+                    <div class="d-flex gap-1 ms-2">
+                        <div class="rounded-circle bg-danger" style="width: 8px; height: 8px;"></div>
+                        <div class="rounded-circle bg-warning" style="width: 8px; height: 8px;"></div>
+                        <div class="rounded-circle bg-success" style="width: 8px; height: 8px;"></div>
+                    </div>
+                    <span class="font-monospace text-muted" style="font-size: 0.65rem;">SYS_AUDIT_LOG // {{ staff.staff_id|default:"ID_PENDING" }}</span>
+                    <i class="bi bi-wifi text-success me-2" style="font-size: 0.7rem;"></i>
+                </div>
+                <div class="p-3 font-monospace terminal-scroll" id="terminal-output" style="color: #4ade80; font-size: 0.7rem; height: 180px; overflow-y: auto;">
+                    <div>> Init connection to SEC_SERVER... <span class="text-white">OK</span></div>
+                    <div>> Verifying token {{ staff.user.username }}... <span class="text-white">VALID</span></div>
+                    <div>> Loading permission matrix [{{ staff.role }}]...</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xl-8 col-lg-7 d-flex flex-column gap-4">
+            
+            {% if staff.is_teaching_staff %}
+            
+                <div class="card border-0 p-4 detail-card shadow-lg position-relative overflow-hidden tilt-card" style="background: linear-gradient(135deg, var(--theme-dark) 0%, #1a4d33 100%);">
+                    <div class="hero-grid-overlay position-absolute top-0 start-0 w-100 h-100 opacity-25" style="pointer-events: none; z-index: 0;"></div>
+                    <div class="position-absolute top-0 end-0 opacity-10 p-3" style="transform: rotate(15deg);">
+                        <i class="bi bi-cpu-fill text-white" style="font-size: 9rem;"></i>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center position-relative mb-4" style="z-index: 1;">
+                        <h6 class="fw-black text-theme-accent text-uppercase ls-1 m-0" style="font-size: 0.8rem;"><span class="status-dot neon-success d-inline-block me-2"></span>Classroom Leadership Matrix</h6>
+                    </div>
+                    
+                    {% if managed_classes %}
+                        <div class="row g-3 position-relative" style="z-index: 1;">
+                            {% for m_class in managed_classes %}
+                                <div class="col-md-6">
+                                    <div class="bg-white rounded-4 p-3 shadow-sm d-flex align-items-center gap-3 transition-all hover-lift border-start border-4 border-theme-accent">
+                                        <div class="bg-light-sage rounded-circle d-flex justify-content-center align-items-center shadow-sm text-theme-dark flex-shrink-0" style="width: 45px; height: 45px;">
+                                            <i class="bi bi-door-open-fill fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <span class="d-block smallest fw-black text-muted uppercase ls-1 mb-1 font-monospace">TARGET_ASSIGNED</span>
+                                            <h5 class="fw-black text-theme-dark m-0">{{ m_class.name }}</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="bg-white bg-opacity-10 rounded-4 p-4 border border-white border-opacity-25 text-center position-relative" style="z-index: 1; backdrop-filter: blur(5px);">
+                            <i class="bi bi-shield-x text-theme-accent mb-2 d-block fs-3 opacity-75"></i>
+                            <span class="fw-bold text-white opacity-75 font-monospace">NO_LEADERSHIP_NODE_DETECTED</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card border-0 h-100 p-0 detail-card futuristic-panel shadow-sm overflow-hidden flex-grow-1">
+                    <div class="p-4 border-bottom border-black border-opacity-10 d-flex flex-wrap justify-content-between align-items-center bg-white position-relative gap-3" style="z-index: 2;">
+                        <div>
+                            <h6 class="fw-black text-theme-dark text-uppercase ls-1 m-0 mb-1" style="font-size: 0.8rem;">Active Subject Topology</h6>
+                            <span class="badge bg-light-sage text-theme-dark border border-sage rounded-pill font-monospace">{{ subjects.count }} MODULES</span>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted fw-bold font-monospace" style="font-size: 0.65rem;">SYS_BANDWIDTH:</span>
+                            <div class="progress shadow-sm bg-light" style="width: 120px; height: 8px; border-radius: 4px;">
+                                <div class="progress-bar bg-theme-accent-dark progress-bar-striped progress-bar-animated" role="progressbar" style="width: {% widthratio subjects.count 8 100 %}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive bg-white h-100 position-relative" style="z-index: 2;">
+                        {% if subjects %}
+                            <table class="table table-borderless align-middle mb-0 table-hover">
+                                <thead style="background: #fdfdfc; border-bottom: 2px solid #e8f0eb;">
+                                    <tr>
+                                        <th class="ps-4 py-3 smallest fw-black uppercase text-muted ls-1">Instructional Subject</th>
+                                        <th class="py-3 smallest fw-black uppercase text-muted ls-1">Class Target</th>
+                                        <th class="pe-4 py-3 smallest fw-black uppercase text-muted ls-1 text-end">Academic Year</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for alloc in subjects %}
+                                    <tr style="border-bottom: 1px solid rgba(0,0,0,0.03); transition: background 0.2s;">
+                                        <td class="ps-4 py-3">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="bg-theme-accent rounded text-theme-dark d-flex align-items-center justify-content-center fw-bold shadow-sm border-glass" style="width: 36px; height: 36px; font-size: 1rem;">
+                                                    {{ alloc.subject.name|first|upper }}
+                                                </div>
+                                                <span class="fw-bold text-theme-dark" style="font-size: 0.95rem;">{{ alloc.subject.name }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3">
+                                            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold shadow-sm font-monospace"><i class="bi bi-hdd-network text-theme-accent-dark me-1"></i> {{ alloc.classroom.name }}</span>
+                                        </td>
+                                        <td class="pe-4 py-3 text-end text-muted fw-bold font-monospace" style="font-size: 0.85rem;">
+                                            {{ alloc.academic_year }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="p-5 text-center bg-white d-flex flex-column align-items-center justify-content-center h-100">
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm border" style="width: 80px; height: 80px;">
+                                    <i class="bi bi-diagram-2 text-muted fs-1 opacity-50"></i>
+                                </div>
+                                <h5 class="fw-bold text-theme-dark mb-2 font-monospace">AWAITING_TOPOLOGY</h5>
+                                <p class="text-muted small mb-0" style="max-width: 300px;">Faculty is isolated from allocation matrix. Assign modules in Master Mappings.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            
+            {% else %}
+                
+                <div class="card border-0 h-100 detail-card futuristic-panel shadow-sm overflow-hidden">
+                    
+                    <div class="p-4 p-md-5 text-center border-bottom border-black border-opacity-10 position-relative" style="background: linear-gradient(135deg, #fdfdfc 0%, #e8f0eb 100%);">
+                        <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-lg border border-theme-accent border-2" style="width: 80px; height: 80px; position: relative;">
+                            <div class="position-absolute w-100 h-100 rounded-circle border border-theme-accent animate-ping" style="opacity: 0.5;"></div>
+                            <i class="bi bi-shield-lock-fill text-theme-dark fs-1"></i>
+                        </div>
+                        <h4 class="fw-black text-theme-dark mb-2 tracking-tighter">System Clearance Matrix</h4>
+                        <p class="text-muted fw-bold mb-0 mx-auto" style="max-width: 450px; font-size: 0.9rem;">Operational Profile Detected. Teaching, grading, and attendance terminals are locked by system protocol.</p>
+                    </div>
+                    
+                    <div class="p-4 p-md-5 bg-white position-relative" style="z-index: 2;">
+                        <h6 class="fw-black text-theme-dark text-uppercase ls-1 mb-4 font-monospace" style="font-size: 0.8rem;">Role Capabilities: <span class="text-theme-accent-dark">[{{ staff.role }}]</span></h6>
+                        
+                        <div class="row g-3">
+                            {% if staff.role == 'Cashier' %}
+                                <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-dark fw-bold futuristic-hover" style="font-size: 0.85rem;"><i class="bi bi-unlock-fill text-theme-accent-dark me-2"></i> Fee Collection Module</div></div>
+                                <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-dark fw-bold futuristic-hover" style="font-size: 0.85rem;"><i class="bi bi-unlock-fill text-theme-accent-dark me-2"></i> Invoice Generation</div></div>
+                                <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-dark fw-bold futuristic-hover" style="font-size: 0.85rem;"><i class="bi bi-unlock-fill text-theme-accent-dark me-2"></i> Defaulters Registry</div></div>
+                            {% elif staff.role == 'Librarian' %}
+                                <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-dark fw-bold futuristic-hover" style="font-size: 0.85rem;"><i class="bi bi-unlock-fill text-theme-accent-dark me-2"></i> Master Book Registry</div></div>
+                                <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-dark fw-bold futuristic-hover" style="font-size: 0.85rem;"><i class="bi bi-unlock-fill text-theme-accent-dark me-2"></i> Issue & Return Matrix</div></div>
+                            {% elif staff.role == 'Office_Staff' %}
+                                <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-dark fw-bold futuristic-hover" style="font-size: 0.85rem;"><i class="bi bi-unlock-fill text-theme-accent-dark me-2"></i> Admissions Terminal</div></div>
+                                <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-dark fw-bold futuristic-hover" style="font-size: 0.85rem;"><i class="bi bi-unlock-fill text-theme-accent-dark me-2"></i> General Enquiries</div></div>
+                            {% else %}
+                                <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-dark fw-bold futuristic-hover" style="font-size: 0.85rem;"><i class="bi bi-unlock-fill text-theme-accent-dark me-2"></i> Standard Admin Read Access</div></div>
+                            {% endif %}
+                            
+                            <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-muted" style="font-size: 0.85rem; background: #fafafa;"><i class="bi bi-lock-fill text-danger me-2 opacity-50"></i> Grading Terminals</div></div>
+                            <div class="col-md-6"><div class="p-3 bg-light border rounded-3 text-muted" style="font-size: 0.85rem; background: #fafafa;"><i class="bi bi-lock-fill text-danger me-2 opacity-50"></i> Class Teacher Overrides</div></div>
+                        </div>
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+<style>
+    :root { 
+        --bg-sage: #e8f0eb; 
+        --theme-dark: #0f3822; 
+        --theme-accent: #cbfb45; 
+        --theme-accent-dark: #217346; 
+    }
+
+    /* Print Styles */
+    @media print {
+        .hide-on-print { display: none !important; }
+        .theme-wrapper { background: #fff !important; padding: 0 !important; }
+        .card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+        .futuristic-hero { background: #fff !important; color: #000 !important; }
+        .text-white { color: #000 !important; }
+        .bg-theme-accent { background-color: #eee !important; color: #000 !important; }
+    }
+
+    /* Cyber Blueprint Background */
+    .registry-blueprint { 
+        background-color: #fdfdfc; 
+        background-image: linear-gradient(rgba(15, 56, 34, 0.05) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(15, 56, 34, 0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        min-height: 100vh; 
+    }
+    
+    .hero-grid-overlay {
+        background-image: linear-gradient(rgba(203, 251, 69, 0.1) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(203, 251, 69, 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    .detail-card {
+        border-radius: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .border-glass { border-color: rgba(255,255,255,0.2) !important; }
+
+    /* Hover Lift Effect */
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(15, 56, 34, 0.08) !important;
+    }
+    .hover-highlight:hover {
+        background-color: #f8faf9;
+    }
+    .futuristic-hover:hover {
+        border-color: var(--theme-accent) !important;
+        background-color: white !important;
+        box-shadow: 0 4px 12px rgba(203, 251, 69, 0.2);
+    }
+
+    /* Glitch Text Effect */
+    .glitch-hover { position: relative; display: inline-block; transition: all 0.2s; }
+    .glitch-hover:hover { color: var(--theme-accent); text-shadow: 2px 0 red, -2px 0 cyan; animation: glitch-anim 0.2s infinite; cursor: crosshair; }
+    @keyframes glitch-anim { 0% { transform: translate(0) } 20% { transform: translate(-2px, 1px) } 40% { transform: translate(-1px, -1px) } 60% { transform: translate(2px, 1px) } 80% { transform: translate(1px, -1px) } 100% { transform: translate(0) } }
+
+    /* Holographic Border Effect for Panels */
+    .futuristic-panel {
+        position: relative;
+        border: 1px solid rgba(15, 56, 34, 0.08) !important;
+    }
+    .futuristic-panel::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: 20px;
+        padding: 2px;
+        background: linear-gradient(135deg, rgba(203,251,69,0.5), transparent, transparent);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0.3;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    /* Button Glows */
+    .futuristic-btn { position: relative; overflow: hidden; }
+    .futuristic-btn:active { transform: scale(0.98); }
+    
+    .btn-accent-glow { background: var(--theme-accent) !important; color: var(--theme-dark) !important; border: none; }
+    .btn-accent-glow:hover { box-shadow: 0 0 15px rgba(203, 251, 69, 0.6) !important; }
+    
+    .btn-danger-glow:hover { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important; background: #dc2626 !important; color: white !important; border-color: #dc2626 !important; }
+    
+    .btn-outline-accent { border: 1px solid rgba(255,255,255,0.2) !important; color: white; background: transparent; }
+    .btn-outline-accent:hover { background: rgba(255,255,255,0.1) !important; border-color: white !important; }
+
+    /* Animations */
+    @keyframes pulse-fast { 0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.5; } 50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.5; } }
+    .animate-pulse-fast { animation: pulse-fast 2s infinite ease-in-out; }
+    
+    @keyframes ping { 0% { transform: scale(1); opacity: 1; } 75%, 100% { transform: scale(1.5); opacity: 0; } }
+    .animate-ping { animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+    .neon-success { background-color: #10b981; }
+    .text-glow { text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+
+    /* Custom Utilities */
+    .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; font-family: monospace; letter-spacing: 1px;}
+    .smallest { font-size: 0.75rem; line-height: 1.2; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .tracking-tighter { letter-spacing: -1px; }
+    .uppercase { text-transform: uppercase; }
+    
+    .table-responsive::-webkit-scrollbar { height: 6px; width: 6px; }
+    .table-responsive::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .table-hover tbody tr:hover { background-color: rgba(232, 240, 235, 0.4) !important; }
+    .terminal-scroll::-webkit-scrollbar { width: 4px; }
+    .terminal-scroll::-webkit-scrollbar-thumb { background: #4ade80; border-radius: 4px; }
+    
+    /* Typewriter Cursor */
+    .cursor::after { content: '|'; animation: blink 1s step-end infinite; color: var(--theme-accent); }
+    @keyframes blink { 50% { opacity: 0; } }
+</style>
+
+<script>
+    // 1. Live System Clock
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('sys-clock').innerText = now.toISOString().replace('T', ' ').substring(0, 19);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 2. Terminal Typewriter Effect for Node Badge
+    document.addEventListener("DOMContentLoaded", function() {
+        const bootElement = document.getElementById("boot-sequence");
+        const text = bootElement.getAttribute("data-text");
+        bootElement.innerHTML = "";
+        bootElement.classList.add("cursor");
+        
+        let i = 0;
+        function typeWriter() {
+            if (i < text.length) {
+                bootElement.innerHTML += text.charAt(i);
+                i++;
+                setTimeout(typeWriter, 50); 
+            } else {
+                setTimeout(() => bootElement.classList.remove("cursor"), 2000);
+            }
+        }
+        setTimeout(typeWriter, 500); 
+
+        // 3. Simulated Terminal Log Output
+        const term = document.getElementById('terminal-output');
+        if(term) {
+            const logs = [
+                "> Ping {{ staff.user.username }}... response 14ms",
+                "> Fetching biometric data... <span class='text-warning'>SKIPPED</span>",
+                "> Running load balancer on node...",
+                "> Node bandwidth optimal.",
+                "> Polling security matrix...",
+                "> Auth clearance: <span class='text-white'>{{ staff.role }}</span>",
+                "> Syncing registry database...",
+                "> Waiting for network uplink..."
+            ];
+            let logIndex = 0;
+            setInterval(() => {
+                if(logIndex < logs.length) {
+                    const div = document.createElement('div');
+                    div.innerHTML = logs[logIndex];
+                    term.appendChild(div);
+                    term.scrollTop = term.scrollHeight;
+                    logIndex++;
+                } else {
+                    logIndex = 0; // Loop logs for effect
+                }
+            }, Math.random() * 2000 + 1500); // Random delay between 1.5s and 3.5s
+        }
+    });
+
+    // 4. Copy to Clipboard Functionality
+    function copyUsername() {
+        const textToCopy = document.getElementById("username-text").innerText;
+        const btn = document.getElementById("copy-btn");
+        
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="bi bi-check2-circle text-success"></i> <span class="text-success fw-bold">COPIED</span>`;
+            btn.classList.add("border-success");
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove("border-success");
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+
+    // 5. Dynamic 3D Tilt Effect on specific cards
+    const tiltCards = document.querySelectorAll('.tilt-card');
+    tiltCards.forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -5;
+            const rotateY = ((x - centerX) / centerX) * 5;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+        });
+    });
+</script>
+
+{% endblock %}

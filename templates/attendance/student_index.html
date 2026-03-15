@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load timetable_extras %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="row mb-5 align-items-end">
+        <div class="col-md-7">
+            <div class="header-group">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span class="badge-pill-neon" style="letter-spacing: 1.5px;">PERSONAL NODE</span>
+                    <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Attendance Summary</h6>
+                </div>
+                <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                    My <span class="theme-accent-text-dark">Records</span>
+                </h1>
+                <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                    <span class="status-dot animate-pulse"></span>
+                    <span class="ls-1">IDENTITY:</span> 
+                    <span class="uppercase ls-2 fw-black opacity-75">{{ student.user.get_full_name }} • {{ student.classroom.name }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="col-md-5 text-md-end mt-4 mt-md-0">
+            <div class="card card-bento border-0 shadow-soft bg-white d-inline-flex p-3 card-lift">
+                <div class="d-flex align-items-center gap-4 px-2">
+                    <div class="position-relative d-flex align-items-center justify-content-center" style="width: 65px; height: 65px;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 65px; height: 65px;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--bg-sage)" stroke-width="3" />
+                            <path class="circle" stroke-dasharray="{{ percentage }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--theme-dark)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                        <span class="position-absolute fw-black text-theme-dark" style="font-size: 0.8rem;">{{ percentage }}%</span>
+                    </div>
+                    <div class="text-start">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-2 m-0">Presence Score</h6>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ present_days }}/{{ total_days }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-bento border-0 shadow-soft bg-white p-2 mb-5 overflow-hidden">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="btn-group-node p-1 bg-light-sage rounded-pill d-inline-flex">
+                <a href="?filter=daily" class="btn-status-node {% if filter_type == 'daily' %}active-node{% endif %}">DAILY VIEW</a>
+                <a href="?filter=monthly" class="btn-status-node {% if filter_type == 'monthly' %}active-node{% endif %}">MONTHLY SYNC</a>
+                <a href="?filter=yearly" class="btn-status-node {% if filter_type == 'yearly' %}active-node{% endif %}">YEARLY ARCHIVE</a>
+            </div>
+            
+            <div class="px-3 d-flex align-items-center gap-4">
+                {% if filter_type == 'daily' %}
+                <form method="GET" class="d-flex align-items-center gap-2 m-0" id="dateFilterForm">
+                    <input type="hidden" name="filter" value="daily">
+                    <input type="date" name="date" value="{{ selected_date }}" 
+                           class="form-control-modern py-2" 
+                           onchange="document.getElementById('dateFilterForm').submit()">
+                </form>
+                <div class="divider-v" style="height: 20px; border-left: 2px solid var(--bg-sage);"></div>
+                {% endif %}
+
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar-event theme-accent-text-dark"></i>
+                    <span class="smallest fw-black text-theme-dark text-uppercase ls-2">{{ context_label }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card card-bento border-0 shadow-soft bg-white card-lift p-4">
+                <div class="d-flex align-items-center gap-4">
+                    <div class="icon-square bg-sage text-theme-dark shadow-sm">
+                        <i class="bi bi-calendar-range"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter" style="font-size: 2rem;">{{ total_days|stringformat:"02d" }}</h3>
+                        <div class="smallest fw-bold text-muted text-uppercase ls-2">Tracked Nodes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-bento border-0 shadow-soft bg-theme-dark card-lift p-4">
+                <div class="d-flex align-items-center gap-4">
+                    <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-black text-white m-0 tracking-tighter" style="font-size: 2rem;">{{ present_days|stringformat:"02d" }}</h3>
+                        <div class="smallest fw-bold theme-accent-text text-uppercase ls-2">Verified Fragments</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-bento border-0 shadow-soft overflow-hidden bg-white mb-5">
+        <div class="card-header bg-sage p-4 border-0">
+            <h5 class="fw-black text-theme-dark m-0 tracking-tighter ls-1">Detailed Log Fragments</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr class="border-bottom border-light">
+                        <th class="ps-4 py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Temporal Node</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Subject / Activity</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-center">Status</th>
+                        <th class="pe-4 py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-end">Faculty / Registry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr class="border-bottom-dashed">
+                        <td class="ps-4 py-4">
+                            <div class="fw-black text-theme-dark fs-6 tracking-normal">
+                                {% if filter_type == 'daily' %}
+                                    Sync at {{ record.log.timestamp|time:"H:i" }}
+                                {% else %}
+                                    {{ record.log.date|date:"d M, Y" }}
+                                {% endif %}
+                            </div>
+                            <small class="smallest fw-bold text-muted uppercase ls-1">{{ record.log.date|date:"l" }}</small>
+                        </td>
+                        <td class="py-4">
+                            <span class="badge-outline-sage border-theme fw-black uppercase ls-1">{{ record.log.subject.name|default:"GENERAL_ATTENDANCE" }}</span>
+                        </td>
+                        <td class="text-center py-4">
+                            {% if record.status == 'present' %}
+                                <span class="badge-node bg-neon text-theme-dark ls-1">PRESENT</span>
+                            {% elif record.status == 'absent' %}
+                                <span class="badge-node bg-danger-light text-danger ls-1">ABSENT</span>
+                            {% else %}
+                                <span class="badge-node bg-warning-light text-warning ls-1">{{ record.status|upper }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 py-4 text-end">
+                            <div class="d-flex flex-column align-items-end">
+                                <span class="smallest fw-black text-theme-dark text-uppercase ls-1">
+                                    Auth: {{ record.log.taken_by.user.first_name|default:"SYSTEM" }}
+                                </span>
+                                {% if record.remarks %}
+                                    <small class="smallest fw-bold text-muted uppercase opacity-50 italic-style">{{ record.remarks|truncatechars:30 }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <div class="bg-light-sage d-inline-flex p-4 rounded-circle mb-3 opacity-25">
+                                <i class="bi bi-inbox display-4 text-theme-dark"></i>
+                            </div>
+                            <p class="smallest fw-black text-theme-dark text-uppercase ls-3">Zero Registry Fragments Found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.8px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .line-height-1 { line-height: 1; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+    .italic-style { font-style: italic; }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 30px; border: 1.5px solid var(--bg-sage); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-danger-light { background: #fef2f2; }
+    .bg-warning-light { background: #fffbeb; }
+    .bg-neon { background: var(--theme-accent); }
+    
+    .icon-square { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* VIEW SELECTOR NODES */
+    .btn-status-node { 
+        border: none; background: transparent; padding: 10px 24px; border-radius: 50px; 
+        font-weight: 900; font-size: 0.7rem; color: var(--theme-dark); 
+        opacity: 0.4; transition: 0.3s; text-decoration: none;
+    }
+    .active-node { background: var(--theme-dark) !important; color: var(--theme-accent) !important; opacity: 1; box-shadow: 0 8px 15px rgba(15, 56, 34, 0.1); }
+
+    /* INPUTS: PURE BLACK VISIBILITY */
+    .form-control-modern {
+        width: 100%; border-radius: 15px !important; border: 2.1px solid var(--theme-dark) !important; 
+        padding: 8px 15px !important; font-size: 0.85rem !important; font-weight: 800 !important;      
+        color: #000000 !important; background: var(--white) !important;
+    }
+
+    /* BADGES & NODES */
+    .badge-node { padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 5px 14px; border-radius: 50px; font-weight: 900; text-transform: uppercase; }
+    .badge-outline-sage { padding: 6px 16px; border: 2.1px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+    .border-theme { border-color: var(--theme-dark) !important; }
+
+    /* CHART ANIMATION */
+    .circular-chart { display: block; margin: 0 auto; }
+    .circle { animation: progress 1s ease-out forwards; }
+    @keyframes progress { 0% { stroke-dasharray: 0 100; } }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    .divider-v { border-left: 2px solid var(--bg-sage); }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.6; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; }
+    .card-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(15, 56, 34, 0.08); }
+</style>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <a href="{% url 'exam:marks_entry_index' %}" class="btn-close-custom shadow-soft transition-all d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <span class="badge-pill-neon">Gradebook Node</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Data Entry Protocol</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                {{ series.name }} — <span class="theme-accent-text-dark">{{ subject.name }}</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                Target: <span class="uppercase ls-1">{{ classroom.name }} ({{ classroom.stream.name }})</span>
+            </p>
+        </div>
+        
+        <button type="submit" form="mark-form" class="btn-neon-premium px-5 py-3 shadow-soft hover-lift">
+            <i class="bi bi-cloud-arrow-up-fill me-2"></i>Synchronize All Marks
+        </button>
+    </div>
+
+    <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5">
+        <div class="card-header bg-theme-dark p-4 border-0">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                        <i class="bi bi-grid-3x3"></i>
+                    </div>
+                    <h4 class="text-white fw-black m-0 tracking-tighter">Academic Records Entry</h4>
+                </div>
+                <span class="smallest fw-black text-white opacity-50 uppercase ls-2">Auto-save buffer active</span>
+            </div>
+        </div>
+
+        <div class="table-responsive bg-white">
+            <form method="post" id="mark-form">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                <table class="table table-borderless align-middle mb-0">
+                    <thead>
+                        <tr class="bg-sage border-bottom border-white">
+                            <th class="ps-4 py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Roll</th>
+                            <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Student Identity</th>
+                            <th class="py-4 text-center text-uppercase smallest fw-black text-theme-dark ls-2">Theory (80)</th>
+                            {% if is_practical %}
+                            <th class="py-4 text-center text-uppercase smallest fw-black text-theme-dark ls-2">Practical (20)</th>
+                            {% endif %}
+                            <th class="py-4 text-center text-uppercase smallest fw-black text-theme-dark ls-2">CE / Internal</th>
+                            <th class="pe-4 py-4 text-end text-uppercase smallest fw-black text-theme-dark ls-2">State</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %}
+                        <tr class="border-bottom-dashed">
+                            {{ form.id }}
+                            <td class="ps-4 py-4">
+                                <span class="id-token fw-black">#{{ form.instance.student.roll_number }}</span>
+                            </td>
+                            <td class="py-4">
+                                <div class="fw-black text-theme-dark text-capitalize fs-6 tracking-normal">
+                                    {{ form.instance.student.user.get_full_name }}
+                                </div>
+                                <div class="smallest fw-bold text-muted uppercase ls-1">{{ form.instance.student.student_id }}</div>
+                            </td>
+                            <td class="text-center py-4">
+                                <div class="input-cell-wrapper">
+                                    {{ form.theory_marks }}
+                                </div>
+                            </td>
+                            {% if is_practical %}
+                            <td class="text-center py-4">
+                                <div class="input-cell-wrapper">
+                                    {{ form.practical_marks }}
+                                </div>
+                            </td>
+                            {% endif %}
+                            <td class="text-center py-4">
+                                <div class="input-cell-wrapper">
+                                    {{ form.ce_marks }}
+                                </div>
+                            </td>
+                            <td class="pe-4 text-end py-4">
+                                {% if form.instance.total_marks > 0 %}
+                                    <span class="badge-node bg-success-light text-success">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Sync'd
+                                    </span>
+                                {% else %}
+                                    <span class="badge-node bg-light text-muted opacity-50">
+                                        Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-2 { letter-spacing: 1px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.75rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* CARDS */
+    .card-bento { border-radius: 30px; border: 1px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-success-light { background: #ecfdf5; }
+    .icon-square { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+    /* SPREADSHEET INPUTS */
+    .input-cell-wrapper input {
+        width: 85px;
+        height: 45px;
+        border-radius: 12px !important;
+        border: 2px solid var(--bg-sage) !important;
+        background: #f8fafc !important;
+        text-align: center;
+        font-weight: 800 !important;
+        font-size: 1.1rem !important;
+        color: #000000 !important; /* Pure Black for absolute visibility */
+        transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .input-cell-wrapper input:focus {
+        border-color: var(--theme-dark) !important;
+        background: var(--white) !important;
+        box-shadow: 0 8px 20px rgba(15, 56, 34, 0.1) !important;
+        outline: none;
+        transform: scale(1.05);
+    }
+
+    /* BADGES & TOKENS */
+    .id-token { font-size: 0.7rem; font-family: monospace; background: var(--bg-sage); padding: 4px 10px; border-radius: 8px; color: var(--theme-dark); }
+    .badge-node { padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 4px 15px; border-radius: 50px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); }
+    .btn-close-custom { border-radius: 50%; background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); text-decoration: none; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.06); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+</style>
+{% endblock %}

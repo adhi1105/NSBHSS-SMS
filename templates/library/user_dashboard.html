@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5 bg-theme-dark text-white position-relative">
+        <div class="card-body p-5 p-lg-5 text-center position-relative z-2">
+            <div class="header-group mb-4">
+                <span class="badge-pill-neon mb-3" style="letter-spacing: 1.5px;">ASSET SEARCH NODE</span>
+                <h1 class="title-heavy text-white tracking-normal m-0" style="font-size: 3rem;">
+                    Explore the <span class="theme-accent-text">Registry</span>
+                </h1>
+                <p class="smallest fw-bold text-white opacity-50 uppercase ls-2 mt-3">
+                    Search through {{ total_books|default:"1,200+" }} verified titles and departmental archives
+                </p>
+            </div>
+            
+            <div class="card border-0 shadow-lg p-2 rounded-pill mx-auto bg-white bg-opacity-10 backdrop-blur" style="max-width: 650px;">
+                <form method="get" class="d-flex align-items-center">
+                    <i class="bi bi-search ms-4 theme-accent-text fs-5"></i>
+                    <input type="text" name="q" class="search-field-hero border-0 ps-3 fs-5" 
+                           placeholder="Scan by title, author node, or ISBN..." value="{{ search_query|default:'' }}" autocomplete="off">
+                    <button type="submit" class="btn-neon-premium px-5 py-3 rounded-pill shadow-soft">
+                        EXECUTE SCAN
+                    </button>
+                </form>
+            </div>
+            
+            <div class="mt-4">
+                <a href="{% url 'library:book_catalog' %}" class="smallest fw-black text-white opacity-75 text-decoration-none uppercase ls-2 hover-opacity-100 transition-all">
+                    Initialize Full Catalog Audit <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+        <div class="bg-decoration"></div>
+    </div>
+
+    {% if search_query %}
+        <div class="d-flex justify-content-between align-items-end mb-4 px-2">
+            <div class="header-group">
+                <h4 class="fw-black text-theme-dark m-0 tracking-tighter ls-1">Scan Results</h4>
+                <small class="smallest fw-bold text-muted uppercase ls-1">Query Fragment: "{{ search_query }}"</small>
+            </div>
+            <a href="{% url 'library:user_dashboard' %}" class="btn-minimal shadow-soft px-4 py-2">CLEAR SCAN</a>
+        </div>
+
+        <div class="row g-4 mb-5">
+            {% for book in books %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white overflow-hidden">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="mb-3">
+                            <span class="badge-node bg-light-sage text-theme-dark border-dashed border-dark ls-1">
+                                {{ book.category.name|truncatechars:15|upper }}
+                            </span>
+                        </div>
+                        <h5 class="fw-black text-theme-dark mb-1 tracking-tighter">{{ book.title }}</h5>
+                        <p class="smallest fw-bold text-muted uppercase ls-1 mb-4">{{ book.author }}</p>
+                        
+                        <div class="mt-auto pt-4 border-top-dashed d-flex justify-content-between align-items-center">
+                            {% if book.available_copies > 0 %}
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="status-dot animate-pulse"></span>
+                                    <span class="smallest fw-black text-theme-dark ls-1">AVAILABLE</span>
+                                </div>
+                                <a href="{% url 'library:request_issue' book.id %}" class="btn-neon-premium py-2 px-4 smallest">REQUEST</a>
+                            {% else %}
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-x-circle text-danger smallest"></i>
+                                    <span class="smallest fw-black text-danger ls-1">OUT_OF_SYNC</span>
+                                </div>
+                                <button disabled class="btn-minimal py-2 px-4 smallest opacity-50">WAITLIST</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="bg-light-sage d-inline-flex p-4 rounded-circle mb-3 opacity-25">
+                    <i class="bi bi-journal-x display-4 text-theme-dark"></i>
+                </div>
+                <p class="smallest fw-black text-theme-dark text-uppercase ls-3">Zero Fragment Matches Found</p>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="card card-bento border-0 shadow-soft overflow-hidden bg-white">
+        <div class="card-header bg-sage p-4 border-0 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-square bg-theme-dark text-theme-accent shadow-sm">
+                    <i class="bi bi-person-lines-fill"></i>
+                </div>
+                <div>
+                    <h5 class="fw-black text-theme-dark m-0 tracking-tighter ls-1">My Activity Registry</h5>
+                    <small class="smallest fw-bold text-theme-dark opacity-50 uppercase ls-1">Synchronization Trail</small>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr class="bg-light-sage border-bottom border-white">
+                        <th class="ps-4 py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Asset node</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-center">Status state</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-center">Maturity Date</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-center">Liability</th>
+                        <th class="pe-4 py-4 text-end text-uppercase text-theme-dark smallest fw-black ls-3">Execution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in my_records %}
+                    <tr class="border-bottom-dashed">
+                        <td class="ps-4 py-4 fw-black text-theme-dark fs-6 tracking-normal">{{ rec.book.title }}</td>
+                        <td class="text-center py-4">
+                            {% if rec.status == 'Issued' %}
+                                <span class="badge-node bg-theme-dark text-theme-accent ls-1">LOAN_ACTIVE</span>
+                            {% elif rec.status == 'Requested' %}
+                                <span class="badge-node bg-light-sage text-theme-dark border border-dark border-opacity-10 ls-1">AWAITING_SYNC</span>
+                            {% elif rec.status == 'Return Requested' %}
+                                <span class="badge-node bg-warning-light text-warning ls-1">SYCHRONIZING...</span>
+                            {% elif rec.status == 'Returned' %}
+                                <span class="badge-node bg-success-light text-success ls-1">ARCHIVED_CLEAR</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center py-4">
+                            {% if rec.is_overdue and rec.status == 'Issued' %}
+                                <span class="badge-node bg-danger-light text-danger ls-1">BREACH: {{ rec.due_date|date:"M d" }}</span>
+                            {% else %}
+                                <span class="smallest fw-black text-muted uppercase ls-1">{{ rec.due_date|date:"M d"|default:"N/A" }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center py-4">
+                            {% if rec.current_fine > 0 %}
+                                <span class="fw-black text-danger tracking-tighter fs-5">₹{{ rec.current_fine }}</span>
+                            {% else %}
+                                <i class="bi bi-dash-lg text-muted opacity-25"></i>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 py-4 text-end">
+                            {% if rec.status == 'Issued' %}
+                                <a href="{% url 'library:request_return' rec.id %}" class="btn-outline-modern rounded-pill px-4 py-2 smallest fw-black ls-1 border-danger-subtle text-danger">
+                                    INITIALIZE RETURN
+                                </a>
+                            {% elif rec.status == 'Requested' %}
+                                <button class="btn-minimal px-4 py-2 smallest fw-black opacity-50" disabled>LOCKED</button>
+                            {% else %}
+                                <i class="bi bi-patch-check-fill theme-accent-text-dark lead"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <p class="smallest fw-black text-theme-dark opacity-50 text-uppercase ls-3">Zero Transactional Fragments Recorded</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.8px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .backdrop-blur { backdrop-filter: blur(10px); }
+
+    /* SEARCH FIELD: PURE BLACK VISIBILITY */
+    .search-field-hero {
+        width: 100%; border: none !important; padding: 15px 10px !important;
+        font-size: 1.1rem !important; font-weight: 800 !important;      
+        color: #ffffff !important; background: transparent !important;
+    }
+    .search-field-hero::placeholder { color: #ffffff; opacity: 0.4; }
+    .search-field-hero:focus { outline: none; }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 35px; border: 1.5px solid var(--bg-sage); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-success-light { background: #ecfdf5; }
+    .bg-danger-light { background: #fef2f2; }
+    .bg-warning-light { background: #fffbeb; }
+    
+    .icon-square { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .bg-decoration {
+        position: absolute; width: 250px; height: 250px; background: rgba(203, 251, 69, 0.05);
+        border-radius: 50%; top: -60px; right: -60px; z-index: 1;
+    }
+
+    /* BADGES & NODES */
+    .badge-node { padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 6px 20px; border-radius: 50px; font-weight: 900; text-transform: uppercase; font-size: 0.7rem; display: inline-block; }
+    .badge-outline-sage { padding: 6px 16px; border: 2.1px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(203, 251, 69, 0.4); }
+    
+    .btn-minimal { background: var(--white); border: 2.1px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 1px; }
+    .btn-outline-modern { border: 2.5px solid var(--bg-sage); color: var(--theme-dark); transition: 0.3s; text-decoration: none; }
+    .btn-outline-modern:hover { background: var(--theme-dark); color: var(--theme-accent); border-color: var(--theme-dark); }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    .border-top-dashed { border-top: 2px dashed var(--bg-sage) !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.6; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; }
+    .card-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(15, 56, 34, 0.08); }
+</style>
+{% endblock %}

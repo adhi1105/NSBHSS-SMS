@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon" style="letter-spacing: 1.5px;">ANALYTICS NODE</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Faculty Utilization Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Workload <span class="theme-accent-text-dark">Analytics</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span class="ls-1">DIAGNOSTIC STATE:</span> 
+                <span class="uppercase ls-2 fw-black opacity-75">Global Load Sync Active</span>
+            </p>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3 h-100">
+            <div class="badge-outline-sage px-4 py-3 bg-white shadow-soft d-flex align-items-center gap-3">
+                <i class="bi bi-bar-chart-fill theme-accent-text-dark fs-5"></i>
+                <span class="fw-black smallest text-theme-dark text-uppercase ls-2">Real-Time Capacity Audit</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for teacher in teachers %}
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white overflow-hidden">
+                <div class="card-body p-4 p-lg-5 d-flex flex-column align-items-center text-center">
+                    
+                    <div class="mb-4 position-relative">
+                         <img src="https://ui-avatars.com/api/?name={{ teacher.user.get_full_name }}&background=e8f0eb&color=0f3822&size=128&bold=true" 
+                              class="avatar-sq shadow-soft border-white border-3" width="80" height="80" style="border-radius: 20px;" alt="FACULTY_NODE">
+                         <span class="position-absolute top-0 end-0 m-0 p-1 bg-success rounded-circle shadow-sm border border-2 border-white" style="width: 12px; height: 12px;"></span>
+                    </div>
+
+                    <h5 class="fw-black text-theme-dark mb-1 tracking-tighter text-capitalize">{{ teacher.user.get_full_name }}</h5>
+                    <p class="smallest fw-bold text-muted uppercase ls-1 mb-4">{{ teacher.designation }}</p>
+                    
+                    <div class="w-100 p-4 rounded-4 bg-light-sage border-bottom-dashed mb-4">
+                        <h2 class="fw-black text-theme-dark m-0 tracking-tighter" style="font-size: 2.5rem;">{{ teacher.subject_count|stringformat:"02d" }}</h2>
+                        <label class="smallest fw-black text-muted text-uppercase ls-3 m-0">Active Subjects</label>
+                    </div>
+
+                    <div class="mt-auto w-100">
+                        {% if teacher.subject_count == 0 %}
+                            <div class="badge-node bg-danger-light text-danger w-100 py-2 ls-1 border border-danger border-opacity-10">UNDERUTILIZED</div>
+                        {% elif teacher.subject_count > 5 %}
+                            <div class="badge-node bg-warning-light text-warning w-100 py-2 ls-1 border border-warning border-opacity-10">LOAD_MAX_OVERRIDE</div>
+                        {% else %}
+                            <div class="badge-node bg-theme-dark text-theme-accent w-100 py-2 ls-1">OPTIMAL_LOAD</div>
+                        {% endif %}
+                    </div>
+
+                </div>
+                
+                <div class="progress rounded-0" style="height: 4px; background: transparent;">
+                    <div class="progress-bar {% if teacher.subject_count > 5 %}bg-danger{% else %}bg-theme-accent{% endif %}" 
+                         style="width: {{ teacher.subject_count|add:'20' }}%"></div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="bg-light-sage p-5 rounded-5 border-dashed border-dark opacity-50 mx-auto" style="max-width: 600px;">
+                <i class="bi bi-diagram-3 display-1 text-theme-dark"></i>
+                <h4 class="fw-black text-theme-dark mt-3 uppercase ls-2">Zero Faculty Nodes Detected</h4>
+                <p class="smallest fw-bold text-muted uppercase ls-1">No teacher workload fragments are currently initialized in the registry.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.8px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 30px; border: 1.5px solid var(--bg-sage); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-danger-light { background: #fef2f2; }
+    .bg-warning-light { background: #fffbeb; }
+    
+    .avatar-sq { object-fit: cover; }
+
+    /* BADGES & NODES */
+    .badge-node { border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; text-align: center; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 5px 14px; border-radius: 50px; font-weight: 900; text-transform: uppercase; font-size: 0.65rem; }
+    .badge-outline-sage { padding: 6px 16px; border: 2.1px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; }
+    .card-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(15, 56, 34, 0.08); }
+</style>
+{% endblock %}

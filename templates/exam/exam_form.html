@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon">Registry v3.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark">Assessment Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                {{ title|default:"Configure Exam" }}
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                Node Deployment / <span class="theme-accent-text-dark uppercase ls-1">Scheduling Protocol</span>
+            </p>
+        </div>
+        
+        <div class="d-flex gap-3">
+            <a href="{% url 'exam:admin_dashboard' %}" class="btn-minimal shadow-soft">
+                <i class="bi bi-x-lg me-2"></i>Discard
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5">
+                    <div class="card-header bg-theme-dark p-4 border-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                                <i class="bi bi-calendar-event"></i>
+                            </div>
+                            <h4 class="text-white fw-black m-0 tracking-tighter">Exam Parameters</h4>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4 p-lg-5 bg-white">
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Exam Identifier / Name</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}<div class="text-danger smallest mt-1 fw-black">{{ form.name.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Assessment Type</label>
+                                {{ form.exam_type }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Academic Session</label>
+                                {{ form.academic_session }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Launch Date (Start)</label>
+                                {{ form.start_date }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Conclusion Date (End)</label>
+                                {{ form.end_date }}
+                            </div>
+
+                            <div class="col-12 mt-5">
+                                <div class="bg-light-sage p-4 p-lg-5 rounded-xl border border-dashed border-dark">
+                                    <h6 class="smallest fw-black text-theme-dark text-uppercase ls-2 mb-4">Node State Configuration</h6>
+                                    
+                                    <div class="d-flex flex-column gap-4">
+                                        <div class="state-control-item d-flex align-items-center justify-content-between p-3 bg-white rounded-4 border shadow-sm">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="icon-sq-sm bg-theme-dark text-theme-accent"><i class="bi bi-pencil-fill"></i></div>
+                                                <div>
+                                                    <div class="fw-black text-theme-dark small">ACTIVE NODE</div>
+                                                    <div class="smallest text-muted fw-bold uppercase ls-1">Enable Faculty Mark Entry</div>
+                                                </div>
+                                            </div>
+                                            <div class="form-check form-switch p-0 m-0">
+                                                {{ form.is_active }}
+                                            </div>
+                                        </div>
+
+                                        <div class="state-control-item d-flex align-items-center justify-content-between p-3 bg-white rounded-4 border shadow-sm">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="icon-sq-sm bg-theme-dark text-theme-accent"><i class="bi bi-eye-fill"></i></div>
+                                                <div>
+                                                    <div class="fw-black text-theme-dark small">PUBLISH NODE</div>
+                                                    <div class="smallest text-muted fw-bold uppercase ls-1">Visible on Student Portals</div>
+                                                </div>
+                                            </div>
+                                            <div class="form-check form-switch p-0 m-0">
+                                                {{ form.is_published }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-5">
+                            <button type="submit" class="btn-neon-premium px-5 py-3 shadow-soft hover-lift">
+                                Commit Schedule <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.2rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-2 { letter-spacing: 1px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.75rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* CARDS & ICONS */
+    .card-bento { border-radius: 30px; border: 1px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .icon-square { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .icon-sq-sm { width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+
+    /* INPUTS */
+    input:not([type="checkbox"]), select { 
+        width: 100%;
+        border-radius: 15px !important; 
+        border: 2px solid var(--bg-sage) !important; 
+        padding: 14px 18px !important; 
+        font-size: 1rem !important; 
+        font-weight: 600 !important;      
+        color: #000000 !important; 
+        background: var(--white) !important;
+        transition: 0.3s ease; 
+    }
+    input:focus, select:focus { border-color: var(--theme-dark) !important; box-shadow: 0 10px 20px rgba(15, 56, 34, 0.05) !important; outline: none; }
+
+    /* WORKING CUSTOM SWITCHES */
+    .form-switch .form-check-input { 
+        width: 3.2em !important; 
+        height: 1.7em !important; 
+        background-color: #cbd5e1; 
+        border-color: #cbd5e1; 
+        cursor: pointer; 
+        margin-left: 0 !important;
+        float: none !important;
+    }
+    .form-switch .form-check-input:checked { 
+        background-color: var(--theme-dark) !important; 
+        border-color: var(--theme-dark) !important; 
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23cbfb45'/%3e%3c/svg%3e") !important;
+    }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); }
+
+    .btn-minimal { background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; padding: 10px 25px; text-decoration: none; transition: 0.3s; }
+
+    /* UTILITIES */
+    .rounded-xl { border-radius: 20px; }
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 4px 15px; border-radius: 50px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.06); }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+    .hover-lift:hover { transform: translateY(-3px); }
+</style>
+{% endblock %}

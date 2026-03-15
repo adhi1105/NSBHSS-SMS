@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon">Student Node</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Academic Analytics</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                My <span class="theme-accent-text-dark">Performance</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                Authenticated: <span class="text-capitalize ls-1">{{ student.user.get_full_name }}</span>
+            </p>
+        </div>
+        
+        <div class="d-none d-lg-block">
+            <div class="badge-outline-sage px-4 py-3 bg-white shadow-soft">
+                <i class="bi bi-shield-check theme-accent-text-dark me-2"></i>
+                <span class="fw-black text-theme-dark smallest text-uppercase ls-1">Verified Institutional Record</span>
+            </div>
+        </div>
+    </div>
+
+    {% if reports %}
+        {% for report in reports %}
+        <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5">
+            <div class="card-header bg-theme-dark p-4 border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                            <i class="bi bi-award-fill"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white fw-black m-0 tracking-tighter">{{ report.exam.name }}</h4>
+                            <span class="smallest fw-black text-white opacity-50 uppercase ls-2">{{ report.exam.start_date|date:"F Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="h2 fw-black m-0 theme-accent-text tracking-tighter">{{ report.percent }}%</div>
+                        <div class="smallest fw-black text-white opacity-50 uppercase ls-1">Aggregate Score</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive bg-white">
+                <table class="table table-borderless align-middle mb-0">
+                    <thead>
+                        <tr class="bg-sage border-bottom border-white">
+                            <th class="ps-4 py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Academic Subject</th>
+                            <th class="py-4 text-center text-uppercase smallest fw-black text-theme-dark ls-2">Marks Obtained</th>
+                            <th class="py-4 text-center text-uppercase smallest fw-black text-theme-dark ls-2">Grade Node</th> 
+                            <th class="pe-4 py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Faculty Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in report.results %}
+                        <tr class="border-bottom-dashed">
+                            <td class="ps-4 py-4">
+                                <span class="fw-black text-theme-dark fs-6 tracking-normal text-capitalize">{{ result.subject.name }}</span>
+                            </td>
+                            <td class="text-center py-4">
+                                <span class="score-pill fw-black">{{ result.marks_obtained }}</span>
+                            </td>
+                            
+                            <td class="text-center py-4">
+                                {% if result.grade == 'F' %}
+                                    <span class="badge-node bg-danger-light text-danger">FAIL</span>
+                                {% elif result.grade == '-' %}
+                                    <span class="badge-node bg-light text-muted border">PENDING</span>
+                                {% else %}
+                                    <span class="badge-node bg-neon text-theme-dark">{{ result.grade }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4 py-4">
+                                <p class="smallest fw-bold text-muted m-0 italic-style">
+                                    {{ result.remarks|default:"Progress consistent with standards." }}
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <div class="text-center py-5">
+            <div class="bg-light-sage d-inline-flex p-5 rounded-circle mb-4 border border-dashed border-dark opacity-25">
+                <i class="bi bi-stack display-1 text-theme-dark"></i>
+            </div>
+            <h3 class="fw-black text-theme-dark tracking-normal">No Published Records</h3>
+            <p class="text-muted fw-medium small mx-auto" style="max-width: 400px;">Assessment results are currently being synchronized by the Registrar. Please check back after the official publishing window.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-2 { letter-spacing: 1px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.75rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .theme-accent-text { color: var(--theme-accent); }
+    .italic-style { font-style: italic; }
+
+    /* CARDS & COMPONENTS */
+    .card-bento { border-radius: 30px; border: 1px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-danger-light { background: #fef2f2; }
+    .bg-neon { background: var(--theme-accent); }
+
+    .icon-square { width: 55px; height: 55px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    
+    .score-pill { background: #f8fafc; color: #000; padding: 8px 16px; border-radius: 12px; border: 2px solid var(--bg-sage); font-size: 1rem; }
+    
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 4px 15px; border-radius: 50px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+    .badge-outline-sage { padding: 8px 20px; border: 2px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.75rem; }
+    .badge-node { padding: 6px 16px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.06); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+</style>
+{% endblock %}

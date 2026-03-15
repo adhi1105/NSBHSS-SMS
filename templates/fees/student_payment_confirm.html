@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    
+    <div class="row justify-content-center w-100">
+        <div class="col-xl-5 col-lg-7 col-md-9">
+            
+            <div class="card card-bento border-0 shadow-soft overflow-hidden">
+                
+                <div class="card-header bg-theme-dark p-4 border-0 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center icon-square bg-theme-accent text-theme-dark shadow-sm mb-3">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h4 class="text-white fw-black m-0 tracking-tighter" style="letter-spacing: 0.5px;">Secure Payment Gateway</h4>
+                    <span class="smallest fw-black text-white opacity-50 uppercase ls-3">Encrypted Transaction Node</span>
+                </div>
+
+                <div class="card-body p-4 p-lg-5 text-center bg-white">
+                    
+                    <h6 class="smallest fw-black text-theme-dark text-uppercase ls-3 mb-3">Settlement Allocation</h6>
+                    <h2 class="fw-black text-theme-dark mb-1 tracking-normal text-capitalize">{{ invoice.structure.fee_type.name }}</h2>
+                    <p class="smallest fw-bold text-muted uppercase ls-1">{{ invoice.structure.academic_year }}</p>
+
+                    <div class="py-4 my-5 border-top border-bottom border-light">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="smallest fw-black text-theme-dark uppercase ls-2">Invoice Gross Value</span>
+                            <span class="fw-black text-theme-dark">₹{{ invoice.final_amount|intcomma }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="smallest fw-black text-theme-dark uppercase ls-2">Verified Credits</span>
+                            <span class="fw-black theme-accent-text-dark">- ₹{{ invoice.paid_amount|intcomma }}</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-5">
+                        <span class="smallest fw-black text-theme-dark uppercase ls-3">Net Payable Node</span>
+                        <span class="fs-1 fw-black text-theme-dark tracking-tighter">₹{{ invoice.balance|intcomma }}</span>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-neon-premium w-100 py-3 shadow-soft hover-lift mb-4">
+                            <i class="bi bi-credit-card-2-front-fill me-2"></i>Execute Payment Stream
+                        </button>
+                    </form>
+                    
+                    <a href="{% url 'fees:index' %}" class="text-decoration-none smallest fw-black text-theme-dark opacity-50 uppercase ls-2 transition-all hover-opacity-100">
+                        Discard & Return to Portal
+                    </a>
+                </div>
+
+                <div class="card-footer bg-light-sage border-0 text-center py-4">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-patch-check-fill theme-accent-text-dark"></i>
+                        <span class="smallest fw-black text-theme-dark opacity-75 uppercase ls-1">Institutional Grade 256-bit Encryption</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.5px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* CARDS & COMPONENTS */
+    .card-bento { border-radius: 45px; border: 2px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    
+    .icon-square { width: 55px; height: 55px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 1px; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(203, 251, 69, 0.4); }
+
+    /* UTILITIES */
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.08); }
+    .transition-all { transition: 0.3s ease; }
+    .hover-opacity-100:hover { opacity: 1 !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .hover-lift:hover { transform: translateY(-3px); }
+</style>
+{% endblock %}

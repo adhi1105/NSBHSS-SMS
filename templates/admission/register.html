@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    
+    <div class="row justify-content-center w-100">
+        <div class="col-xl-6 col-lg-8">
+            
+            <div class="card card-bento border-0 shadow-soft overflow-hidden">
+                
+                <div class="card-header bg-theme-dark p-4 border-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white fw-black m-0 tracking-tighter" style="letter-spacing: 0.5px;">Student Registry Node</h4>
+                            <span class="smallest fw-black text-white opacity-50 uppercase ls-3">Initialization Protocol</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-lg-5 bg-white">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">First Nomenclature</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Last Nomenclature</label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Temporal Origin (DOB)</label>
+                                {{ form.date_of_birth }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Target Grade Node</label>
+                                {{ form.current_class }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">System Communication link (Email)</label>
+                            {{ form.email }}
+                        </div>
+
+                        <div class="mb-5">
+                            <div class="upload-node p-4 rounded-4 border-dashed border-dark bg-light-sage">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Biometric Node Sync (Photo)</label>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="icon-square bg-white text-theme-dark shadow-sm" style="width: 45px; height: 45px;">
+                                        <i class="bi bi-camera-fill"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        {{ form.photo }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column gap-3">
+                            <button type="submit" class="btn-neon-premium w-100 py-3 shadow-soft hover-lift fs-6">
+                                CONFIRM ADMISSION PROTOCOL <i class="bi bi-shield-check-fill ms-2"></i>
+                            </button>
+                            
+                            <a href="{% url 'admission:index' %}" class="text-center text-decoration-none smallest fw-black text-theme-dark opacity-50 uppercase ls-2 transition-all hover-opacity-100">
+                                Abort Registry Entry
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light-sage border-0 text-center py-4">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-cpu theme-accent-text-dark"></i>
+                        <span class="smallest fw-black text-theme-dark opacity-75 uppercase ls-1">Auto-generating Unique Identifier Fragment</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* FORM INPUTS: PURE BLACK VISIBILITY */
+    input:not([type="file"]), select { 
+        width: 100%;
+        border-radius: 15px !important; 
+        border: 2px solid var(--bg-sage) !important; 
+        padding: 14px 18px !important; 
+        font-size: 1rem !important; 
+        font-weight: 700 !important;      
+        color: #000000 !important; /* FIXED: Absolute typed visibility */
+        background: var(--white) !important;
+        transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+    input:focus, select:focus { border-color: var(--theme-dark) !important; box-shadow: 0 10px 20px rgba(15, 56, 34, 0.05) !important; outline: none; }
+
+    /* UPLOAD NODES */
+    .upload-node { border: 2px dashed var(--bg-sage) !important; }
+    input[type="file"]::file-selector-button {
+        border: none; background: var(--theme-dark); padding: 8px 16px; border-radius: 50px;
+        color: var(--theme-accent); font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
+        margin-right: 15px; cursor: pointer; transition: 0.3s;
+    }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 40px; border: 2px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    
+    .icon-square { width: 55px; height: 55px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(203, 251, 69, 0.4); }
+
+    /* UTILITIES */
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.08); }
+    .transition-all { transition: 0.3s ease; }
+    .hover-opacity-100:hover { opacity: 1 !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .hover-lift:hover { transform: translateY(-3px); }
+</style>
+{% endblock %}

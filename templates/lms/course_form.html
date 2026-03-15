@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon">Registry v2.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark">Institutional Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                {{ title|default:"Deploy Curriculum" }}
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                System Node / <span class="theme-accent-text-dark uppercase ls-1">New Deployment</span>
+            </p>
+        </div>
+        
+        <div class="d-flex gap-3">
+            <a href="{% url 'lms:index' %}" class="btn-minimal shadow-soft">
+                <i class="bi bi-x-lg me-2"></i>Cancel
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-5 justify-content-center">
+        <div class="col-xl-7 col-lg-8">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4 fw-bold small">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5">
+                    <div class="card-header bg-theme-dark p-4 border-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                                <i class="bi bi-journal-plus"></i>
+                            </div>
+                            <h4 class="text-white fw-black m-0 tracking-tighter">Course Infrastructure</h4>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4 p-lg-5 bg-white">
+                        <div class="row g-4">
+                            <div class="col-md-8">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Curriculum Title</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}<div class="text-danger smallest mt-1 fw-black">{{ form.title.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Serial Code</label>
+                                {{ form.code }}
+                                {% if form.code.errors %}<div class="text-danger smallest mt-1 fw-black">{{ form.code.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Departmental Stream</label>
+                                {{ form.stream }}
+                                <div class="smallest fw-bold text-muted mt-2 opacity-50 uppercase">Allocates course to specific faculty wings</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Target Batch</label>
+                                {{ form.classroom }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Academic Subject</label>
+                                {{ form.subject }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Lead Instructor</label>
+                                {{ form.teacher }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Executive Summary</label>
+                                {{ form.description }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-5">
+                            <button type="submit" class="btn-neon-premium px-5 py-3 shadow-soft hover-lift">
+                                {% if form.instance.pk %}
+                                    Update Infrastructure <i class="bi bi-check2-circle ms-2"></i>
+                                {% else %}
+                                    Initialize Curriculum <i class="bi bi-plus-lg ms-2"></i>
+                                {% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-xl-4 col-lg-4">
+            <div class="card card-bento border-0 bg-theme-dark text-white p-4 shadow-soft h-100 position-relative overflow-hidden">
+                <i class="bi bi-layers position-absolute opacity-10" style="font-size: 15rem; bottom: -50px; right: -50px;"></i>
+                <div class="position-relative z-1">
+                    <h6 class="theme-accent-text fw-black text-uppercase smallest ls-3 mb-4">Deployment Logic</h6>
+                    <div class="d-flex flex-column gap-4">
+                        <div class="d-flex gap-3">
+                            <div class="bullet-box">01</div>
+                            <p class="smallest fw-bold opacity-75 m-0 line-height-lg">Course codes must be unique and follow the departmental naming convention (e.g., PHY-12A).</p>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <div class="bullet-box">02</div>
+                            <p class="smallest fw-bold opacity-75 m-0 line-height-lg">Lead instructors will receive full write-access to manage modules and assignments.</p>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <div class="bullet-box">03</div>
+                            <p class="smallest fw-bold opacity-75 m-0 line-height-lg">Assigning a Batch (Classroom) automatically enrolls all associated students into the node.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;         /* Deep Forest Green */
+        --theme-accent: #cbfb45;       /* Neon Lime */
+        --theme-accent-dark: #217346;  /* High-Contrast Green */
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.2rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.75rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .line-height-lg { line-height: 1.6; }
+
+    /* CARDS */
+    .card-bento { border-radius: 30px; border: 1px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .icon-square { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+    /* VISIBILITY FIX: INPUT FIELDS */
+    input, textarea, select { 
+        width: 100%;
+        border-radius: 15px !important; 
+        border: 2px solid var(--bg-sage) !important; 
+        padding: 14px 18px !important; 
+        font-size: 1rem !important; 
+        font-weight: 600 !important;      
+        color: #000000 !important;        /* Pure black for clarity */
+        background: var(--white) !important;
+        transition: 0.3s ease; 
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--theme-dark) !important; box-shadow: 0 10px 20px rgba(15, 56, 34, 0.05) !important; outline: none; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); }
+
+    .btn-minimal { background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; padding: 10px 25px; text-decoration: none; transition: 0.3s; }
+    .btn-minimal:hover { border-color: var(--theme-dark); }
+
+    .bullet-box { min-width: 35px; height: 35px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 900; color: var(--theme-accent); }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 4px 15px; border-radius: 50px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.06); }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+    .hover-lift:hover { transform: translateY(-3px); }
+</style>
+{% endblock %}

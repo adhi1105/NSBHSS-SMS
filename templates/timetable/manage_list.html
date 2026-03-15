@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% csrf_token %}
+
+<div id="globalOverlay" class="position-fixed vh-100 vw-100 top-0 start-0 d-none" style="z-index: 9999; background: rgba(232, 240, 235, 0.8); backdrop-filter: blur(12px);">
+    <div class="d-flex flex-column align-items-center justify-content-center h-100">
+        <div class="spinner-wrapper mb-4">
+            <div class="spinner-border" role="status" style="width: 3.5rem; height: 3.5rem; border-width: .3em; color: var(--theme-dark);"></div>
+        </div>
+        <h3 class="fw-black text-theme-dark mb-2 tracking-tighter" id="overlayTitle">Generating Infrastructure</h3>
+        <p class="text-muted fw-bold text-uppercase ls-2 smallest" id="overlayStatus">Processing nodes 0 of 0...</p>
+        <div class="progress w-25 rounded-pill shadow-sm" style="height: 8px; background: var(--white);">
+            <div id="globalProgressBar" class="progress-bar progress-bar-animated bg-theme-accent" role="progressbar" style="width: 0%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon">Scheduler v2.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 opacity-50">Academic Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Master <span class="theme-accent-text-dark">Schedules</span>
+            </h1>
+            <p class="text-muted fw-medium mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                {% if is_restricted %}Faculty Assigned Batches{% else %}Global Institutional Timetables{% endif %}
+            </p>
+        </div>
+
+        <div class="d-flex gap-3 align-items-center">
+            {% if not is_restricted %}
+            <button class="btn-neon-premium shadow-soft" id="globalAutoFillBtn" onclick="triggerGlobalAutoFill()">
+                <i class="bi bi-stars me-2"></i>Auto-Fill All
+            </button>
+            <div class="divider-v" style="height: 35px; border-left: 2px solid var(--bg-sage);"></div>
+            {% endif %}
+
+            <div class="badge-outline-sage px-4 py-3 d-flex align-items-center gap-3 bg-white shadow-soft">
+                <i class="bi bi-shield-lock-fill text-theme-dark opacity-50"></i>
+                <span class="fw-black text-theme-dark smallest text-uppercase ls-1">
+                    {% if is_restricted %}Faculty Access{% else %}Admin Authority{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroller-container mb-5">
+        <div class="d-flex gap-2 overflow-auto py-2 hide-scrollbar">
+            <button class="nav-pill-modern active" onclick="filterByStandard(event, 'all')">
+                {% if is_restricted %}My Allocated Classes{% else %}All Batches{% endif %}
+            </button>
+            {% if not is_restricted %}
+                <button class="nav-pill-modern" onclick="filterByStandard(event, 11)">Standard 11</button>
+                <button class="nav-pill-modern" onclick="filterByStandard(event, 12)">Standard 12</button>
+                <button class="btn-delete-minimal ms-auto" onclick="confirmResetAll()">
+                    <i class="bi bi-trash3-fill me-2"></i>Reset System
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4" id="classroomGrid">
+        {% for classroom in classrooms %}
+        <div class="col-xl-3 col-lg-4 col-md-6 classroom-card" 
+             data-standard="{{ classroom.standard }}" 
+             style="animation: slideUp 0.5s ease-out forwards; animation-delay: calc({{ forloop.counter0 }} * 0.05s); opacity: 0;">
+            
+            <div class="card card-bento h-100 card-lift border-0 shadow-soft">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="icon-square bg-theme-dark text-white rounded-3 fw-black shadow-sm" style="width: 55px; height: 55px; font-size: 1.4rem;">
+                            {{ classroom.standard }}
+                        </div>
+                        <span class="badge-outline-sage fw-black uppercase">
+                            Div: {{ classroom.division }}
+                        </span>
+                    </div>
+
+                    <h3 class="fw-black text-theme-dark tracking-normal text-capitalize mb-1">{{ classroom.name }}</h3>
+                    <p class="smallest fw-bold text-muted text-uppercase ls-2 mb-4">
+                        <i class="bi bi-mortarboard-fill theme-accent-text-dark me-1"></i> {{ classroom.stream.name|default:"General Stream" }}
+                    </p>
+
+                    <div class="mt-auto">
+                        <a href="{% url 'timetable:view_timetable' classroom.id %}" 
+                           class="btn-outline-modern rounded-pill w-100 py-3 fw-black transition-all d-flex align-items-center justify-content-center">
+                            <i class="bi bi-calendar3 me-2"></i>Schedule Grid
+                        </a>
+                        
+                        {% if not is_restricted %}
+                        <div class="text-center mt-3">
+                            <span class="smallest text-theme-dark fw-black text-uppercase ls-1 opacity-30">Full Node Access</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-calendar-x display-1 text-theme-dark opacity-10"></i>
+            <h3 class="fw-black text-theme-dark mt-4 tracking-normal">No Allocations Found</h3>
+            <p class="text-muted fw-medium small">The master schedule has no active nodes assigned to your profile.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--bg-light);
+        min-height: 100vh;
+    }
+
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; line-height: 0.9; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-2 { letter-spacing: 1px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.7rem; }
+    .theme-accent-text-dark { color: #2a8b58; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark); border: none; padding: 12px 25px; border-radius: 50px; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; text-decoration: none; transition: 0.3s; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); }
+
+    .btn-outline-modern { background: var(--white); color: var(--theme-dark); border: 2px solid var(--bg-sage); font-size: 0.8rem; text-decoration: none; }
+    .btn-outline-modern:hover { background: var(--theme-dark); color: var(--theme-accent); border-color: var(--theme-dark); }
+
+    .btn-delete-minimal { background: transparent; border: 2px solid #fecaca; color: #dc2626; padding: 10px 25px; border-radius: 50px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; transition: 0.3s; cursor: pointer; }
+    .btn-delete-minimal:hover { background: #dc2626; color: white; border-color: #dc2626; }
+
+    /* CARDS */
+    .card-bento { background: var(--white); border-radius: 30px; border: 1px solid var(--bg-sage); }
+    .icon-square { display: flex; align-items: center; justify-content: center; }
+    .badge-outline-sage { padding: 6px 16px; border: 1px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.75rem; }
+
+    /* PILL NAVIGATION */
+    .nav-pill-modern { padding: 10px 25px; border-radius: 50px; background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; text-decoration: none; white-space: nowrap; transition: 0.3s; cursor: pointer; }
+    .nav-pill-modern.active { background: var(--theme-dark); color: var(--theme-accent); border-color: var(--theme-dark); }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .shadow-soft { box-shadow: 0 10px 30px rgba(15, 56, 34, 0.04); }
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .card-lift:hover { transform: translateY(-8px); border-color: var(--theme-dark); box-shadow: 0 20px 40px rgba(15, 56, 34, 0.08) !important; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    
+    /* ANIMATIONS */
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<script>
+    function filterByStandard(e, std) {
+        const pills = document.querySelectorAll('.nav-pill-modern');
+        pills.forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+
+        const cards = document.querySelectorAll('.classroom-card');
+        cards.forEach(card => {
+            if (std === 'all' || card.getAttribute('data-standard') == std) {
+                card.style.display = 'block';
+                card.style.opacity = '1';
+                card.style.animation = 'none';
+                setTimeout(() => card.style.animation = '', 10);
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    async function triggerGlobalAutoFill() {
+        if(!confirm("Initialize intelligent auto-fill for all curriculum nodes? Existing schedules will be overwritten.")) return;
+        
+        const overlay = document.getElementById('globalOverlay');
+        const bar = document.getElementById('globalProgressBar');
+        const status = document.getElementById('overlayStatus');
+        overlay.classList.remove('d-none');
+        
+        const classIds = Array.from(document.querySelectorAll('.classroom-card')).map(c => {
+            const link = c.querySelector('a').href;
+            return link.split('/').filter(Boolean).pop();
+        });
+
+        const total = classIds.length;
+        let successCount = 0;
+
+        for (let i = 0; i < total; i++) {
+            const id = classIds[i];
+            const currentPercent = Math.round(((i + 1) / total) * 100);
+            status.innerHTML = `Processing infrastructure ${i + 1} of ${total}...`;
+            bar.style.width = `${currentPercent}%`;
+
+            try {
+                const response = await fetch(`/timetable/auto-fill/${id}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if(data.status === 'success') successCount++;
+            } catch (e) { console.error(`Sync error at node ${id}`, e); }
+        }
+
+        setTimeout(() => {
+            overlay.classList.add('d-none');
+            location.reload();
+        }, 800);
+    }
+
+    async function confirmResetAll() {
+        if(!confirm("CRITICAL: This will wipe the global scheduling database. This action is irreversible. Proceed?")) return;
+        
+        document.getElementById('overlayTitle').innerText = "Wiping Data Structures";
+        document.getElementById('globalOverlay').classList.remove('d-none');
+
+        const classIds = Array.from(document.querySelectorAll('.classroom-card')).map(c => {
+            const link = c.querySelector('a').href;
+            return link.split('/').filter(Boolean).pop();
+        });
+
+        for (const id of classIds) {
+            await fetch(`/timetable/clear/${id}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken }
+            });
+        }
+        location.reload();
+    }
+</script>
+{% endblock %}

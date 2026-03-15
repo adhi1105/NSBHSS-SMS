@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon" style="letter-spacing: 1.5px;">MANAGEMENT NODE</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Attendance Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                {% if is_restricted %}My <span class="theme-accent-text-dark">Batches</span>{% else %}Attendance <span class="theme-accent-text-dark">Hub</span>{% endif %}
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span class="ls-1">SYSTEM CLOCK:</span> 
+                <span class="uppercase ls-2 fw-black opacity-75">{% now "l, F d, Y" %}</span>
+            </p>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3 h-100">
+            <div class="badge-outline-sage px-4 py-3 bg-white shadow-soft d-flex align-items-center gap-3">
+                <i class="bi bi-shield-lock-fill theme-accent-text-dark fs-5"></i>
+                <span class="fw-black smallest text-theme-dark text-uppercase ls-2">
+                    {% if is_restricted %}Teacher_Isolated_Protocol{% else %}Administrative_Access_Node{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="icon-square bg-sage text-theme-dark shadow-sm me-3">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-3 m-0">
+                            {% if is_restricted %}Assigned Classes{% else %}Registry Total{% endif %}
+                        </h6>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ classes.count|stringformat:"02d" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-theme-dark text-white">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="icon-square bg-theme-accent text-theme-dark shadow-sm me-3">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-black theme-accent-text smallest text-uppercase ls-3 m-0">Protocol State</h6>
+                        <h3 class="fw-black text-white m-0 tracking-tighter uppercase ls-1">Real_Time Sync</h3> 
+                    </div>
+                </div>
+                <div class="bg-decoration"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for classroom in classes %}
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-bento border-0 shadow-soft h-100 transition-all card-lift bg-white {% if classroom.class_teacher == request.user.staff %}border-bottom-theme{% endif %}">
+                <div class="card-body p-4 d-flex flex-column">
+                    
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="avatar-sq bg-theme-dark text-theme-accent rounded-3 d-flex align-items-center justify-content-center fw-black shadow-sm" style="width: 48px; height: 48px; font-size: 1.1rem;">
+                            {{ classroom.standard }}
+                        </div>
+                        <button class="btn btn-close-custom shadow-sm transition-all d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;" onclick="openDrawer('{{ classroom.name }}', '{{ classroom.id }}')">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                    </div>
+                    
+                    <h4 class="fw-black text-theme-dark mb-1 tracking-tighter">{{ classroom.name }}</h4>
+                    <div class="d-flex align-items-center mb-4 gap-2">
+                        <span class="badge-node bg-light-sage text-theme-dark ls-1">DIVISION {{ classroom.division }}</span>
+                        <div class="smallest fw-bold text-muted uppercase ls-1">
+                            <i class="bi bi-mortarboard-fill theme-accent-text-dark"></i> {{ classroom.stream.name|default:"CORE" }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Faculty Role</label>
+                        <div class="d-flex flex-wrap gap-2">
+                             {% if classroom.class_teacher == request.user.staff %}
+                                <span class="badge-pill-neon" style="font-size: 0.6rem;">CLASS TEACHER</span>
+                             {% else %}
+                                <span class="badge-outline-sage border-theme smallest fw-black uppercase ls-1">SUBJECT FACULTY</span>
+                             {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-3">
+                        <a href="{% url 'attendance:mark_attendance' classroom.id %}" class="btn-neon-premium w-100 py-3 text-center d-block">
+                            MARK REGISTRY
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="bg-light-sage p-5 rounded-5 border-dashed border-dark opacity-50">
+                <i class="bi bi-clipboard-x display-1 text-theme-dark"></i>
+                <h4 class="fw-black text-theme-dark mt-3 uppercase ls-2">Zero Allocation Nodes Found</h4>
+                <p class="smallest fw-bold text-muted uppercase ls-1">Awaiting subject allocation or class teacher assignment from registrar.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="drawerOverlay" class="drawer-backdrop" onclick="closeDrawer()"></div>
+<div id="actionDrawer" class="drawer-panel shadow-soft border-start border-sage">
+    <div class="drawer-content p-4 p-lg-5 h-100 d-flex flex-column bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div class="header-group">
+                <h4 class="fw-black text-theme-dark m-0 tracking-tighter ls-1" id="drawerTitle">Node Actions</h4>
+                <span class="smallest fw-black text-muted uppercase ls-3">Quick Execution Hub</span>
+            </div>
+            <button class="btn-close-custom bg-sage border-0" onclick="closeDrawer()" style="width: 45px; height: 45px;"><i class="bi bi-x-lg"></i></button>
+        </div>
+        
+        <div class="d-grid gap-3">
+            <button class="btn-action-node text-start bg-success-light text-success p-3 border-0 rounded-4 transition-all">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-check-all fs-4"></i>
+                    <div>
+                        <div class="smallest fw-black uppercase ls-1">Global Presence Node</div>
+                        <div class="smallest fw-bold opacity-75 uppercase">Mass synchronization</div>
+                    </div>
+                </div>
+            </button>
+            
+            <button class="btn-action-node text-start bg-light-sage text-theme-dark p-3 border-0 rounded-4 transition-all">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-megaphone-fill fs-4 theme-accent-text-dark"></i>
+                    <div>
+                        <div class="smallest fw-black uppercase ls-1">Broadcast Alert</div>
+                        <div class="smallest fw-bold opacity-75 uppercase">Execute parent notification</div>
+                    </div>
+                </div>
+            </button>
+
+            <button class="btn-action-node text-start bg-light p-3 border-0 rounded-4 transition-all">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-file-earmark-pdf-fill fs-4 text-muted"></i>
+                    <div>
+                        <div class="smallest fw-black uppercase ls-1">Daily Report Node</div>
+                        <div class="smallest fw-bold opacity-75 uppercase">Export fiscal fragments</div>
+                    </div>
+                </div>
+            </button>
+        </div>
+
+        <div class="mt-auto pt-5">
+            <a id="drawerHistoryLink" href="#" class="btn-outline-modern w-100 py-3 rounded-pill fw-black text-center text-decoration-none d-block">
+                AUDIT FULL HISTORY
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.8px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .line-height-1 { line-height: 1; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+
+    /* DRAWER SYSTEM */
+    .drawer-backdrop {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 56, 34, 0.2); backdrop-filter: blur(8px);
+        z-index: 1050; opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .drawer-panel {
+        position: fixed; top: 0; right: -450px; width: 450px; height: 100%;
+        background: white; z-index: 1060; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .drawer-backdrop.active { opacity: 1; visibility: visible; }
+    .drawer-panel.active { right: 0; }
+    .btn-action-node:hover { transform: translateX(8px); }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 30px; border: 1.5px solid var(--bg-sage); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-success-light { background: #ecfdf5; }
+    .border-bottom-theme { border-bottom: 5px solid var(--theme-dark) !important; }
+    .border-theme { border-color: var(--theme-dark) !important; }
+    .border-dashed { border-style: dashed !important; }
+    
+    .icon-square { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .bg-decoration {
+        position: absolute; width: 180px; height: 180px; background: rgba(203, 251, 69, 0.05);
+        border-radius: 50%; top: -60px; right: -60px; z-index: 1;
+    }
+
+    /* BADGES & NODES */
+    .badge-node { padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 5px 14px; border-radius: 50px; font-weight: 900; text-transform: uppercase; }
+    .badge-outline-sage { padding: 6px 16px; border: 2.1px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 14px 32px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; font-size: 0.8rem; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(203, 251, 69, 0.4); }
+    .btn-close-custom { border-radius: 50%; background: var(--white); border: 2.1px solid var(--bg-sage); color: var(--theme-dark); text-decoration: none; }
+    .btn-outline-modern { border: 2.5px solid var(--bg-sage); color: var(--theme-dark); font-size: 0.75rem; text-transform: uppercase; font-weight: 900; transition: 0.3s; letter-spacing: 1px; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; }
+    .card-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(15, 56, 34, 0.08); }
+</style>
+
+<script>
+    function openDrawer(name, id) {
+        document.getElementById('drawerTitle').innerText = name;
+        document.getElementById('drawerHistoryLink').href = `/attendance/history/${id}/`;
+        document.getElementById('drawerOverlay').classList.add('active');
+        document.getElementById('actionDrawer').classList.add('active');
+    }
+
+    function closeDrawer() {
+        document.getElementById('drawerOverlay').classList.remove('active');
+        document.getElementById('actionDrawer').classList.remove('active');
+    }
+</script>
+{% endblock %}

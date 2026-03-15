@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon" style="letter-spacing: 1.5px;">REGISTRY ENTRY</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Manual Admission Protocol</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                New <span class="theme-accent-text-dark">Application</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span class="ls-1">SYSTEM STATE:</span> 
+                <span class="uppercase ls-2 fw-black opacity-75">Admin Override Enabled</span>
+            </p>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'admission:index' %}" class="btn-minimal shadow-soft d-flex align-items-center">
+                <i class="bi bi-x-circle me-2 text-danger"></i>DISCARD ENTRY
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-10">
+            
+            <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="card card-bento border-0 shadow-soft bg-white mb-5 overflow-hidden">
+                    <div class="card-header bg-theme-dark p-4 border-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                                <i class="bi bi-person-badge"></i>
+                            </div>
+                            <h5 class="text-white fw-black m-0 tracking-tighter ls-1">Student Core Data</h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Full Nomenclature</label>
+                                {{ form.student_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Temporal Node (DOB)</label>
+                                {{ form.date_of_birth }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Gender Classification</label>
+                                {{ form.gender }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Communication Link (Email)</label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-bento border-0 shadow-soft bg-white mb-5 overflow-hidden">
+                    <div class="card-header bg-sage p-4 border-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-square bg-theme-dark text-theme-accent shadow-sm">
+                                <i class="bi bi-book-half"></i>
+                            </div>
+                            <h5 class="fw-black text-theme-dark m-0 tracking-tighter ls-1">Academic Placement</h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Target Grade Node</label>
+                                {{ form.class_applied }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Stream Specialization</label>
+                                {{ form.stream_applied }}
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-4 bg-light-sage border border-dashed border-dark">
+                            <h6 class="smallest fw-black text-theme-dark text-uppercase ls-2 mb-4">Subject Fragments</h6>
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <label class="smallest fw-bold text-muted uppercase ls-1 mb-2 d-block">Language Node I</label>
+                                    {{ form.first_language }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="smallest fw-bold text-muted uppercase ls-1 mb-2 d-block">Language Node II</label>
+                                    {{ form.second_language }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="smallest fw-bold text-muted uppercase ls-1 mb-2 d-block">Optional Component</label>
+                                    {{ form.optional_subject }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-bento border-0 shadow-soft bg-white mb-5 overflow-hidden">
+                    <div class="card-header bg-theme-dark p-4 border-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                                <i class="bi bi-house-door"></i>
+                            </div>
+                            <h5 class="text-white fw-black m-0 tracking-tighter ls-1">Verification Nodes</h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Guardian Nomenclature</label>
+                                {{ form.parent_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Contact Frequency</label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-12">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-3 d-block mb-2">Residential Node (Address)</label>
+                                {{ form.address }}
+                            </div>
+                        </div>
+                        
+                        <div class="divider-dashed my-5"></div>
+
+                        <h6 class="smallest fw-black text-theme-dark text-uppercase ls-3 mb-4">Document Synchronization</h6>
+                        <div class="row g-4">
+                            {% for field in form %}
+                                {% if field.field.widget.input_type == 'file' %}
+                                <div class="col-md-6">
+                                    <div class="upload-node p-4 border rounded-4 bg-white transition-all h-100">
+                                        <label class="smallest fw-black text-theme-dark uppercase ls-1 mb-2 d-block">{{ field.label }}</label>
+                                        {{ field }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-5 mb-5">
+                    <button type="submit" class="btn-neon-premium px-5 py-3 shadow-soft hover-lift fs-6">
+                        SAVE APPLICATION TO SYSTEM <i class="bi bi-cloud-arrow-up-fill ms-2"></i>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 30px; border: 1.5px solid var(--bg-sage); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    
+    .icon-square { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* FORM INPUTS: PURE BLACK VISIBILITY */
+    input:not([type="file"]), select, textarea { 
+        width: 100%;
+        border-radius: 15px !important; 
+        border: 2px solid var(--bg-sage) !important; 
+        padding: 14px 18px !important; 
+        font-size: 1rem !important; 
+        font-weight: 700 !important;      
+        color: #000000 !important; 
+        background: var(--white) !important;
+        transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--theme-dark) !important; box-shadow: 0 10px 20px rgba(15, 56, 34, 0.05) !important; outline: none; }
+
+    /* UPLOAD NODES */
+    .upload-node { border: 2px dashed var(--bg-sage) !important; }
+    .upload-node:hover { border-color: var(--theme-dark) !important; transform: translateY(-3px); }
+    
+    input[type="file"]::file-selector-button {
+        border: none; background: var(--theme-dark); padding: 8px 16px; border-radius: 50px;
+        color: var(--theme-accent); font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
+        margin-right: 15px; cursor: pointer; transition: 0.3s;
+    }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 14px 32px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(203, 251, 69, 0.4); }
+    
+    .btn-minimal { background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; padding: 12px 28px; text-decoration: none; transition: 0.3s; letter-spacing: 0.5px; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    .divider-dashed { border-top: 2px dashed var(--bg-sage); }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    .animate-pulse { animation: pulse 2s infinite; }
+</style>
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-7 col-xxl-8" style="min-width: 0;">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech flex-shrink-0">LOGISTICS_NODE_v4.2</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50 text-nowrap overflow-hidden text-truncate">
+                    Fleet Infrastructure & Route Optimization
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1 text-nowrap text-truncate w-100">
+                Transport <span class="theme-accent-text-dark">Command</span>
+            </h1>
+            <div class="d-flex align-items-center gap-2 mt-3 text-theme-dark fw-bold">
+                <div class="status-pulse-wrapper d-flex align-items-center flex-shrink-0"><span class="status-dot animate-pulse"></span></div>
+                <span class="smallest ls-1 fw-black text-nowrap uppercase opacity-75">GPS_State:</span> 
+                <span class="smallest ls-1 fw-black text-nowrap text-theme-accent-dark uppercase">Live_Fleet_Sync_Active</span>
+            </div>
+        </div>
+        
+        <div class="col-xl-5 col-xxl-4 d-flex flex-wrap justify-content-xl-end gap-2">
+            <a href="{% url 'transportation:create_vehicle' %}" class="btn-terminal-action standard text-nowrap shadow-sm justify-content-center">
+                <i class="bi bi-bus-front me-2"></i>ADD_VEHICLE
+            </a>
+            <a href="{% url 'transportation:create_route' %}" class="btn-terminal-action neon text-nowrap shadow-sm justify-content-center">
+                <i class="bi bi-signpost-split me-2"></i>CREATE_ROUTE
+            </a>
+        </div>
+    </div>
+
+    {% for v in vehicles %}
+        {% if v.needs_maintenance %}
+        <div class="terminal-alert danger p-3 mb-4 d-flex align-items-center justify-content-between shadow-soft border-start border-5 border-danger">
+            <div class="d-flex align-items-center gap-3 overflow-hidden">
+                <div class="icon-sq-micro bg-danger text-white flex-shrink-0 animate-pulse"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="overflow-hidden">
+                    <span class="smallest fw-black text-danger uppercase ls-1 d-block">System_Compliance_Error</span>
+                    <p class="smallest fw-bold text-theme-dark m-0 text-truncate">Vehicle {{ v.vehicle_no }} ({{ v.model_name }}) has expired insurance/pollution documentation.</p>
+                </div>
+            </div>
+            <a href="{% url 'transportation:edit_vehicle' v.id %}" class="btn-terminal-action danger-sm py-1 text-nowrap">RESOLVE_NODE</a>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">FLEET_01</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-sage text-theme-dark flex-shrink-0 shadow-sm">
+                        <i class="bi bi-bus-front"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0 text-truncate">Fleet Registry</h6>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ vehicles.count|stringformat:"02d" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">MAPS_02</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-theme-accent text-theme-dark flex-shrink-0 shadow-sm">
+                        <i class="bi bi-map"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0 text-truncate">Active Routes</h6>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ routes.count|stringformat:"02d" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">USER_03</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-light-sage text-theme-dark flex-shrink-0 shadow-sm">
+                        <i class="bi bi-backpack"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0 text-truncate">Assigned Nodes</h6>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ total_students|stringformat:"02d" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node-dark shadow-sm position-relative text-white">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-white opacity-50">GPS_LIVE</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-theme-dark text-theme-accent flex-shrink-0 shadow-sm border border-white border-opacity-10">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black theme-accent-text smallest text-uppercase ls-1 m-0 text-truncate">Track Status</h6>
+                        <h3 class="fw-black text-white m-0 tracking-tighter">LIVE</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-terminal border-0 glass-node overflow-hidden shadow-soft border">
+        <div class="card-header bg-white p-0 border-bottom">
+            <ul class="nav nav-tabs nav-justified terminal-tabs border-0" id="transportTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active py-4 smallest fw-black uppercase ls-2 text-theme-dark" id="fleet-tab" data-bs-toggle="tab" data-bs-target="#fleet" type="button">
+                        <i class="bi bi-truck me-2"></i>Fleet_Registry
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link py-4 smallest fw-black uppercase ls-2 text-theme-dark" id="routes-tab" data-bs-toggle="tab" data-bs-target="#routes" type="button">
+                        <i class="bi bi-signpost-2 me-2"></i>Route_Sequencing
+                    </button>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="card-body p-0">
+            <div class="tab-content" id="transportTabsContent">
+                
+                <div class="tab-pane fade show active" id="fleet" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead class="bg-theme-dark text-white">
+                                <tr>
+                                    <th class="ps-4 py-4 ls-1 smallest fw-black uppercase text-nowrap">Vehicle_Fragment</th>
+                                    <th class="py-4 ls-1 smallest fw-black uppercase text-nowrap">Operator_ID</th>
+                                    <th class="py-4 ls-1 smallest fw-black uppercase text-nowrap">Load_Capacity</th>
+                                    <th class="py-4 ls-1 smallest fw-black uppercase text-center text-nowrap">Status_Code</th>
+                                    <th class="pe-4 py-4 ls-1 smallest fw-black uppercase text-end text-nowrap">Execution</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for v in vehicles %}
+                                <tr class="border-bottom-faint">
+                                    <td class="ps-4 py-3">
+                                        <div class="fw-black text-theme-dark tracking-tighter fs-6">{{ v.vehicle_no }}</div>
+                                        <div class="smallest fw-bold text-muted uppercase ls-1">{{ v.model_name }}</div>
+                                    </td>
+                                    <td>
+                                        {% if v.driver %}
+                                            <div class="fw-black text-theme-dark smallest">{{ v.driver.name }}</div>
+                                            <div class="smallest fw-bold text-muted opacity-75"><i class="bi bi-telephone-fill me-1"></i>{{ v.driver.phone }}</div>
+                                        {% else %}
+                                            <span class="badge-terminal bg-light-sage text-theme-dark border">UNASSIGNED_OPERATOR</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="progress bg-dark bg-opacity-10 mb-1 shadow-inner" style="height: 6px; width: 120px; border-radius: 10px;">
+                                            <div class="progress-bar bg-theme-accent" role="progressbar" style="width: 75%"></div>
+                                        </div>
+                                        <span class="smallest fw-bold text-theme-dark">40 / {{ v.capacity }} NODES</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="badge-terminal-status {% if v.needs_maintenance %}offline{% else %}online{% endif %} text-nowrap">
+                                            <span class="smallest fw-black uppercase">{% if v.needs_maintenance %}COMPLIANCE_ERROR{% else %}OPERATIONAL{% endif %}</span>
+                                        </div>
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <a href="{% url 'transportation:edit_vehicle' v.id %}" class="btn-terminal-action standard shadow-sm py-2">AUDIT</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-5">
+                                    <div class="opacity-25"><i class="bi bi-bus-front fs-1"></i><h6 class="mt-2 fw-black uppercase">Zero_Fleet_Registry</h6></div>
+                                </td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="routes" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead class="bg-theme-dark text-white">
+                                <tr>
+                                    <th class="ps-4 py-4 ls-1 smallest fw-black uppercase text-nowrap">Route_Index</th>
+                                    <th class="py-4 ls-1 smallest fw-black uppercase text-nowrap">Assigned_Payload</th>
+                                    <th class="py-4 ls-1 smallest fw-black uppercase text-nowrap">Sequence_Count</th>
+                                    <th class="py-4 ls-1 smallest fw-black uppercase text-nowrap">Fee_Matrix</th>
+                                    <th class="pe-4 py-4 ls-1 smallest fw-black uppercase text-end text-nowrap">Execution</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in routes %}
+                                <tr class="border-bottom-faint">
+                                    <td class="ps-4 py-3">
+                                        <div class="fw-black text-theme-dark tracking-tighter fs-6">{{ r.name }}</div>
+                                        <div class="smallest fw-bold text-muted uppercase ls-1">{{ r.start_point }} ➝ {{ r.end_point }}</div>
+                                    </td>
+                                    <td>
+                                        {% if r.vehicle %}
+                                            <span class="badge-terminal bg-theme-dark text-theme-accent">{{ r.vehicle.vehicle_no }}</span>
+                                        {% else %}
+                                            <span class="badge-terminal bg-danger text-white">NULL_LINK</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="smallest fw-black text-theme-dark">{{ r.stops.count }} ACTIVE_STOPS</span>
+                                    </td>
+                                    <td>
+                                        <code class="code-fragment">₹{{ r.stops.first.monthly_fee }} - ₹{{ r.stops.last.monthly_fee }}</code>
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <a href="{% url 'transportation:edit_route' r.id %}" class="btn-terminal-action standard shadow-sm py-2">MAP_STOPS</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-5">
+                                    <div class="opacity-25"><i class="bi bi-signpost-2 fs-1"></i><h6 class="mt-2 fw-black uppercase">Zero_Route_Index</h6></div>
+                                </td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root { --bg-sage: #e8f0eb; --theme-dark: #0f3822; --theme-accent: #cbfb45; --bg-light: #fdfdfc; --white: #ffffff; }
+
+    .registry-blueprint { background-color: var(--bg-light); background-image: radial-gradient(var(--bg-sage) 1.5px, transparent 1.5px); background-size: 30px 30px; min-height: 100vh; }
+    .display-title { font-weight: 900; font-size: 3.2rem; letter-spacing: -2px; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .ls-1 { letter-spacing: 0.5px !important; } .ls-2 { letter-spacing: 1.5px !important; }
+    .text-nowrap { white-space: nowrap !important; }
+    .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ALERT STYLING */
+    .terminal-alert { background: #fff; border-radius: 12px; }
+    .terminal-alert.danger { border-color: #dc2626 !important; }
+
+    /* CARDS & NODES */
+    .glass-node { background: rgba(255, 255, 255, 0.95); border: 2px solid var(--white); border-radius: 20px; transition: 0.3s; }
+    .glass-node-dark { background: rgba(15, 56, 34, 0.98); border: 2px solid rgba(255,255,255,0.1); border-radius: 20px; }
+    .terminal-icon-box { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .code-fragment { font-family: monospace; font-size: 0.65rem; font-weight: 900; background: rgba(15, 56, 34, 0.08); padding: 4px 10px; border-radius: 6px; }
+
+    /* TABS */
+    .terminal-tabs .nav-link { border: 0 !important; transition: 0.3s; opacity: 0.4; border-bottom: 2px solid transparent !important; }
+    .terminal-tabs .nav-link.active { opacity: 1; border-bottom: 4px solid var(--theme-dark) !important; background: transparent; }
+
+    /* BUTTONS */
+    .btn-terminal-action { border: none; padding: 10px 24px; border-radius: 10px; font-weight: 900; font-size: 0.68rem; text-transform: uppercase; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; }
+    .btn-terminal-action.standard { background: var(--bg-light); color: var(--theme-dark); border: 1px solid var(--bg-sage); }
+    .btn-terminal-action.neon { background: var(--theme-accent); color: var(--theme-dark); }
+    .btn-terminal-action.danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+    .btn-terminal-action.danger-sm { background: #fee2e2; color: #dc2626; border-radius: 8px; font-size: 0.6rem; }
+    .btn-terminal-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+    /* BADGES */
+    .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; }
+    .badge-terminal { padding: 4px 12px; border-radius: 8px; font-weight: 900; font-size: 0.6rem; }
+    .badge-terminal-status { padding: 4px 18px; border-radius: 50px; font-weight: 900; font-size: 0.62rem; }
+    .badge-terminal-status.online { background: #ecfdf5; color: #10b981; }
+    .badge-terminal-status.offline { background: #fef2f2; color: #ef4444; }
+
+    .border-bottom-faint { border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .border-bottom-heavy { border-bottom: 6px solid var(--theme-dark) !important; }
+    .shadow-soft { box-shadow: 0 15px 35px rgba(15, 56, 34, 0.05); }
+    .shadow-inner { box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+    .transition-fade { transition: opacity 0.4s ease-in-out; }
+
+    @keyframes pulse-soft { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    .animate-pulse { animation: pulse-soft 2s infinite; }
+</style>
+
+<script>
+    // Tab persistency or initialization can go here if needed
+</script>
+{% endblock %}

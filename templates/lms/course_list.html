@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon">v2.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 opacity-50">LMS Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-tighter m-0 line-height-1">
+                Curriculum <span class="theme-accent-text-dark">Studio</span>
+            </h1>
+            <p class="text-muted fw-medium mt-2 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                {% if is_manager %}Workspace Environment / Instructor{% else %}Active Curriculum / Student{% endif %}
+            </p>
+        </div>
+        
+        <div class="d-flex gap-3">
+            <a href="{% url 'lms:admin_course_list' %}" class="btn-minimal shadow-soft">
+                <i class="bi bi-layers me-2"></i>Directory
+            </a>
+            {% if is_manager %}
+            <a href="{% url 'lms:create_course' %}" class="btn-neon-premium shadow-soft">
+                <i class="bi bi-plus-lg me-2"></i>New Course
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="scroller-container mb-5">
+        <div class="d-flex gap-2 overflow-auto py-2 hide-scrollbar">
+            <a href="{% url 'lms:index' %}" class="nav-pill-modern {% if not request.GET.class_id %}active{% endif %}">
+                All Batches
+            </a>
+            {% for classroom in classrooms %}
+                <a href="?class_id={{ classroom.id }}" class="nav-pill-modern {% if request.GET.class_id == classroom.id|stringformat:'s' %}active{% endif %}">
+                    {{ classroom.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% for stream, courses in courses_by_stream.items %}
+    <div class="stream-block mb-5 animate-fade-up" style="animation-delay: {{ forloop.counter0 }}0ms">
+        
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="stream-indicator"></div>
+            <h5 class="fw-black text-theme-dark m-0 text-uppercase smallest ls-3">{{ stream }}</h5>
+            <div class="flex-grow-1 border-top opacity-10"></div>
+        </div>
+
+        <div class="row g-4">
+            {% for course in courses %}
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card card-bento h-100 border-0 card-lift">
+                    
+                    <div class="card-img-wrapper">
+                        {% if course.thumbnail %}
+                            <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="thumb-img transition-zoom">
+                        {% else %}
+                            <div class="thumb-placeholder d-flex align-items-center justify-content-center">
+                                <i class="bi bi-grid-3x3-gap text-white opacity-20 display-4"></i>
+                            </div>
+                        {% endif %}
+
+                        <div class="card-glass-overlay p-3">
+                            <span class="badge-glass-pill small fw-black">
+                                {{ course.code }}
+                            </span>
+                            
+                            {% if is_manager %}
+                            <div class="dropdown ms-auto">
+                                <button class="btn-glass-action" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-modern">
+                                    <li><a class="dropdown-item" href="{% url 'lms:edit_course' course.id %}"><i class="bi bi-pencil-square"></i> Edit Course</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'lms:add_lesson' course.id %}"><i class="bi bi-journal-plus"></i> Add Lesson</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="{% url 'lms:delete_course' course.id %}"><i class="bi bi-trash3"></i> Delete</a></li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <div class="course-meta mb-2">
+                            <span class="smallest fw-bold text-muted text-uppercase ls-1">Instructor</span>
+                            <p class="small fw-black text-theme-dark mb-0 line-clamp-1">
+                                {{ course.teacher.get_full_name|default:course.teacher.username }}
+                            </p>
+                        </div>
+                        
+                        <h4 class="fw-black text-theme-dark tracking-tighter mb-4 line-clamp-2" style="height: 3rem;">
+                            {{ course.title }}
+                        </h4>
+
+                        <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top-dashed">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-stack theme-accent-text-dark"></i>
+                                <span class="smallest fw-black text-theme-dark uppercase">{{ course.lessons.count }} Modules</span>
+                            </div>
+                            <span class="badge-outline-sage">{{ course.classroom.name }}</span>
+                        </div>
+
+                        <a href="{% url 'lms:course_detail' course.id %}" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if is_manager %}
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <a href="{% url 'lms:create_course' %}?stream_name={{ stream }}" class="card-create-new">
+                    <div class="icon-circle-dark mb-3">
+                        <i class="bi bi-plus-lg fs-4"></i>
+                    </div>
+                    <span class="fw-black text-theme-dark smallest text-uppercase ls-2">Add Course</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-5">
+        <div class="empty-icon-wrapper mb-4">
+            <i class="bi bi-folder-x display-1 text-theme-dark opacity-10"></i>
+        </div>
+        <h2 class="fw-black text-theme-dark tracking-tighter">No Curriculum Active</h2>
+        <p class="text-muted fw-medium mb-4">Try checking another batch or start a new deployment.</p>
+        {% if is_manager %}
+        <a href="{% url 'lms:create_course' %}" class="btn-neon-premium px-5 py-3">Deploy New Curriculum</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--bg-light);
+        min-height: 100vh;
+    }
+
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; line-height: 0.9; }
+    .tracking-tighter { letter-spacing: -2.5px; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.7rem; }
+    .theme-accent-text-dark { color: #2a8b58; }
+
+    /* BUTTONS */
+    .btn-neon-premium {
+        background: var(--theme-accent);
+        color: var(--theme-dark);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 900;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); color: var(--theme-dark); }
+
+    .btn-minimal {
+        background: var(--white);
+        border: 2px solid var(--bg-sage);
+        color: var(--theme-dark);
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    .btn-minimal:hover { border-color: var(--theme-dark); }
+
+    /* BENTO CARDS */
+    .card-bento {
+        background: var(--white);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(15, 56, 34, 0.04);
+        transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+    }
+    .card-img-wrapper {
+        height: 200px;
+        border-radius: 24px 24px 0 0;
+        overflow: hidden;
+        position: relative;
+    }
+    .thumb-img { width: 100%; height: 100%; object-fit: cover; transition: 0.8s ease; }
+    .thumb-placeholder { height: 100%; width: 100%; background: var(--theme-dark); }
+    
+    .card-glass-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        display: flex;
+        align-items: center;
+        z-index: 2;
+    }
+    .badge-glass-pill {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        padding: 6px 14px;
+        border-radius: 50px;
+        color: var(--theme-dark);
+        border: 1px solid rgba(255,255,255,0.4);
+    }
+    .btn-glass-action {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        border: none;
+        color: var(--theme-dark);
+    }
+
+    .border-top-dashed { border-top: 2px dashed var(--bg-sage); }
+    .badge-outline-sage {
+        padding: 4px 12px;
+        border: 1px solid var(--bg-sage);
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--theme-dark);
+    }
+
+    /* CREATE NEW BUTTON */
+    .card-create-new {
+        height: 100%;
+        border: 2px dashed var(--bg-sage);
+        border-radius: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: 0.3s;
+        min-height: 350px;
+    }
+    .card-create-new:hover { border-color: var(--theme-dark); background: var(--bg-sage); }
+    .icon-circle-dark {
+        width: 60px; height: 60px;
+        background: var(--theme-dark);
+        color: var(--theme-accent);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    /* PILL NAVIGATION */
+    .nav-pill-modern {
+        padding: 10px 25px;
+        border-radius: 50px;
+        background: var(--white);
+        border: 2px solid var(--bg-sage);
+        color: var(--theme-dark);
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: 0.3s;
+    }
+    .nav-pill-modern.active { background: var(--theme-dark); color: var(--theme-accent); border-color: var(--theme-dark); }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: var(--theme-accent); border-radius: 50%; box-shadow: 0 0 10px var(--theme-accent); }
+    .stream-indicator { width: 12px; height: 12px; background: var(--theme-accent); border-radius: 3px; }
+    .shadow-soft { box-shadow: 0 10px 30px rgba(15, 56, 34, 0.06); }
+    .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    
+    /* ANIMATIONS */
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .card-lift:hover { transform: translateY(-10px); }
+    .transition-zoom:hover { transform: scale(1.1); }
+</style>
+{% endblock %}

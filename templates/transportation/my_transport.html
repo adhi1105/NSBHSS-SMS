@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-7 col-xxl-8" style="min-width: 0;">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech flex-shrink-0">LOGISTICS_NODE_v4.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50 text-nowrap overflow-hidden text-truncate">
+                    Fleet Infrastructure & Route Synchronization
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1 text-nowrap text-truncate w-100">
+                Transport <span class="theme-accent-text-dark">Logistics</span>
+            </h1>
+            <div class="d-flex align-items-center gap-2 mt-3 text-theme-dark fw-bold">
+                <div class="status-pulse-wrapper d-flex align-items-center flex-shrink-0"><span class="status-dot animate-pulse"></span></div>
+                <span class="smallest ls-1 fw-black text-nowrap uppercase opacity-75">Link_State:</span> 
+                <span class="smallest ls-1 fw-black text-nowrap text-theme-accent-dark uppercase">GPS_Fleet_Sync_Active</span>
+            </div>
+        </div>
+        
+        <div class="col-xl-5 col-xxl-4 d-flex flex-wrap justify-content-xl-end gap-2">
+            <button class="btn-terminal-action standard text-nowrap shadow-sm justify-content-center">
+                <i class="bi bi-geo-alt-fill me-2"></i>LIVE_MAP_VIEW
+            </button>
+            <button class="btn-terminal-action neon text-nowrap shadow-sm justify-content-center">
+                <i class="bi bi-plus-square-fill me-2"></i>ADD_VEHICLE_NODE
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">FLEET_01</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-sage text-theme-dark flex-shrink-0 shadow-sm">
+                        <i class="bi bi-bus-front"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0 text-truncate">Active Vehicles</h6>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ vehicles.count|stringformat:"02d" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">ROUTES_02</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-theme-accent text-theme-dark flex-shrink-0 shadow-sm">
+                        <i class="bi bi-signpost-split"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0 text-truncate">Mapped Routes</h6>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ routes.count|stringformat:"02d" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-md-12">
+            <div class="card card-terminal border-0 h-100 glass-node-dark shadow-sm position-relative text-white border-bottom-heavy">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-white opacity-50">USER_DATA</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-theme-dark text-theme-accent flex-shrink-0 shadow-sm border border-white border-opacity-10">
+                        <i class="bi bi-backpack"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black theme-accent-text smallest text-uppercase ls-1 m-0 text-truncate">Students Transported</h6>
+                        <h3 class="fw-black text-white m-0 tracking-tighter">{{ total_students }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-terminal border-0 shadow-sm glass-node overflow-hidden">
+        <div class="card-header bg-theme-dark text-white border-0 p-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-sq-micro bg-theme-accent text-theme-dark flex-shrink-0"><i class="bi bi-truck"></i></div>
+                <h5 class="fw-black m-0 tracking-tighter uppercase ls-1">Fleet_Status_Ledger</h5>
+            </div>
+            <code class="smallest text-theme-accent opacity-50">SYNC_TIME: {% now "H:i" %}</code>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead class="border-bottom-faint bg-light-sage bg-opacity-50">
+                    <tr>
+                        <th class="ps-4 py-3 smallest fw-black uppercase text-theme-dark ls-1">Vehicle_Fragment</th>
+                        <th class="py-3 smallest fw-black uppercase text-theme-dark ls-1">Operator_ID</th>
+                        <th class="py-3 smallest fw-black uppercase text-theme-dark ls-1">Load_Capacity</th>
+                        <th class="pe-4 py-3 smallest fw-black uppercase text-theme-dark ls-1 text-end">Protocol_State</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in vehicles %}
+                    <tr class="border-bottom-faint transition-all hover-bg-light">
+                        <td class="ps-4 py-4">
+                            <div class="fw-black text-theme-dark tracking-tighter fs-6">{{ v.vehicle_no }}</div>
+                            <div class="smallest fw-bold text-muted uppercase ls-1">NODE_ID: {{ v.id|stringformat:"04d" }}</div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="https://ui-avatars.com/api/?name={{ v.driver.name }}&background=0f3822&color=fff&size=64&bold=true" class="rounded-circle shadow-sm" width="24" height="24">
+                                <span class="smallest fw-black text-theme-dark uppercase">{{ v.driver.name|default:"UNASSIGNED_OPERATOR" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge-terminal bg-light-sage text-theme-dark border fw-black smallest">{{ v.capacity }} UNITS</span>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="badge-terminal-status {% if v.needs_maintenance %}offline{% else %}online{% endif %} shadow-sm">
+                                <span class="dot-mini {% if v.needs_maintenance %}bg-danger animate-pulse{% else %}bg-success{% endif %}"></span>
+                                <span class="smallest fw-black uppercase">{% if v.needs_maintenance %}MAINTENANCE_REQUIRED{% else %}OPERATIONAL{% endif %}</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <div class="opacity-25"><i class="bi bi-slash-circle display-4"></i></div>
+                            <h6 class="fw-black uppercase ls-2 text-muted mt-3">Zero_Fleet_Data_Available</h6>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root { 
+        --bg-sage: #e8f0eb; --theme-dark: #0f3822; --theme-accent: #cbfb45; 
+        --theme-accent-dark: #217346; --bg-light: #fdfdfc; --white: #ffffff; 
+    }
+
+    /* BLUEPRINT BASELINE */
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); overflow-x: hidden; }
+    .registry-blueprint { background-image: radial-gradient(var(--bg-sage) 1.5px, transparent 1.5px); background-size: 30px 30px; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .display-title { font-weight: 900; font-size: 3rem; letter-spacing: -2px; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* TERMINAL COMPONENTS */
+    .glass-node { background: rgba(255, 255, 255, 0.95); border: 2px solid var(--white); border-radius: 24px; }
+    .glass-node-dark { background: var(--theme-dark); border-radius: 24px; }
+    .terminal-icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .icon-sq-micro { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .code-fragment { font-family: monospace; font-size: 0.65rem; font-weight: 900; background: rgba(15, 56, 34, 0.06); padding: 4px 10px; border-radius: 6px; }
+    .bg-light-sage { background: #f4f8f6; }
+
+    /* BUTTONS */
+    .btn-terminal-action { border: none; padding: 12px 24px; border-radius: 12px; font-weight: 900; font-size: 0.68rem; text-transform: uppercase; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; }
+    .btn-terminal-action.standard { background: var(--white); color: var(--theme-dark); border: 2px solid var(--bg-sage); }
+    .btn-terminal-action.neon { background: var(--theme-accent); color: var(--theme-dark); }
+    .btn-terminal-action:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 56, 34, 0.08); }
+
+    /* BADGES */
+    .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; }
+    .badge-terminal { padding: 6px 14px; border-radius: 8px; }
+    .badge-terminal-status { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 50px; border: 1px solid rgba(0,0,0,0.05); }
+    .badge-terminal-status.online { background: #ecfdf5; color: #10b981; }
+    .badge-terminal-status.offline { background: #fef2f2; color: #ef4444; }
+    .dot-mini { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* UTILS */
+    .border-bottom-faint { border-bottom: 1px solid rgba(15, 56, 34, 0.1); }
+    .border-bottom-heavy { border-bottom: 6px solid var(--theme-dark) !important; }
+    .shadow-soft { box-shadow: 0 15px 35px rgba(15, 56, 34, 0.05); }
+    .transition-all { transition: all 0.3s ease; }
+    .hover-bg-light:hover { background-color: rgba(232, 240, 235, 0.3); }
+
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    
+    @keyframes pulse-neon { 0% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0.6); } 70% { box-shadow: 0 0 0 8px rgba(203, 251, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0); } }
+    .animate-pulse { animation: pulse-neon 2s infinite; }
+</style>
+{% endblock %}

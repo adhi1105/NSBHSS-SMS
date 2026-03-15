@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}My Workload | {{ staff.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid py-4 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'staff:teacher_portal' %}" class="btn-close-custom shadow-soft transition-all d-flex align-items-center justify-content-center">
+                <i class="bi bi-arrow-left fs-5"></i>
+            </a>
+            <div>
+                <h6 class="theme-accent-text fw-bold text-uppercase smallest ls-3 mb-1"><i class="bi bi-bar-chart-fill"></i> Academic Load</h6>
+                <h2 class="title-heavy m-0 text-theme-dark tracking-tighter">My Workload</h2>
+            </div>
+        </div>
+
+        <div class="badge-custom-accent px-4 py-3 shadow-soft border-0 card-lift">
+            <i class="bi bi-briefcase-fill me-2"></i>
+            <span class="fw-black text-theme-dark smallest text-uppercase ls-1">
+                {{ total_classes }} Classes Allocation &bull; {{ total_periods_week }} Hrs Weekly
+            </span>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-soft rounded-xl text-white overflow-hidden position-relative card-lift bg-theme-dark">
+                <div class="card-body p-5 position-relative z-2">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-theme-accent text-theme-dark rounded-4 me-4 display-6 fw-black d-flex align-items-center justify-content-center shadow-lg" style="width: 80px; height: 80px;">
+                            {{ staff.user.first_name|first }}
+                        </div>
+                        <div>
+                            <h2 class="fw-black mb-1 text-white tracking-tighter">{{ staff.user.get_full_name }}</h2>
+                            <p class="mb-0 fw-medium opacity-75 fs-5">
+                                {{ staff.designation|default:"Faculty Member" }} &bull; 
+                                <span class="theme-accent-text">{{ staff.department.name|default:"General Department" }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <i class="bi bi-mortarboard position-absolute text-white opacity-10" style="font-size: 15rem; right: -30px; bottom: -60px; transform: rotate(-15deg);"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center mb-4">
+        <h4 class="fw-black text-theme-dark m-0 tracking-tighter">Allocated Subjects</h4>
+        <div class="ms-auto">
+            <span class="badge bg-theme-accent text-theme-dark rounded-pill px-4 py-2 fw-black smallest text-uppercase ls-1 shadow-sm">Academic Year 2025-26</span>
+        </div>
+    </div>
+    
+    <div class="card card-modern border-0 overflow-hidden shadow-soft mb-5">
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr class="bg-sage">
+                        <th class="ps-4 py-4 text-uppercase smallest fw-black text-theme-dark ls-1">Classroom</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-1">Subject Detail</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-1">Stream</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-1">Weekly Commitment</th>
+                        <th class="text-end pe-4 py-4 text-uppercase smallest fw-black text-theme-dark ls-1">Roster</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alloc in allocations %}
+                    <tr class="border-bottom" style="border-color: var(--bg-sage) !important;">
+                        <td class="ps-4 py-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-square bg-theme-dark text-white rounded-3 fw-black shadow-sm" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                    {{ alloc.classroom.standard }}
+                                </div>
+                                <div>
+                                    <span class="fw-black text-theme-dark d-block fs-5 tracking-tighter">Std {{ alloc.classroom.standard }}-{{ alloc.classroom.division }}</span>
+                                    {% if staff.class_teacher_of == alloc.classroom %}
+                                        <span class="badge bg-theme-accent text-theme-dark rounded-pill px-2 py-1 smallest fw-black mt-1"><i class="bi bi-patch-check-fill me-1"></i>Class Teacher</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <span class="fw-bold text-theme-dark fs-6">{{ alloc.subject.name }}</span>
+                            <div class="smallest text-muted fw-bold text-uppercase ls-1 mt-1">Lecture & Practicum</div>
+                        </td>
+                        <td class="py-4">
+                            <span class="badge bg-sage text-theme-dark border border-light rounded-pill px-3 py-2 fw-bold shadow-sm">
+                                {{ alloc.classroom.stream.name|default:"General Stream" }}
+                            </span>
+                        </td>
+                        <td class="py-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-square icon-accent rounded-circle shadow-sm" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                </div>
+                                <div>
+                                    <span class="fw-black text-theme-dark d-block fs-5">
+                                        {% if alloc.actual_periods > 0 %}
+                                            {{ alloc.actual_periods }} <span class="fs-6 opacity-50">Hrs</span>
+                                        {% else %}
+                                            <span class="text-danger">Pending</span>
+                                        {% endif %}
+                                    </span>
+                                    <span class="smallest text-muted fw-bold text-uppercase ls-1">Intensity Level: Std.</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-end pe-4 py-4">
+                            <a href="{% url 'timetable:view_timetable' alloc.classroom.id %}" class="btn btn-outline-modern rounded-pill px-4 fw-black transition-all hover-lift">
+                                <i class="bi bi-calendar3 me-1"></i> View Schedule
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="icon-square bg-sage text-theme-dark mx-auto mb-4 rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-folder-x fs-1"></i>
+                            </div>
+                            <h3 class="fw-black text-theme-dark tracking-tighter">Zero Allocations Found</h3>
+                            <p class="text-muted fw-medium mx-auto mb-0" style="max-width: 400px;">Your academic load has not been synchronized for this term. Please contact the Department Head.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+    
+    .theme-wrapper {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --bg-light: #fdfdfc;
+        background-color: var(--bg-light);
+        min-height: 100vh;
+    }
+
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 2.8rem; }
+    .tracking-tighter { letter-spacing: -2px; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-3 { letter-spacing: 2px; }
+    .smallest { font-size: 0.75rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+
+    /* COMPONENTS */
+    .card-modern { background: #ffffff; border-radius: 30px; }
+    .rounded-xl { border-radius: 40px; }
+    .shadow-soft { box-shadow: 0 20px 50px rgba(15, 56, 34, 0.08) !important; }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background-color: var(--bg-sage) !important; }
+
+    .btn-close-custom {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--white);
+        border: 2px solid var(--bg-sage);
+        color: var(--theme-dark);
+        text-decoration: none;
+    }
+    .btn-close-custom:hover { background: var(--theme-dark); color: var(--theme-accent); border-color: var(--theme-dark); }
+
+    .badge-custom-accent {
+        background-color: var(--theme-accent);
+        color: var(--theme-dark);
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .icon-square { display: flex; align-items: center; justify-content: center; }
+    .icon-accent { background-color: rgba(203, 251, 69, 0.2); color: var(--theme-dark); border: 1px solid var(--theme-accent); }
+
+    .btn-outline-modern {
+        background-color: #ffffff;
+        color: var(--theme-dark);
+        border: 2px solid var(--bg-sage);
+        font-size: 0.85rem;
+    }
+    .btn-outline-modern:hover {
+        border-color: var(--theme-dark);
+        background-color: var(--theme-dark);
+        color: var(--theme-accent);
+    }
+
+    /* ANIMATIONS */
+    .transition-all { transition: all 0.3s ease; }
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .card-lift:hover { transform: translateY(-8px); shadow: 0 30px 60px rgba(15, 56, 34, 0.12) !important; }
+    .hover-lift:hover { transform: translateY(-3px); }
+    
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+{% endblock %}

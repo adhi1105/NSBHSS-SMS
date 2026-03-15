@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon" style="letter-spacing: 1.5px;">ADMIN NODE</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Admission Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Admission <span class="theme-accent-text-dark">Board</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span class="ls-1">SYSTEM STATE:</span> 
+                <span class="uppercase ls-2 fw-black opacity-75">Registry Node Management Active</span>
+            </p>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'admission:apply' %}" class="btn-neon-premium shadow-soft d-flex align-items-center">
+                <i class="bi bi-plus-lg me-2"></i>INITIALIZE APPLICATION
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-square bg-sage text-theme-dark shadow-sm">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-3 m-0">Total Node</h6>
+                    </div>
+                    <h2 class="fw-black text-theme-dark mb-1 tracking-tighter" style="font-size: 2.2rem;">{{ stats.total }}</h2>
+                    <small class="smallest fw-bold text-muted uppercase ls-2 opacity-75">Consolidated Index</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-square bg-warning-light text-warning shadow-sm">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-3 m-0">Pending</h6>
+                    </div>
+                    <h2 class="fw-black text-theme-dark mb-1 tracking-tighter" style="font-size: 2.2rem;">{{ stats.pending }}</h2>
+                    <small class="smallest fw-bold text-muted uppercase ls-2 opacity-75">Awaiting Protocol</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-theme-dark text-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <h6 class="fw-black theme-accent-text smallest text-uppercase ls-3 m-0">Admitted</h6>
+                    </div>
+                    <h2 class="fw-black text-white mb-1 tracking-tighter" style="font-size: 2.2rem;">{{ stats.admitted }}</h2>
+                    <small class="theme-accent-text smallest fw-bold uppercase ls-2 opacity-75">Registry Finalized</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white border-bottom-danger">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-square bg-danger-light text-danger shadow-sm">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+                        <h6 class="fw-black text-danger smallest text-uppercase ls-3 m-0">Rejected</h6>
+                    </div>
+                    <h2 class="fw-black text-theme-dark mb-1 tracking-tighter" style="font-size: 2.2rem;">{{ stats.rejected }}</h2>
+                    <small class="smallest fw-bold text-danger text-uppercase ls-2 opacity-75">Protocol Breaches</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5 bg-white">
+        <div class="card-header bg-sage p-4 border-0 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <h5 class="fw-black text-theme-dark m-0 tracking-tighter ls-1">Recent Registry Fragments</h5>
+                <span class="smallest fw-bold text-theme-dark text-uppercase ls-2 opacity-50">| ADMISSION LOG</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr class="border-bottom border-light">
+                        <th class="ps-4 py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Ref ID</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Candidate Node</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Target Allocation</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-center">Status Node</th>
+                        <th class="pe-4 py-4 text-end text-uppercase text-theme-dark smallest fw-black ls-3">Execution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr id="row-{{ app.id }}" class="border-bottom-dashed">
+                        <td class="ps-4 py-4">
+                            <code class="smallest fw-black text-theme-dark bg-light-sage px-3 py-1 rounded-pill ls-1">#{{ app.id }}</code>
+                        </td>
+                        
+                        <td class="py-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sq bg-theme-dark text-theme-accent rounded-3 d-flex align-items-center justify-content-center me-3 fw-black" style="width: 48px; height: 48px; font-size: 1.1rem;">
+                                    {{ app.student_name|first }}
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-black text-theme-dark d-block fs-6 tracking-normal text-capitalize line-height-1 mb-1">{{ app.student_name }}</span>
+                                    <small class="smallest fw-bold text-muted uppercase ls-1">{{ app.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <td class="py-4">
+                            <div class="d-flex flex-column">
+                                <span class="badge-outline-sage fw-black uppercase ls-1 d-inline-block text-center">{{ app.class_applied.name }}</span>
+                                {% if app.stream_applied %}
+                                    <small class="smallest fw-bold text-muted uppercase ls-1 mt-1 text-center">{{ app.stream_applied }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        
+                        <td class="py-4 text-center">
+                            <span id="status-{{ app.id }}" 
+                                  class="badge-node ls-1
+                                  {% if app.status == 'Pending' %}bg-warning-light text-warning
+                                  {% elif app.status == 'Admitted' %}bg-neon text-theme-dark
+                                  {% else %}bg-light text-muted opacity-50{% endif %}">
+                                {{ app.status|upper }}
+                            </span>
+                        </td>
+
+                        <td class="pe-4 py-4 text-end">
+                            <div id="actions-{{ app.id }}">
+                                {% if app.status == 'Pending' %}
+                                    <button onclick="admitStudent({{ app.id }})" 
+                                            class="btn-outline-modern rounded-pill px-4 py-2 smallest fw-black hover-lift" 
+                                            style="border-color: #10b981; color: #10b981;">
+                                        ADMIT NODE
+                                    </button>
+                                    <a href="{% url 'admission:reject' app.id %}" 
+                                       class="btn-minimal text-danger border-danger-subtle rounded-circle p-2 ms-1 transition-all" 
+                                       onclick="return confirm('Execute rejection protocol?')">
+                                        <i class="bi bi-x-lg"></i>
+                                    </a>
+                                {% elif app.status == 'Admitted' %}
+                                    {% if app.admitted_student %}
+                                        <a href="{% url 'admin:student_info_student_change' app.admitted_student.student_profile.id %}" 
+                                           class="btn-minimal shadow-sm px-4 py-2 smallest fw-black ls-1 d-inline-flex align-items-center gap-2" target="_blank">
+                                            <i class="bi bi-person-badge theme-accent-text-dark"></i> PROFILE NODE
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="smallest fw-black text-muted uppercase ls-1 opacity-50">CLOSED</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="bg-light-sage d-inline-flex p-4 rounded-circle mb-3 opacity-25">
+                                <i class="bi bi-inbox display-4 text-theme-dark"></i>
+                            </div>
+                            <p class="smallest fw-black text-theme-dark text-uppercase ls-3">Registry Queue Empty</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.8px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .line-height-1 { line-height: 1; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 30px; border: 1.5px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-warning-light { background: #fffbeb; }
+    .bg-danger-light { background: #fef2f2; }
+    .bg-neon { background: var(--theme-accent); }
+    .border-bottom-danger { border-bottom: 5px solid #dc3545 !important; }
+    
+    .icon-square { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* BADGES & NODES */
+    .badge-node { padding: 8px 18px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 5px 14px; border-radius: 50px; font-weight: 900; text-transform: uppercase; }
+    .badge-outline-sage { padding: 6px 16px; border: 2.1px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 14px 32px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; font-size: 0.8rem; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(203, 251, 69, 0.4); }
+    
+    .btn-minimal { background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; transition: 0.3s; text-decoration: none; }
+    .btn-outline-modern { border: 2.5px solid var(--bg-sage); color: var(--theme-dark); transition: 0.3s; text-decoration: none; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; }
+    .card-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(15, 56, 34, 0.08); }
+</style>
+
+<script>
+    function admitStudent(appId) {
+        if(!confirm("Initialize Student Admission protocol? This will generate a Permanent Registry Profile.")) return;
+
+        const row = document.getElementById(`row-${appId}`);
+        row.style.opacity = '0.5';
+        row.style.filter = 'grayscale(1)';
+
+        const url = `/admission/admit/${appId}/`;
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            row.style.opacity = '1'; 
+            row.style.filter = 'none';
+            
+            if (data.status === 'success') {
+                const badge = document.getElementById(`status-${appId}`);
+                badge.className = 'badge-node bg-neon text-theme-dark ls-1';
+                badge.innerText = 'ADMITTED';
+
+                const actionDiv = document.getElementById(`actions-${appId}`);
+                actionDiv.innerHTML = `
+                    <a href="${data.profile_url}" class="btn-minimal shadow-sm px-4 py-2 smallest fw-black ls-1 d-inline-flex align-items-center gap-2" target="_blank">
+                        <i class="bi bi-person-badge theme-accent-text-dark"></i> PROFILE NODE
+                    </a>
+                `;
+
+                alert(`NODE ACTIVATED: ${data.message}`);
+            } else {
+                alert("PROTOCOL ERROR: " + data.message);
+            }
+        })
+        .catch(error => {
+            row.style.opacity = '1';
+            row.style.filter = 'none';
+            alert("NETWORK TIMEOUT: Re-sync required.");
+        });
+    }
+</script>
+{% endblock %}

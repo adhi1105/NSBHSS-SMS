@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-70 py-5">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 500px; width: 100%;">
+        <div class="card-header bg-primary text-white p-4 text-center">
+            <h4 class="fw-bold m-0">Marks Entry</h4>
+            <p class="small opacity-75 m-0">Select criteria to proceed</p>
+        </div>
+        <div class="card-body p-4">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} rounded-3 small mb-4">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted text-uppercase">Select Exam</label>
+                <select id="exam_id" class="form-select form-select-lg bg-light border-0">
+                    {% for e in exams %}
+                    <option value="{{ e.id }}">{{ e.name }}</option>
+                    {% empty %}
+                    <option disabled selected>No Active Exams</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted text-uppercase">Select Class</label>
+                <select id="class_id" class="form-select form-select-lg bg-light border-0">
+                    {% for c in classes %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-muted text-uppercase">Select Subject</label>
+                <select id="subject_id" class="form-select form-select-lg bg-light border-0">
+                    {% for s in subjects %}
+                    <option value="{{ s.id }}">{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button onclick="goToEntry()" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                Proceed to Grading <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function goToEntry() {
+    let exam = document.getElementById('exam_id').value;
+    let cls = document.getElementById('class_id').value;
+    let sub = document.getElementById('subject_id').value;
+    
+    if (!exam || !cls || !sub) {
+        alert("Please select all fields.");
+        return;
+    }
+    
+    // Redirect to the entry URL
+    window.location.href = `/exam/marks/enter/${exam}/${cls}/${sub}/`;
+}
+</script>
+{% endblock %}

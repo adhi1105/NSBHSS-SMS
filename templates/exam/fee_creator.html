@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon">Finance Node</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Accounts Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Fee <span class="theme-accent-text-dark">Configurator</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                Protocol: <span class="uppercase ls-1">Master Definition & Bulk Enrollment</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-xl-6">
+            <div class="card card-bento border-0 shadow-soft h-100 overflow-hidden">
+                <div class="card-header bg-theme-dark p-4 border-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                            <i class="bi bi-file-earmark-plus"></i>
+                        </div>
+                        <h4 class="text-white fw-black m-0 tracking-tighter">Master Definition</h4>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-lg-5 bg-white">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="create_fee" value="1">
+                        
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Fee Nomenclature</label>
+                                {{ create_form.name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Monetary Value ($)</label>
+                                {{ create_form.amount }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Maturity Date</label>
+                                {{ create_form.due_date }}
+                            </div>
+                            <div class="col-12">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Academic Term</label>
+                                {{ create_form.academic_year }}
+                            </div>
+                            <div class="col-12">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Operational Description</label>
+                                {{ create_form.description }}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-neon-premium w-100 mt-5 py-3 shadow-soft hover-lift">
+                            <i class="bi bi-plus-circle-fill me-2"></i>Initialize Fee Node
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card card-bento border-0 shadow-soft h-100 overflow-hidden bg-white">
+                <div class="card-header bg-sage p-4 border-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-square bg-theme-dark text-theme-accent shadow-sm">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                        <h4 class="text-theme-dark fw-black m-0 tracking-tighter">Bulk Infrastructure</h4>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-lg-5">
+                    <div class="bg-light-sage p-4 rounded-xl border border-dashed border-dark mb-5">
+                        <div class="d-flex gap-3">
+                            <i class="bi bi-shield-exclamation text-theme-dark fs-4"></i>
+                            <p class="smallest fw-bold text-theme-dark m-0 line-height-lg uppercase ls-1">
+                                Warning: This operation triggers a mass-generation of invoice records for every active profile in the target node.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="allocate_fee" value="1">
+
+                        <div class="mb-4">
+                            <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Select Target Fee</label>
+                            {{ alloc_form.fee_structure }}
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Destination Batch (Node)</label>
+                            {{ alloc_form.classroom }}
+                        </div>
+
+                        <button type="submit" class="btn-theme-dark w-100 py-3 rounded-pill shadow-soft hover-lift">
+                            <i class="bi bi-cpu-fill me-2"></i>Execute Mass Allocation
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-2 { letter-spacing: 1.5px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.75rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .line-height-lg { line-height: 1.6; }
+
+    /* CARDS */
+    .card-bento { border-radius: 30px; border: 1px solid var(--bg-sage); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .icon-square { width: 55px; height: 55px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* INPUTS: PURE BLACK TEXT FOR VISIBILITY */
+    input, select, textarea { 
+        width: 100%;
+        border-radius: 15px !important; 
+        border: 2px solid var(--bg-sage) !important; 
+        padding: 14px 18px !important; 
+        font-size: 1rem !important; 
+        font-weight: 600 !important;      
+        color: #000000 !important;
+        background: var(--white) !important;
+        transition: 0.3s ease; 
+    }
+    input:focus, select:focus { border-color: var(--theme-dark) !important; box-shadow: 0 10px 20px rgba(15, 56, 34, 0.05) !important; outline: none; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(203, 251, 69, 0.4); }
+
+    .btn-theme-dark { background: var(--theme-dark); color: var(--theme-accent) !important; border: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; }
+    .btn-theme-dark:hover { background: #1a1c2c; transform: translateY(-3px); }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 4px 15px; border-radius: 50px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.06); }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+    .hover-lift:hover { transform: translateY(-3px); }
+</style>
+{% endblock %}

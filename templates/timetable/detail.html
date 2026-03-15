@@ -1,0 +1,398 @@
+{% extends 'base.html' %}
+{% load timetable_extras %}
+
+{% block content %}
+<div class="theme-wrapper viewport-wrapper p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                {% if request.user.is_staff %}
+                <a href="{% url 'timetable:manage_timetable' %}" class="btn-close-custom shadow-soft transition-all d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                {% endif %}
+                <span class="badge-pill-neon">Live Node</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 opacity-50">Schedule Management</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                {{ classroom.name }} <span class="theme-accent-text-dark">Schedule</span>
+            </h1>
+            <p class="text-muted fw-medium mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot {% if can_edit %}animate-pulse{% endif %}"></span>
+                {% if can_edit %}3-2-2-2 Logic Active / R/W Access{% else %}Institutional Read-Only Mode{% endif %}
+            </p>
+        </div>
+
+        <div class="d-flex gap-2 align-items-center">
+            {% if can_edit %}
+            <button class="btn-minimal shadow-soft px-4" onclick="autoFillTimetable()" id="autoFillBtn">
+                <i class="bi bi-stars me-2"></i>Auto-Fill
+            </button>
+            
+            <button class="btn-delete-icon shadow-soft" onclick="clearEntireGrid()" title="Clear Infrastructure">
+                <i class="bi bi-eraser-fill"></i>
+            </button>
+            <div class="divider-v mx-2" style="height: 30px; border-left: 2px solid var(--bg-sage);"></div>
+            {% endif %}
+            
+            <button class="btn-outline-modern rounded-pill px-4 shadow-soft" onclick="toggleDensity()" id="densityBtn">
+                <i class="bi bi-arrows-angle-contract me-2"></i>Compact
+            </button>
+
+            {% if can_edit %}
+            <button class="btn-neon-premium px-5 shadow-soft hover-lift" onclick="saveFullTimetable()" id="saveBtn">
+                Save Changes
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="layout-container">
+        {% if can_edit %}
+        <aside class="sidebar-bank-modern border-0 rounded-xl bg-white shadow-soft overflow-hidden">
+            <div class="p-3 bg-sage border-bottom">
+                <span class="smallest fw-black text-uppercase ls-2 text-theme-dark opacity-50">Subject Bank</span>
+            </div>
+            <div class="bank-scroll custom-scrollbar p-3">
+                {% for subject in subjects %}
+                <div class="subject-card-bento mb-2 shadow-sm transition-all" draggable="true" 
+                     data-id="{{ subject.id }}" data-name="{{ subject.name }}">
+                    <span class="text-truncate small fw-black">{{ subject.name }}</span>
+                    <i class="bi bi-grip-vertical opacity-25"></i>
+                </div>
+                {% empty %}
+                <div class="text-center py-5 opacity-25">
+                    <i class="bi bi-inbox fs-2"></i>
+                    <div class="smallest fw-bold mt-2 text-theme-dark">Empty Bank</div>
+                </div>
+                {% endfor %}
+            </div>
+        </aside>
+        {% endif %}
+
+        <main class="grid-main-modern border-0 rounded-xl bg-white shadow-soft overflow-hidden {% if not can_edit %}w-100{% endif %}">
+            <div class="table-container custom-scrollbar" id="gridContainer">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th class="sticky-corner-modern bg-sage">Period</th>
+                            {% for day in days %}
+                            <th class="sticky-top-modern text-center">{{ day }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for slot in time_slots %}
+                        <tr class="{% if slot.is_break %}break-row-container{% endif %}">
+                            <td class="sticky-left-modern text-center {% if slot.is_break %}bg-sage{% else %}bg-light-sage{% endif %}">
+                                <div class="fw-black smallest {% if slot.is_break %}text-muted{% else %}text-theme-dark{% endif %} period-tag" data-label="{{ slot.display_label }}">
+                                    {{ slot.display_label }}
+                                </div>
+                                <div class="time-range-modern">
+                                    <span class="time-start">{{ slot.start_time|time:"H:i" }}</span>
+                                    <span class="time-end">{{ slot.end_time|time:"H:i" }}</span>
+                                </div>
+                            </td>
+                            {% for day in days %}
+                            <td class="drop-zone-modern transition-all {% if not can_edit %}view-only-cell{% endif %} {% if slot.is_break %}is-break-cell{% endif %}" 
+                                data-day="{{ day }}" data-slot-id="{{ slot.id }}"
+                                {% if can_edit and not slot.is_break %}
+                                ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="clearGlow(event)"
+                                {% endif %}>
+                                
+                                {% if slot.is_break %}
+                                    <div class="break-overlay">
+                                        <span class="break-text fw-black">
+                                            {% if slot.start_time|time:"H:i" == "11:15" %}BREAK
+                                            {% elif slot.start_time|time:"H:i" == "12:45" %}LUNCH
+                                            {% else %}INTERVAL{% endif %}
+                                        </span>
+                                    </div>
+                                {% else %}
+                                    {% with entry=timetable_data|get_item:day|get_item:slot.id %}
+                                        {% if entry %}
+                                        <div class="entry-card-bento shadow-sm animate-in" data-subject-id="{{ entry.subject.id }}">
+                                            {% if can_edit %}
+                                            <span class="remove-x" onclick="removeEntry(this)">×</span>
+                                            {% endif %}
+                                            <div class="fw-black text-truncate text-theme-dark subject-text uppercase">{{ entry.subject.name }}</div>
+                                            <div class="staff-tag shadow-sm"><i class="bi bi-person-fill me-1"></i>{{ entry.staff.user.first_name }}</div>
+                                        </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--bg-light);
+    }
+
+    .viewport-wrapper { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3rem; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.7rem; }
+    .theme-accent-text-dark { color: #2a8b58; }
+
+    /* LAYOUT */
+    .layout-container { display: flex; gap: 24px; flex: 1; overflow: hidden; }
+    .sidebar-bank-modern { width: 220px; display: flex; flex-direction: column; }
+    .grid-main-modern { flex: 1; position: relative; border: 2px solid var(--bg-sage); }
+    .table-container { height: 100%; overflow: auto; background: #fff; }
+    .rounded-xl { border-radius: 30px; }
+
+    /* MODERN TABLE */
+    .modern-table { width: 100%; border-collapse: separate; border-spacing: 12px; table-layout: fixed; }
+    .sticky-top-modern { position: sticky; top: 0; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); z-index: 10; padding: 15px; font-size: 0.75rem; font-weight: 900; color: var(--theme-dark); text-transform: uppercase; border-bottom: 2px solid var(--bg-sage); }
+    .sticky-left-modern { position: sticky; left: 0; z-index: 9; width: 100px; border-right: 2px solid var(--bg-sage); }
+    .sticky-corner-modern { position: sticky; top: 0; left: 0; z-index: 11; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; text-align: center; }
+
+    /* TIME RANGE */
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .time-range-modern { display: flex; flex-direction: column; line-height: 1.1; margin-top: 5px; }
+    .time-start { font-size: 0.75rem; font-weight: 900; color: var(--theme-dark); }
+    .time-end { font-size: 0.65rem; font-weight: 700; color: var(--theme-dark); opacity: 0.4; }
+
+    /* BREAK CELLS */
+    .is-break-cell { background-color: var(--bg-sage) !important; opacity: 0.6; border: 1px dashed var(--theme-dark) !important; }
+    .break-text { font-size: 0.6rem; letter-spacing: 0.5em; color: var(--theme-dark); opacity: 0.5; }
+
+    /* CARDS */
+    .drop-zone-modern { height: 95px; min-width: 180px; border-radius: 20px; background: #fafafa; border: 1px solid var(--bg-sage); position: relative; padding: 10px; vertical-align: middle; }
+    .entry-card-bento { background: var(--white); border-left: 6px solid var(--theme-dark); padding: 12px; border-radius: 16px; position: relative; transition: 0.3s; }
+    .entry-card-bento:hover { transform: scale(1.02); }
+    .staff-tag { color: var(--theme-dark); font-weight: 900; font-size: 0.6rem; margin-top: 8px; background: var(--theme-accent); padding: 4px 10px; border-radius: 50px; display: inline-flex; align-items: center; text-transform: uppercase; }
+
+    .subject-card-bento { background: var(--white); border: 2px solid var(--bg-sage); padding: 14px; border-radius: 15px; cursor: grab; display: flex; align-items: center; justify-content: space-between; }
+    .subject-card-bento:hover { border-color: var(--theme-dark); background: var(--bg-sage); }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark); border: none; padding: 10px 25px; border-radius: 50px; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; transition: 0.3s; }
+    .btn-outline-modern { background: var(--white); color: var(--theme-dark); border: 2px solid var(--bg-sage); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; }
+    .btn-minimal { background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; font-weight: 900; font-size: 0.75rem; }
+    .btn-close-custom { border-radius: 50%; background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); }
+    .btn-delete-icon { width: 40px; height: 40px; border-radius: 50%; background: #fef2f2; border: 2px solid #fecaca; color: #dc2626; display: flex; align-items: center; justify-content: center; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark); padding: 4px 12px; border-radius: 50px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+    .shadow-soft { box-shadow: 0 10px 40px rgba(15, 56, 34, 0.04); }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--bg-sage); border-radius: 10px; }
+
+    /* COMPACT MODE */
+    .compact-mode .modern-table { border-spacing: 6px; }
+    .compact-mode .drop-zone-modern { height: 55px; border-radius: 12px; padding: 6px; }
+    .compact-mode .entry-card-bento { padding: 6px 10px; border-radius: 10px; border-left-width: 4px; }
+    .compact-mode .staff-tag, .compact-mode .time-range-modern, .compact-mode .remove-x { display: none; }
+    .compact-mode .subject-text { font-size: 0.75rem; font-weight: 900; }
+
+    .drag-available { background-color: var(--bg-sage) !important; border: 2px solid var(--theme-dark) !important; }
+    .drag-conflict { background-color: #fef2f2 !important; border: 2px dashed #dc2626 !important; }
+
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: slideUpFade 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+</style>
+
+<script>
+    // Logic remains functional with new UI classes
+    let lastCheckedSlot = null;
+    let draggingSubjectId = null;
+    let hasUnsavedChanges = false;
+    const canEdit = {{ can_edit|yesno:"true,false" }};
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function toggleDensity() {
+        const container = document.getElementById('gridContainer');
+        container.classList.toggle('compact-mode');
+        const btn = document.getElementById('densityBtn');
+        btn.innerHTML = container.classList.contains('compact-mode') ? 
+            '<i class="bi bi-arrows-angle-expand me-2"></i>Spaced' : 
+            '<i class="bi bi-arrows-angle-contract me-2"></i>Compact';
+    }
+
+    function allowDrop(ev) {
+        if (!canEdit) return;
+        const zone = ev.target.closest('.drop-zone-modern');
+        if (!zone || zone.classList.contains('is-break-cell')) return;
+        
+        ev.preventDefault();
+        const slotId = zone.dataset.slotId;
+        const day = zone.dataset.day;
+        const currentSlotKey = `${day}-${slotId}`;
+
+        if (lastCheckedSlot !== currentSlotKey) {
+            lastCheckedSlot = currentSlotKey;
+            fetch(`/timetable/check-drag-conflict/?subject_id=${draggingSubjectId}&classroom_id={{ classroom.id }}&day=${day}&slot_id=${slotId}`)
+                .then(res => res.json())
+                .then(data => {
+                    zone.classList.remove('drag-available', 'drag-conflict');
+                    zone.classList.add(data.status === 'conflict' ? 'drag-conflict' : 'drag-available');
+                });
+        }
+    }
+
+    function drop(ev) {
+        if (!canEdit) return;
+        ev.preventDefault();
+        const zone = ev.target.closest('.drop-zone-modern');
+        if (!zone || zone.classList.contains('is-break-cell')) return;
+
+        if (zone.classList.contains('drag-conflict')) {
+            zone.classList.remove('drag-available', 'drag-conflict');
+            return alert("Teacher Availability Conflict detected!");
+        }
+        
+        zone.classList.remove('drag-available', 'drag-conflict');
+        const id = ev.dataTransfer.getData("id");
+        const name = ev.dataTransfer.getData("name");
+        
+        zone.innerHTML = `
+            <div class="entry-card-bento shadow-sm animate-in" data-subject-id="${id}">
+                <span class="remove-x" onclick="removeEntry(this)">×</span>
+                <div class="fw-black text-truncate text-theme-dark subject-text uppercase">${name}</div>
+                <div class="staff-tag">STAGED</div>
+            </div>`;
+        hasUnsavedChanges = true;
+    }
+
+    function saveFullTimetable() {
+        if (!canEdit) return;
+        const btn = document.getElementById('saveBtn');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Syncing...';
+        btn.disabled = true;
+
+        const schedule = [];
+        document.querySelectorAll('.drop-zone-modern:not(.is-break-cell)').forEach(zone => {
+            const item = zone.querySelector('.entry-card-bento');
+            if (item) schedule.push({ 
+                day: zone.dataset.day, 
+                slot_id: zone.dataset.slotId, 
+                subject_id: item.dataset.subjectId 
+            });
+        });
+
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ schedule: schedule })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                hasUnsavedChanges = false;
+                location.reload();
+            } else { 
+                alert(data.message); 
+                btn.disabled = false; 
+                btn.innerHTML = 'Save Changes'; 
+            }
+        });
+    }
+
+    async function autoFillTimetable() {
+        if (!canEdit) return;
+        const subjects = Array.from(document.querySelectorAll('.subject-card-bento')).map(p => ({
+            id: p.dataset.id, name: p.dataset.name
+        }));
+
+        if (subjects.length === 0) return alert("Allocations missing.");
+        const btn = document.getElementById('autoFillBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Computing...';
+
+        const zones = Array.from(document.querySelectorAll('.drop-zone-modern:not(.is-break-cell)'));
+        
+        for (const zone of zones) {
+            if (zone.querySelector('.entry-card-bento')) continue;
+            const day = zone.dataset.day;
+            const slotId = zone.dataset.slotId;
+            const shuffledSubjects = [...subjects].sort(() => Math.random() - 0.5);
+
+            for (const sub of shuffledSubjects) {
+                try {
+                    const res = await fetch(`/timetable/check-drag-conflict/?subject_id=${sub.id}&classroom_id={{ classroom.id }}&day=${day}&slot_id=${slotId}`);
+                    const data = await res.json();
+                    if (data.status === 'available') {
+                        zone.innerHTML = `
+                            <div class="entry-card-bento shadow-sm animate-in" data-subject-id="${sub.id}">
+                                <span class="remove-x" onclick="removeEntry(this)">×</span>
+                                <div class="fw-black text-truncate text-theme-dark subject-text uppercase">${sub.name}</div>
+                                <div class="staff-tag shadow-sm"><i class="bi bi-stars me-1"></i>${data.teacher}</div>
+                            </div>`;
+                        break; 
+                    }
+                } catch (e) { console.error(e); }
+            }
+        }
+        hasUnsavedChanges = true;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-stars me-2"></i>Auto-Fill';
+    }
+
+    function removeEntry(el) { el.parentElement.remove(); hasUnsavedChanges = true; }
+    function clearGlow(ev) { ev.target.closest('.drop-zone-modern')?.classList.remove('drag-available', 'drag-conflict'); lastCheckedSlot = null; }
+    
+    function clearEntireGrid() { 
+        if(confirm("Clear infrastructure nodes? This will wipe the 5-day view.")) { 
+            document.querySelectorAll('.entry-card-bento').forEach(e => e.remove()); 
+            hasUnsavedChanges = true; 
+        } 
+    }
+
+    if (canEdit) {
+        document.querySelectorAll('.subject-card-bento').forEach(pill => {
+            pill.addEventListener('dragstart', (ev) => {
+                draggingSubjectId = pill.dataset.id;
+                ev.dataTransfer.setData("id", pill.dataset.id);
+                ev.dataTransfer.setData("name", pill.dataset.name);
+                pill.style.opacity = '0.3';
+            });
+            pill.addEventListener('dragend', (ev) => pill.style.opacity = '1');
+        });
+    }
+
+    window.onbeforeunload = function() {
+        if (canEdit && hasUnsavedChanges) return "Unsaved draft infrastructure will be lost.";
+    };
+</script>
+{% endblock %}

@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-6 col-xxl-6">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech">REGISTRY_NODE_v5.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50">
+                    Faculty Utilization & Infrastructure
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1 text-wrap">
+                Staff Directory & Faculty Utilization
+            </h1>
+            <div class="d-flex align-items-center gap-2 mt-3 text-theme-dark fw-bold">
+                <div class="status-pulse-wrapper"><span class="status-dot animate-pulse"></span></div>
+                <span class="smallest ls-1 fw-black uppercase opacity-75">Link_State:</span> 
+                <span class="smallest ls-1 fw-black text-theme-accent-dark uppercase">Operational_Sync_Active</span>
+            </div>
+        </div>
+        
+        <div class="col-xl-6 col-xxl-6 d-flex flex-wrap align-items-center justify-content-start justify-content-xl-end gap-3">
+            
+            <div class="filter-terminal shadow-sm border rounded-3 overflow-hidden bg-white">
+                <select id="staffFilter" class="form-select border-0 shadow-none smallest fw-black uppercase text-theme-dark ps-3 pe-5 py-2" onchange="filterStaff(this.value)" style="cursor: pointer; background-color: transparent;">
+                    <option value="all">Filter: ALL STAFF</option>
+                    <option value="faculty">Filter: FACULTY ONLY</option>
+                    <option value="non-teaching">Filter: NON-TEACHING</option>
+                </select>
+            </div>
+
+            <div class="view-toggle-terminal p-1 d-flex align-items-center gap-1 shadow-sm border">
+                <button onclick="switchView('grid')" id="gridBtn" class="btn-terminal-toggle active">
+                    <i class="bi bi-grid-fill me-1"></i><span class="smallest fw-black">GRID</span>
+                </button>
+                <button onclick="switchView('list')" id="listBtn" class="btn-terminal-toggle">
+                    <i class="bi bi-list-ul me-1"></i><span class="smallest fw-black">LIST</span>
+                </button>
+            </div>
+
+            {% if request.user.is_superuser or request.user.groups.all.0.name == 'Admin' or request.user.groups.all.0.name == 'Dept_Admin' %}
+            <div class="action-terminal p-2 shadow-sm border d-flex flex-wrap align-items-center gap-2">
+                <a href="{% url 'staff:promotion_terminal' %}" class="btn-terminal-action alert-danger text-nowrap shadow-soft border-0">
+                    <i class="bi bi-rocket-takeoff-fill me-1"></i>MIGRATION_ENGINE
+                </a>
+                
+                {% if request.user.is_superuser or request.user.groups.all.0.name == 'Admin' %}
+                <form action="{% url 'staff:sync_staff_roles' 0 %}" method="POST" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit" name="bulk_promote" class="btn-terminal-action danger text-nowrap">
+                        <i class="bi bi-shield-lock-fill me-1"></i>FIX_ROLES
+                    </button>
+                </form>
+                {% endif %}
+                
+                <a href="{% url 'staff:assign_class_teacher' %}" class="btn-terminal-action standard text-nowrap"><i class="bi bi-person-video3 me-1"></i>CLASSES</a>
+                <a href="{% url 'staff:allocation_list' %}" class="btn-terminal-action standard text-nowrap"><i class="bi bi-diagram-3 me-1"></i>MAPPINGS</a>
+                <a href="{% url 'staff:add' %}" class="btn-terminal-action neon shadow-soft text-nowrap"><i class="bi bi-person-plus-fill me-1"></i>RECRUIT</a>
+            </div>
+            {% endif %}
+            
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-xl-4 col-md-4">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">ALL_01</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center">
+                    <div class="terminal-icon-box bg-sage me-3 flex-shrink-0"><i class="bi bi-people-fill"></i></div>
+                    <div class="w-100">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0">Total Staff Registry</h6>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ staff_members.count|stringformat:"02d" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-md-4">
+            <div class="card card-terminal border-0 h-100 glass-node-dark shadow-sm position-relative text-white">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-white opacity-50">TCH_02</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center">
+                    <div class="terminal-icon-box bg-theme-accent text-theme-dark me-3 flex-shrink-0"><i class="bi bi-person-video3"></i></div>
+                    <div class="w-100">
+                        <h6 class="fw-black theme-accent-text smallest text-uppercase ls-1 m-0">Instructional (Faculty)</h6>
+                        <h3 class="fw-black text-white m-0 tracking-tighter">{{ teaching_count|stringformat:"02d" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-md-4">
+            <div class="card card-terminal border-0 h-100 glass-node border-bottom-heavy shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">NON_03</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center">
+                    <div class="terminal-icon-box bg-light-sage text-theme-dark me-3 flex-shrink-0"><i class="bi bi-building-gear"></i></div>
+                    <div class="w-100">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0">Non-Teaching / Admin</h6>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ non_teaching_count|stringformat:"02d" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gridView" class="row g-4 transition-fade">
+        {% for staff in staff_members %}
+        <div class="col-xl-4 col-lg-6 col-md-6 flex-fill staff-node-item" data-category="{% if staff.is_teaching_staff %}faculty{% else %}non-teaching{% endif %}">
+            <div class="card border-0 h-100 p-4" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); background: #ffffff; transition: 0.3s;">
+                
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <img src="https://ui-avatars.com/api/?name={{ staff.user.get_full_name }}&background=0f3822&color=cbfb45&size=128&bold=true" class="rounded-circle shadow-sm" style="width: 60px; height: 60px; object-fit: cover;">
+                    <div>
+                        <h5 class="fw-bold mb-1 text-theme-dark" style="font-size: 1.15rem; letter-spacing: -0.5px;">{{ staff.user.get_full_name }}</h5>
+                        <p class="text-muted mb-0" style="font-size: 0.85rem; font-weight: 500;">{{ staff.designation }}</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="d-flex align-items-center rounded px-2 py-1 {% if staff.user.is_staff %}bg-success{% else %}bg-danger{% endif %} text-white" style="font-size: 0.75rem; font-weight: 700;">
+                        <i class="bi bi-star-fill me-1" style="font-size: 0.6rem;"></i> 5.0 </div>
+                    <div class="d-flex align-items-center text-muted text-truncate" style="font-size: 0.85rem; font-weight: 500;">
+                        <i class="bi bi-geo-alt me-2"></i> {{ staff.department.name|default:"General Dept"|title }}
+                    </div>
+                </div>
+
+                <div class="mb-4 d-flex flex-column gap-1">
+                    <div class="text-muted text-truncate" style="font-size: 0.8rem; font-weight: 500;">
+                        {% if staff.class_teacher_of %}
+                            <span class="text-dark fw-bold">{{ staff.class_teacher_of.name }}</span> Class Teacher
+                        {% else %}
+                            No assigned class
+                        {% endif %}
+                    </div>
+                    <div class="text-muted" style="font-size: 0.8rem; font-weight: 500;">
+                        System ID: <span class="text-dark fw-bold">{{ staff.staff_id|default:"N/A" }}</span>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    {% if staff.is_teaching_staff %}
+                        <span class="badge rounded-pill fw-bold text-muted border" style="background: #f3f4f6; font-size: 0.65rem; padding: 6px 12px;">FACULTY</span>
+                    {% else %}
+                        <span class="badge rounded-pill fw-bold text-muted border" style="background: #f3f4f6; font-size: 0.65rem; padding: 6px 12px;">NON-TEACHING</span>
+                    {% endif %}
+                    <span class="badge rounded-pill fw-bold text-muted border" style="background: #f3f4f6; font-size: 0.65rem; padding: 6px 12px;">{{ staff.role }}</span>
+                    <span class="badge rounded-pill fw-bold text-muted border" style="background: #f3f4f6; font-size: 0.65rem; padding: 6px 12px;">{{ staff.status }}</span>
+                </div>
+
+                <div class="mt-auto pt-3 border-top border-black border-opacity-10 d-flex flex-column gap-3">
+                    
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="fw-bold text-theme-dark" style="font-size: 0.95rem;">
+                            {% if staff.user.groups.all.0.name == 'Dept_Admin' %}
+                                <i class="bi bi-shield-check text-theme-accent-dark me-1"></i> Admin
+                            {% else %}
+                                <span class="text-muted" style="font-size: 0.85rem; font-weight: 500;">Standard</span>
+                            {% endif %}
+                        </div>
+                        
+                        <a href="{% url 'staff:staff_detail' staff.id %}" class="btn rounded-pill fw-bold px-4 py-2 shadow-sm text-white" style="background: #198754; font-size: 0.85rem; transition: 0.3s;">
+                            Audit Profile
+                        </a>
+                    </div>
+
+                    {% if request.user.is_superuser or request.user.groups.all.0.name == 'Admin' %}
+                    <form action="{% url 'staff:sync_staff_roles' staff.id %}" method="POST" class="m-0 w-100">
+                        {% csrf_token %}
+                        {% if staff.user.groups.all.0.name == 'Dept_Admin' %}
+                            <button type="submit" name="revoke_dept_admin" class="btn w-100 rounded-pill fw-bold py-2" style="background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; font-size: 0.8rem;" onclick="return confirm('Revoke Admin Access for this user?')">
+                                Revoke Admin Access
+                            </button>
+                        {% else %}
+                            <button type="submit" name="make_dept_admin" class="btn w-100 rounded-pill fw-bold py-2" style="background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; font-size: 0.8rem;" onclick="return confirm('Elevate this user to Dept Admin?')">
+                                Make Dept_Admin
+                            </button>
+                        {% endif %}
+                    </form>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="listView" class="d-none transition-fade">
+        <div class="card card-terminal border-0 glass-node overflow-hidden shadow-soft border">
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0">
+                    <thead class="bg-theme-dark text-white">
+                        <tr>
+                            <th class="ps-4 py-4 smallest fw-black uppercase text-nowrap">Staff_Nomenclature</th>
+                            <th class="py-4 smallest fw-black uppercase text-nowrap">Classification</th>
+                            <th class="py-4 smallest fw-black uppercase text-nowrap">Authority_Link</th>
+                            <th class="py-4 smallest fw-black uppercase text-center text-nowrap">System_State</th>
+                            <th class="pe-4 py-4 smallest fw-black uppercase text-end text-nowrap">Execution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for staff in staff_members %}
+                        <tr class="border-bottom-faint staff-list-item" data-category="{% if staff.is_teaching_staff %}faculty{% else %}non-teaching{% endif %}">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="https://ui-avatars.com/api/?name={{ staff.user.get_full_name }}&background=0f3822&color=cbfb45&bold=true" width="42" height="42" class="rounded-circle shadow-sm border border-white border-2 flex-shrink-0">
+                                    <div class="d-flex flex-column">
+                                        <div class="fw-black text-theme-dark tracking-tighter text-wrap fs-6">
+                                            {{ staff.user.get_full_name }}
+                                            {% if not staff.is_teaching_staff %}
+                                            <span class="badge bg-secondary text-white ms-2" style="font-size: 0.5rem; vertical-align: middle;">NON-TEACHING</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="smallest fw-bold text-muted uppercase ls-1 text-wrap">{{ staff.designation }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-terminal bg-light-sage text-theme-dark text-nowrap">{{ staff.department.name|default:"CORE"|upper }}</span></td>
+                            <td><span class="smallest fw-black text-theme-dark text-wrap d-inline-block">{% if staff.class_teacher_of %}{{ staff.class_teacher_of.name }}{% else %}N/A{% endif %}</span></td>
+                            <td class="text-center">
+                                <div class="badge-terminal-status {% if staff.user.is_staff %}online{% else %}offline{% endif %} text-nowrap">
+                                    <span class="smallest fw-black uppercase">{{ staff.status }}</span>
+                                </div>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                    {% if request.user.is_superuser or request.user.groups.all.0.name == 'Admin' %}
+                                    <form action="{% url 'staff:sync_staff_roles' staff.id %}" method="POST" class="m-0">
+                                        {% csrf_token %}
+                                        {% if staff.user.groups.all.0.name == 'Dept_Admin' %}
+                                            <button type="submit" name="revoke_dept_admin" class="btn-terminal-action danger shadow-sm py-2 px-2" title="Revoke Admin Access" onclick="return confirm('Revoke Admin Access?')">
+                                                <i class="bi bi-shield-minus fs-6 m-0"></i>
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" name="make_dept_admin" class="btn-terminal-action bg-dark text-theme-accent shadow-sm py-2 px-2 border-0" title="Elevate to Dept Admin" onclick="return confirm('Elevate to Dept Admin?')">
+                                                <i class="bi bi-shield-plus fs-6 m-0"></i>
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                    {% endif %}
+                                    <a href="{% url 'staff:staff_detail' staff.id %}" class="btn-terminal-action standard shadow-sm py-2 text-nowrap">AUDIT</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root { --bg-sage: #e8f0eb; --theme-dark: #0f3822; --theme-accent: #cbfb45; --theme-accent-dark: #217346; --bg-light: #fdfdfc; --white: #ffffff; }
+
+    /* BLUEPRINT GRID */
+    .registry-blueprint { background-color: var(--bg-light); background-image: radial-gradient(var(--bg-sage) 1.5px, transparent 1.5px); background-size: 30px 30px; min-height: 100vh; }
+    
+    .display-title { font-weight: 900; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -1.5px; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .text-nowrap { white-space: nowrap !important; }
+    .text-wrap { white-space: normal !important; word-wrap: break-word; }
+    .label-micro { font-size: 0.55rem; font-weight: 900; color: rgba(15, 56, 34, 0.5); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* UI ELEMENTS */
+    .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; }
+    .view-toggle-terminal, .action-terminal { background: #fff; border-radius: 12px; border-color: var(--bg-sage) !important; }
+    .filter-terminal { border-radius: 12px; border-color: var(--bg-sage) !important; }
+    .filter-terminal select:focus { outline: none; box-shadow: none; }
+    
+    .btn-terminal-toggle { background: transparent; border: none; padding: 10px 20px; border-radius: 10px; color: var(--theme-dark); opacity: 0.5; transition: 0.3s; }
+    .btn-terminal-toggle.active { background: var(--theme-dark); color: var(--theme-accent); opacity: 1; }
+
+    /* CARDS */
+    .glass-node { background: rgba(255, 255, 255, 0.95); border: 2px solid var(--white); border-radius: 20px; transition: 0.3s; }
+    .glass-node-dark { background: rgba(15, 56, 34, 0.98); border: 2px solid rgba(255,255,255,0.1); border-radius: 20px; transition: 0.3s; }
+    
+    .terminal-icon-box { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    
+    /* BUTTONS */
+    .btn-terminal-action { border: none; padding: 10px 20px; border-radius: 10px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; }
+    .btn-terminal-action.standard { background: var(--bg-light); color: var(--theme-dark); border: 1px solid var(--bg-sage); }
+    .btn-terminal-action.neon { background: var(--theme-accent); color: var(--theme-dark); }
+    .btn-terminal-action.danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+    .btn-terminal-action.alert-danger { background: #dc3545; color: white; border: 1px solid #dc3545; }
+    .btn-terminal-action.alert-danger:hover { background: #bb2d3b; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); }
+    .btn-terminal-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+    /* Hover effect for grid cards */
+    .staff-node-item .card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important; }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* INDICATORS */
+    .terminal-badge-status { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 50px; }
+    .dot-mini { width: 8px; height: 8px; border-radius: 50%; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #10b981; }
+    
+    .code-fragment { font-family: monospace; font-size: 0.65rem; font-weight: 900; background: rgba(15, 56, 34, 0.08); padding: 4px 10px; border-radius: 6px; }
+    .badge-terminal { padding: 4px 12px; border-radius: 6px; font-weight: 900; font-size: 0.6rem; }
+    .badge-terminal-status { padding: 4px 14px; border-radius: 50px; font-weight: 900; font-size: 0.6rem; display: inline-block; }
+    .badge-terminal-status.online { background: #ecfdf5; color: #10b981; }
+    .badge-terminal-status.offline { background: #fef2f2; color: #ef4444; }
+
+    .border-bottom-faint { border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .border-bottom-heavy { border-bottom: 6px solid var(--theme-dark) !important; }
+    .transition-fade { transition: opacity 0.3s ease-in-out; }
+    
+    @keyframes pulse-soft { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    .animate-pulse { animation: pulse-soft 2s infinite; }
+</style>
+
+<script>
+    function switchView(view) {
+        const grid = document.getElementById('gridView');
+        const list = document.getElementById('listView');
+        const gridBtn = document.getElementById('gridBtn');
+        const listBtn = document.getElementById('listBtn');
+
+        if (view === 'grid') {
+            grid.classList.remove('d-none');
+            list.classList.add('d-none');
+            gridBtn.classList.add('active');
+            listBtn.classList.remove('active');
+        } else {
+            grid.classList.add('d-none');
+            list.classList.remove('d-none');
+            gridBtn.classList.remove('active');
+            listBtn.classList.add('active');
+        }
+    }
+
+    function filterStaff(category) {
+        const gridItems = document.querySelectorAll('.staff-node-item');
+        gridItems.forEach(item => {
+            if (category === 'all' || item.dataset.category === category) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        const listItems = document.querySelectorAll('.staff-list-item');
+        listItems.forEach(item => {
+            if (category === 'all' || item.dataset.category === category) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

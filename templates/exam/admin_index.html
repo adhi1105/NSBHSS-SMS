@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon">Registry v3.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Assessment Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Examination <span class="theme-accent-text-dark">Control</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                Protocol: <span class="uppercase ls-1">Result Synchronization & Locking</span>
+            </p>
+        </div>
+        
+        <div class="d-flex gap-3">
+            <a href="{% url 'exam:create_exam' %}" class="btn-neon-premium shadow-soft">
+                <i class="bi bi-plus-lg me-2"></i>Schedule Exam
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card card-bento border-0 shadow-soft h-100 bg-white">
+                <div class="card-body p-4 d-flex align-items-center gap-4">
+                    <div class="icon-square bg-sage text-theme-dark shadow-sm">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">{{ exams.count }}</h3>
+                        <div class="smallest fw-black text-uppercase ls-2 text-muted">Total Scheduled</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-bento border-0 shadow-soft h-100 bg-theme-dark">
+                <div class="card-body p-4 d-flex align-items-center gap-4">
+                    <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                        <i class="bi bi-lock-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-black text-white m-0 tracking-tighter">Locked</h3>
+                        <div class="smallest fw-black text-uppercase ls-2 theme-accent-text">Grading Closed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-bento border-0 shadow-soft h-100 bg-white">
+                <div class="card-body p-4 d-flex align-items-center gap-4">
+                    <div class="icon-square bg-success-light text-success shadow-sm">
+                        <i class="bi bi-broadcast"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-black text-theme-dark m-0 tracking-tighter">Live</h3>
+                        <div class="smallest fw-black text-uppercase ls-2 text-muted">Published</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5">
+        <div class="card-header bg-sage p-4 border-0">
+            <h5 class="fw-black text-theme-dark m-0 tracking-tighter"><i class="bi bi-layers-half me-2"></i>Active Assessment Nodes</h5>
+        </div>
+        
+        <div class="table-responsive bg-white">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr class="border-bottom border-light">
+                        <th class="ps-4 py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Exam Identifier</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Academic Session</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Timeline</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-2 text-center">Status Node</th>
+                        <th class="pe-4 py-4 text-end text-uppercase smallest fw-black text-theme-dark ls-2">Interface</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exam in exams %}
+                    <tr class="border-bottom-dashed">
+                        <td class="ps-4 py-4">
+                            <span class="fw-black text-theme-dark fs-6 tracking-tighter text-capitalize">{{ exam.name }}</span>
+                        </td>
+                        <td class="py-4">
+                            <span class="badge-outline-sage fw-black uppercase">{{ exam.academic_session }}</span>
+                        </td>
+                        <td class="py-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-calendar3 theme-accent-text-dark"></i>
+                                <span class="smallest fw-black text-theme-dark">{{ exam.start_date|date:"M d" }} — {{ exam.end_date|date:"M d" }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 text-center">
+                            {% if exam.is_locked %}
+                                <span class="badge-node bg-danger-light text-danger"><i class="bi bi-lock-fill me-1"></i> Locked</span>
+                            {% elif exam.is_published %}
+                                <span class="badge-node bg-success-light text-success"><i class="bi bi-check-all me-1"></i> Published</span>
+                            {% elif exam.is_active %}
+                                <span class="badge-node bg-neon text-theme-dark"><i class="bi bi-lightning-fill me-1"></i> Active</span>
+                            {% else %}
+                                <span class="badge-node bg-light text-muted">Draft</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <a href="{% url 'exam:edit_exam' exam.id %}" class="btn-outline-modern rounded-pill px-4 fw-black transition-all shadow-sm">
+                                Manage
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-folder-x display-1 text-theme-dark opacity-10"></i>
+                            <p class="mt-3 smallest fw-black text-theme-dark text-uppercase ls-2">No infrastructure nodes found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;         /* High contrast text/headers */
+        --theme-accent: #cbfb45;       /* Neon lime for highlights */
+        --theme-accent-dark: #2a8b58;  /* Readable green */
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-2 { letter-spacing: 1px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.7rem; }
+    .theme-accent-text-dark { color: #2a8b58; }
+    .theme-accent-text { color: var(--theme-accent); }
+
+    /* CARDS & COMPONENTS */
+    .card-bento { border-radius: 30px; border: 1px solid var(--bg-sage); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-success-light { background: #ecfdf5; }
+    .bg-danger-light { background: #fef2f2; }
+    .bg-neon { background: var(--theme-accent); }
+
+    .icon-square { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 4px 12px; border-radius: 50px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+    
+    .badge-outline-sage { padding: 4px 12px; border: 1px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+    
+    .badge-node { padding: 6px 16px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 900; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; text-decoration: none; transition: 0.3s; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); }
+
+    .btn-outline-modern { background: var(--white); color: var(--theme-dark); border: 2px solid var(--bg-sage); font-size: 0.75rem; text-transform: uppercase; transition: 0.3s; text-decoration: none; }
+    .btn-outline-modern:hover { background: var(--theme-dark); color: var(--theme-accent); border-color: var(--theme-dark); }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+</style>
+{% endblock %}

@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon" style="letter-spacing: 1.5px;">COMMAND NODE</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Library Infrastructure</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Admin <span class="theme-accent-text-dark">Dashboard</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span class="ls-1">SYSTEM STATE:</span> 
+                <span class="uppercase ls-2 fw-black opacity-75">Circulation Synchronization Active</span>
+            </p>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3 h-100">
+            <a href="{% url 'library:book_catalog' %}" class="btn-minimal shadow-soft d-flex align-items-center">
+                <i class="bi bi-collection me-2 text-muted"></i>CATALOG
+            </a>
+            <a href="{% url 'library:issue_book' %}" class="btn-minimal shadow-soft d-flex align-items-center bg-theme-dark text-white border-0">
+                <i class="bi bi-lightning-charge-fill me-2 theme-accent-text"></i>QUICK ISSUE
+            </a>
+            <a href="{% url 'library:add_book' %}" class="btn-neon-premium shadow-soft d-flex align-items-center">
+                <i class="bi bi-plus-lg me-2"></i>ADD ASSET
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-square bg-warning-light text-warning shadow-sm">
+                            <i class="bi bi-bell-fill"></i>
+                        </div>
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-3 m-0">Pending</h6>
+                    </div>
+                    <h2 class="fw-black text-theme-dark mb-1 tracking-tighter" style="font-size: 2.2rem;">{{ pending_requests|stringformat:"02d" }}</h2>
+                    <small class="smallest fw-bold text-muted uppercase ls-2 opacity-75">Actions Required</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-theme-dark text-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                            <i class="bi bi-journal-check"></i>
+                        </div>
+                        <h6 class="fw-black theme-accent-text smallest text-uppercase ls-3 m-0">Active</h6>
+                    </div>
+                    <h2 class="fw-black text-white mb-1 tracking-tighter" style="font-size: 2.2rem;">{{ issued_books|stringformat:"02d" }}</h2>
+                    <small class="theme-accent-text smallest fw-bold uppercase ls-2 opacity-75">Total Loans</small>
+                </div>
+                <div class="bg-decoration"></div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white border-bottom-danger">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-square bg-danger-light text-danger shadow-sm">
+                            <i class="bi bi-exclamation-octagon-fill"></i>
+                        </div>
+                        <h6 class="fw-black text-danger smallest text-uppercase ls-3 m-0">Overdue</h6>
+                    </div>
+                    <h2 class="fw-black text-theme-dark mb-1 tracking-tighter" style="font-size: 2.2rem;">{{ overdue_list|length|stringformat:"02d" }}</h2>
+                    <small class="smallest fw-bold text-danger text-uppercase ls-2 opacity-75">Protocol Breaches</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-bento border-0 shadow-soft h-100 card-lift bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-square bg-sage text-theme-dark shadow-sm">
+                            <i class="bi bi-archive-fill"></i>
+                        </div>
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-3 m-0">Assets</h6>
+                    </div>
+                    <h2 class="fw-black text-theme-dark mb-1 tracking-tighter" style="font-size: 2.2rem;">{{ total_books }}</h2>
+                    <small class="smallest fw-bold text-muted uppercase ls-2 opacity-75">Verified Registry</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <div class="card card-bento border-0 shadow-soft overflow-hidden h-100 bg-white">
+                <div class="card-header bg-sage p-4 border-0 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-black text-theme-dark m-0 tracking-tighter ls-1">Incoming Requests</h5>
+                        <small class="smallest fw-bold text-muted uppercase ls-1">Real-time Queue</small>
+                    </div>
+                    <span class="badge-node bg-theme-dark text-theme-accent ls-1">PRIORITY_SYNC</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0">
+                        <thead>
+                            <tr class="border-bottom border-light">
+                                <th class="ps-4 py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Borrower Node</th>
+                                <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Asset Title</th>
+                                <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-center">Protocol Type</th>
+                                <th class="pe-4 py-4 text-end text-uppercase text-theme-dark smallest fw-black ls-3">Execution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rec in pending_list %}
+                            <tr class="border-bottom-dashed">
+                                <td class="ps-4 py-4">
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-black text-theme-dark d-block fs-6 tracking-normal text-capitalize">{{ rec.borrower_name }}</span>
+                                        <small class="smallest fw-bold text-muted uppercase ls-1">{{ rec.issue_date|timesince }} ago</small>
+                                    </div>
+                                </td>
+                                <td class="py-4">
+                                    <span class="smallest fw-black theme-accent-text-dark text-uppercase ls-1">{{ rec.book.title }}</span>
+                                </td>
+                                <td class="text-center py-4">
+                                    {% if rec.status == 'Requested' %}
+                                        <span class="badge-node bg-light-sage text-theme-dark border border-dark border-opacity-10 ls-1">ISSUE_REQ</span>
+                                    {% else %}
+                                        <span class="badge-node bg-warning-light text-warning ls-1">RETURN_REQ</span>
+                                    {% endif %}
+                                </td>
+                                <td class="pe-4 py-4 text-end">
+                                    <a href="{% url 'library:approve_request' rec.id %}" class="btn-neon-premium px-4 py-2 smallest fw-black shadow-sm transition-all">
+                                        APPROVE NODE
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-5">
+                                <div class="bg-light-sage d-inline-flex p-4 rounded-circle mb-3 opacity-25">
+                                    <i class="bi bi-check-circle display-4 text-theme-dark"></i>
+                                </div>
+                                <p class="smallest fw-black text-theme-dark text-uppercase ls-3">Registry Queue Fully Cleared</p>
+                            </td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card card-bento border-0 shadow-soft overflow-hidden h-100 bg-white">
+                <div class="card-header bg-theme-dark p-4 border-0">
+                    <h5 class="fw-black text-white m-0 tracking-tighter ls-1">Critical Overdue</h5>
+                    <small class="smallest fw-bold theme-accent-text uppercase ls-2">Node Breaches</small>
+                </div>
+                <div class="list-group list-group-flush custom-scrollbar" style="max-height: 500px; overflow-y: auto;">
+                    {% for rec in overdue_list %}
+                    <div class="list-group-item p-4 border-bottom-dashed">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="fw-black text-theme-dark d-block fs-6 tracking-normal">{{ rec.borrower_name }}</span>
+                                <small class="smallest fw-bold text-muted uppercase ls-1">{{ rec.book.title }}</small>
+                            </div>
+                            <span class="badge-node bg-danger-light text-danger ls-1">₹{{ rec.current_fine }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-3">
+                            <i class="bi bi-clock-history text-danger smallest"></i>
+                            <span class="smallest fw-black text-danger uppercase ls-2">MATURITY: {{ rec.due_date|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 opacity-25">
+                        <i class="bi bi-emoji-smile display-4"></i>
+                        <p class="mt-3 smallest fw-black uppercase ls-3">Zero Liability Gaps</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="card-footer bg-light-sage p-4 text-center border-0">
+                    <a href="#" class="btn-outline-modern rounded-pill w-100 py-3 fw-black text-decoration-none ls-2">
+                        AUDIT GLOBAL LEDGER
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.8px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 30px; border: 1.5px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-success-light { background: #ecfdf5; }
+    .bg-danger-light { background: #fef2f2; }
+    .bg-warning-light { background: #fffbeb; }
+    
+    .icon-square { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .bg-decoration {
+        position: absolute; width: 180px; height: 180px; background: rgba(203, 251, 69, 0.05);
+        border-radius: 50%; top: -60px; right: -60px; z-index: 1;
+    }
+
+    /* BADGES & NODES */
+    .badge-node { padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 5px 14px; border-radius: 50px; font-weight: 900; text-transform: uppercase; }
+    .badge-outline-sage { padding: 6px 16px; border: 2.5px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 12px 28px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(203, 251, 69, 0.4); }
+    
+    .btn-minimal { background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; font-weight: 900; font-size: 0.72rem; text-transform: uppercase; padding: 12px 25px; text-decoration: none; transition: 0.3s; letter-spacing: 1px; }
+    .btn-outline-modern { border: 2.5px solid var(--bg-sage); color: var(--theme-dark); font-size: 0.75rem; text-transform: uppercase; font-weight: 900; transition: 0.3s; letter-spacing: 1px; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    .border-bottom-danger { border-bottom: 5px solid #dc3545 !important; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--bg-sage); border-radius: 10px; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .card-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; }
+    .card-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(15, 56, 34, 0.08); }
+</style>
+{% endblock %}

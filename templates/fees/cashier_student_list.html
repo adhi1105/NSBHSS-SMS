@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <a href="{% url 'fees:cashier_search' %}" class="btn-close-custom shadow-soft transition-all d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <span class="badge-pill-neon" style="letter-spacing: 1px;">Ledger Node</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Transaction History</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                {{ student.user.get_full_name }}
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span style="letter-spacing: 0.5px;">Identity Check:</span> 
+                <span class="uppercase ls-1 fw-black opacity-75">{{ student.classroom.name }} • ID: {{ student.student_id }}</span>
+            </p>
+        </div>
+        
+        <div class="d-none d-lg-block">
+            <div class="badge-outline-sage px-4 py-3 bg-white shadow-soft">
+                <i class="bi bi-shield-lock-fill theme-accent-text-dark me-2"></i>
+                <span class="fw-black text-theme-dark smallest text-uppercase ls-1">Terminal Secure & Verified</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5">
+        <div class="card-header bg-theme-dark p-4 border-0 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                    <i class="bi bi-receipt"></i>
+                </div>
+                <h4 class="text-white fw-black m-0 tracking-tighter">Outstanding Documentation</h4>
+            </div>
+            <span class="smallest fw-black text-white opacity-50 uppercase ls-2">Real-time Balance Sync</span>
+        </div>
+
+        <div class="table-responsive bg-white">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr class="bg-sage border-bottom border-white">
+                        <th class="ps-4 py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Invoice Type</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Maturity Date</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Gross Value</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Synchronized</th>
+                        <th class="py-4 text-uppercase smallest fw-black text-theme-dark ls-2">Remaining Node</th>
+                        <th class="pe-4 py-4 text-end text-uppercase smallest fw-black text-theme-dark ls-2">Action Node</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fee in fees %}
+                    <tr class="border-bottom-dashed">
+                        <td class="ps-4 py-4">
+                            <span class="fw-black text-theme-dark fs-6 tracking-normal">{{ fee.structure.fee_type.name }}</span>
+                        </td>
+                        <td class="py-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-calendar-event text-theme-dark opacity-25"></i>
+                                <span class="smallest fw-black text-theme-dark ls-1">
+                                    {% if fee.due_date %}{{ fee.due_date|date:"M d, Y" }}{% else %}-{% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <span class="fw-black text-theme-dark tracking-tighter fs-5">₹{{ fee.final_amount }}</span>
+                        </td>
+                        <td class="py-4">
+                            <span class="fw-black theme-accent-text-dark tracking-tighter">₹{{ fee.paid_amount }}</span>
+                        </td>
+                        <td class="py-4">
+                            <div class="fw-black {% if fee.balance > 0 %}text-danger{% else %}text-success{% endif %} tracking-tighter fs-5">
+                                ₹{{ fee.balance }}
+                            </div>
+                        </td>
+                        <td class="pe-4 py-4 text-end">
+                            {% if fee.balance > 0 %}
+                                <a href="{% url 'fees:record_payment' fee.id %}" class="btn-neon-premium px-4 py-2 smallest fw-black transition-all">
+                                    COLLECT SETTLEMENT
+                                </a>
+                            {% else %}
+                                <span class="badge-node bg-success-light text-success ls-1 fw-black">
+                                    <i class="bi bi-check2-circle me-1"></i> VERIFIED PAID
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="bg-light-sage d-inline-flex p-4 rounded-circle mb-3 opacity-50">
+                                <i class="bi bi-folder-check display-4 text-theme-dark"></i>
+                            </div>
+                            <p class="smallest fw-black text-theme-dark text-uppercase ls-2">Account Nodes Fully Synchronized</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.2rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .tracking-tighter { letter-spacing: -1.2px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+
+    /* CARDS & COMPONENTS */
+    .card-bento { border-radius: 30px; border: 2px solid var(--bg-sage); background: var(--white); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-success-light { background: #ecfdf5; }
+
+    .icon-square { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); }
+    
+    .btn-close-custom { border-radius: 50%; background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); text-decoration: none; }
+    .badge-outline-sage { padding: 6px 20px; border: 2px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+    .badge-node { padding: 8px 18px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.06); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s infinite; }
+</style>
+{% endblock %}

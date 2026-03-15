@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <a href="{% url 'library:index' %}" class="btn-close-custom shadow-soft transition-all d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <span class="badge-pill-neon">Registry Node</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark opacity-50">Library Asset Audit</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                Asset <span class="theme-accent-text-dark">Catalog</span>
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                <span class="ls-1">INDEX STATE:</span> 
+                <span class="uppercase ls-2 fw-black opacity-75">Synchronized Inventory Registry</span>
+            </p>
+        </div>
+        
+        {% if is_librarian %}
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'library:add_book' %}" class="btn-neon-premium shadow-soft d-flex align-items-center">
+                <i class="bi bi-plus-lg me-2"></i>ADD NEW ASSET
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card card-bento border-0 shadow-soft overflow-hidden mb-5 bg-white">
+        <div class="card-body p-2">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-md-10">
+                    <div class="d-flex align-items-center">
+                        <div class="ps-4 pe-2 text-theme-dark opacity-50">
+                            <i class="bi bi-search fs-5"></i>
+                        </div>
+                        <input type="text" name="q" class="search-field-modern" 
+                               placeholder="Scan by Title, Author Node, or ISBN Identifier..." value="{{ search_query|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-2 pe-2">
+                    <button type="submit" class="btn-neon-premium w-100 py-3 shadow-sm hover-lift">
+                        EXECUTE FILTER
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card card-bento border-0 shadow-soft overflow-hidden bg-white">
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr class="bg-sage border-bottom border-white">
+                        <th class="ps-4 py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Asset fragments</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3">Classification</th>
+                        <th class="py-4 text-uppercase text-theme-dark smallest fw-black ls-3 text-center">Availability Node</th>
+                        <th class="pe-4 py-4 text-end text-uppercase text-theme-dark smallest fw-black ls-3">Interface</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                    <tr class="border-bottom-dashed">
+                        <td class="ps-4 py-4">
+                            <div class="fw-black text-theme-dark fs-6 tracking-normal text-capitalize mb-1">{{ book.title }}</div>
+                            <div class="smallest fw-bold text-muted uppercase ls-1">{{ book.author }}</div>
+                            {% if is_librarian %}
+                            <div class="mt-2 bg-light-sage d-inline-block px-3 py-1 rounded-pill">
+                                <code class="smallest fw-black text-theme-dark opacity-75 ls-1">
+                                    <i class="bi bi-geo-alt-fill me-1 theme-accent-text-dark"></i>LOC: {{ book.shelf_location|default:"UNASSIGNED" }}
+                                </code>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="py-4">
+                            <span class="badge-outline-sage fw-black uppercase ls-1">{{ book.category.name|default:"GENERAL" }}</span>
+                        </td>
+                        <td class="text-center py-4">
+                            {% if book.available_copies > 0 %}
+                                <span class="badge-node bg-success-light text-success ls-1 mb-1">IN_STOCK</span>
+                                <div class="smallest fw-black text-muted uppercase ls-1 mt-1">{{ book.available_copies }} / {{ book.total_copies }} NODES</div>
+                            {% else %}
+                                <span class="badge-node bg-danger-light text-danger ls-1">OUT_OF_SYNC</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 py-4 text-end">
+                            {% if is_librarian %}
+                                <a href="{% url 'library:edit_book' book.id %}" class="btn-outline-modern rounded-pill px-4 py-2 smallest fw-black d-inline-flex align-items-center gap-2">
+                                    <i class="bi bi-pencil-square"></i> EDIT NODE
+                                </a>
+                            {% else %}
+                                {% if book.available_copies > 0 %}
+                                    <a href="{% url 'library:request_issue' book.id %}" class="btn-neon-premium px-4 py-2 smallest fw-black shadow-sm">
+                                        INITIALIZE REQUEST
+                                    </a>
+                                {% else %}
+                                    <button class="btn-minimal px-4 py-2 smallest fw-black opacity-50" disabled>NOTIFY SYNC</button>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <div class="bg-light-sage d-inline-flex p-4 rounded-circle mb-3 opacity-25">
+                                <i class="bi bi-collection display-4 text-theme-dark"></i>
+                            </div>
+                            <p class="smallest fw-black text-theme-dark text-uppercase ls-3">Zero Asset Nodes Detected</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); }
+    
+    /* TYPOGRAPHY SYSTEM */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3.5rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0 !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .ls-2 { letter-spacing: 1.5px !important; }
+    .ls-3 { letter-spacing: 3px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .line-height-1 { line-height: 1; }
+
+    /* SEARCH FIELD: PURE BLACK VISIBILITY */
+    .search-field-modern {
+        width: 100%; border: none !important; padding: 15px 10px !important;
+        font-size: 1rem !important; font-weight: 700 !important;      
+        color: #000000 !important; background: transparent !important;
+        box-shadow: none !important;
+    }
+    .search-field-modern::placeholder { color: var(--theme-dark); opacity: 0.3; font-weight: 600; }
+
+    /* CARDS & GEOMETRY */
+    .card-bento { border-radius: 30px; border: 1.5px solid var(--bg-sage); }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-success-light { background: #ecfdf5; }
+    .bg-danger-light { background: #fef2f2; }
+    
+    .icon-square { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+
+    /* BADGES & NODES */
+    .badge-node { padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 5px 14px; border-radius: 50px; font-weight: 900; text-transform: uppercase; font-size: 0.65rem; }
+    .badge-outline-sage { padding: 6px 16px; border: 2.1px solid var(--bg-sage); border-radius: 50px; color: var(--theme-dark); font-size: 0.7rem; }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 12px 28px; border-radius: 50px; font-weight: 900; text-transform: uppercase; transition: 0.3s; text-decoration: none; letter-spacing: 0.5px; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(203, 251, 69, 0.4); }
+    
+    .btn-minimal { background: var(--white); border: 2.1px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; transition: 0.3s; text-decoration: none; }
+    .btn-close-custom { border-radius: 50%; background: var(--white); border: 2.1px solid var(--bg-sage); color: var(--theme-dark); text-decoration: none; }
+    .btn-outline-modern { border: 2.5px solid var(--bg-sage); color: var(--theme-dark); font-size: 0.72rem; text-transform: uppercase; font-weight: 900; transition: 0.3s; letter-spacing: 0.5px; text-decoration: none; }
+    .btn-outline-modern:hover { background: var(--theme-dark); color: var(--theme-accent); border-color: var(--theme-dark); }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.05); }
+    .border-bottom-dashed { border-bottom: 2px dashed var(--bg-sage) !important; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .hover-lift:hover { transform: translateY(-3px); }
+</style>
+{% endblock %}

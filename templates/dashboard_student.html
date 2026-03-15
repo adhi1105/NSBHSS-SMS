@@ -1,0 +1,683 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Hub | {{ student.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-3 p-lg-4 p-xl-5 page-load-animation">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 mb-xl-5 gap-4 animate-fade-up"
+        style="--delay: 0s;">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div
+                    class="modern-badge bg-theme-accent text-theme-dark px-3 py-1 fw-bold rounded-pill smallest ls-1 d-flex align-items-center gap-2 shadow-sm border border-theme-accent border-opacity-50 pulse-ring-container">
+                    <span class="pulse-ring"></span> STUDENT HUB
+                </div>
+                <span class="text-uppercase smallest fw-bold ls-2 text-muted">Academic Feed</span>
+            </div>
+            <h1 class="display-5 fw-black text-theme-dark tracking-tighter m-0 line-height-1">
+                Welcome, <span class="text-gradient">{{ student.user.first_name|default:student.user.username }}</span>.
+            </h1>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <span
+                    class="badge bg-white text-theme-dark border shadow-sm px-3 py-1 fw-bold rounded-pill d-flex align-items-center"
+                    style="font-size: 0.75rem;">
+                    <i class="bi bi-mortarboard text-muted me-2"></i>
+                    <span>Std {{ student.classroom.standard }}-{{ student.classroom.division }}</span>
+                </span>
+                <span
+                    class="badge bg-white text-theme-dark border shadow-sm px-3 py-1 fw-bold rounded-pill d-flex align-items-center"
+                    style="font-size: 0.75rem;">
+                    <i class="bi bi-diagram-3 text-muted me-2"></i>
+                    <span>{{ student.stream.name|default:"General Core" }}</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <div
+                class="system-status-pill bg-white border shadow-sm px-4 py-2 rounded-pill d-flex align-items-center gap-3">
+                <div class="d-flex flex-column text-end">
+                    <span class="text-muted fw-bold text-uppercase"
+                        style="font-size: 0.6rem; letter-spacing: 1px;">System Time</span>
+                    <span class="fw-black text-theme-dark font-monospace" style="font-size: 0.85rem;"
+                        id="live-clock">--:--</span>
+                </div>
+                <div class="vr bg-sage opacity-25" style="height: 20px; width: 2px;"></div>
+                <div class="d-flex flex-column text-start">
+                    <span class="text-muted fw-bold text-uppercase"
+                        style="font-size: 0.6rem; letter-spacing: 1px;">Calendar</span>
+                    <span class="fw-black text-theme-dark font-monospace" style="font-size: 0.85rem;"
+                        id="live-date">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 g-xl-4 mb-3 mb-xl-4 align-items-stretch">
+
+        <div class="col-xl-8 d-flex flex-column animate-fade-up" style="--delay: 0.1s;">
+            <div class="modern-card bg-theme-dark text-white border-0 shadow-sm overflow-hidden position-relative group-hover d-flex flex-column flex-grow-1 p-4 p-xl-5 tilt-card"
+                style="min-height: 340px;">
+                <div class="glare-layer"></div>
+                <div class="position-relative z-2 d-flex flex-column h-100 pointer-events-none">
+
+                    <div class="d-flex justify-content-between align-items-start mb-auto">
+                        <div
+                            class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 fw-bold ls-1 d-flex align-items-center gap-2 backdrop-blur">
+                            <span class="pulse-dot bg-success rounded-circle" style="width: 6px; height: 6px;"></span>
+                            {% if current_class %}LIVE SESSION{% else %}NO ACTIVE CLASS{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        {% if current_class %}
+                        <h1 class="fw-black tracking-tighter mb-2 text-white" style="font-size: 3.5rem;">
+                            {{ current_class.subject.name }}
+                        </h1>
+                        <p class="theme-accent-text fw-bold text-uppercase ls-1 mb-0 d-flex align-items-center gap-3"
+                            style="font-size: 0.85rem;">
+                            <span><i class="bi bi-geo-alt-fill me-1"></i> {{ current_class.classroom.name }}</span>
+                            <span class="opacity-50">•</span>
+                            <span>
+                                <i class="bi bi-person-video3 me-1"></i> {{ current_class.staff.user.get_full_name }}
+                            </span>
+                        </p>
+                        {% else %}
+                        <h1 class="fw-black tracking-tighter mb-2 text-white opacity-50" style="font-size: 3.5rem;">
+                            Schedule Cleared</h1>
+                        <p class="theme-accent-text fw-bold text-uppercase ls-1 mb-0" style="font-size: 0.85rem;">
+                            {% if next_class %}
+                            <i class="bi bi-clock-history me-1"></i> UPCOMING: {{ next_class.subject.name }} at {{
+                            next_class.time_slot.start_time|time:"H:i" }}
+                            {% else %}
+                            <i class="bi bi-calendar-check me-1"></i> Registry indicates no further sessions today.
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-3 mt-5 pointer-events-auto">
+                        <a href="{% url 'timetable:index' %}"
+                            class="btn btn-theme-accent rounded-pill fw-bold text-uppercase ls-1 px-4 py-3 shadow-sm d-flex align-items-center gap-2 transition-all hover-scale"
+                            style="font-size: 0.8rem;">
+                            <i class="bi bi-calendar3"></i> Full Timetable
+                        </a>
+                        <a href="{% url 'lms:index' %}"
+                            class="btn bg-white bg-opacity-10 text-white border border-white border-opacity-25 rounded-pill fw-bold text-uppercase ls-1 px-4 py-3 shadow-sm d-flex align-items-center gap-2 transition-all hover-bg-white"
+                            style="font-size: 0.8rem;">
+                            <i class="bi bi-laptop"></i> Enter LMS
+                        </a>
+                    </div>
+                </div>
+
+                <div class="position-absolute top-0 end-0 w-100 h-100 z-1 opacity-50 pointer-events-none"
+                    style="background: radial-gradient(circle at top right, rgba(203,251,69,0.15), transparent 60%);">
+                </div>
+                <i class="bi bi-mortarboard-fill position-absolute text-white opacity-5 pointer-events-none"
+                    style="font-size: 16rem; right: -30px; bottom: -50px; transform: rotate(-10deg);"></i>
+            </div>
+        </div>
+
+        <div class="col-xl-4 d-flex flex-column gap-3 gap-xl-4 animate-fade-up" style="--delay: 0.15s;">
+
+            <div
+                class="modern-card bg-white shadow-sm p-4 text-center group-hover position-relative overflow-hidden flex-shrink-0 border-0 tilt-card">
+                <div class="glare-layer dark-glare"></div>
+                <div class="position-relative z-2 pointer-events-none">
+                    <div class="position-relative mb-3 d-inline-block mx-auto mt-2">
+                        <div class="position-absolute top-50 start-50 translate-middle rounded-circle border border-theme-accent pulse-ring-avatar"
+                            style="width: 120px; height: 120px;"></div>
+                        <img src="https://ui-avatars.com/api/?name={{ student.user.get_full_name }}&background=f8faf9&color=0f3822&size=128&bold=true"
+                            class="rounded-circle shadow-sm border border-4 border-white position-relative z-2"
+                            width="100" height="100" style="object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm z-3"
+                            style="transform: translate(-5%, -5%);">
+                            <div class="bg-success rounded-circle border border-2 border-white"
+                                style="width: 16px; height: 16px;"></div>
+                        </div>
+                    </div>
+                    <h4 class="fw-black text-theme-dark mb-0 tracking-tighter text-truncate w-100">
+                        {{ student.user.get_full_name }}
+                    </h4>
+                    <p class="text-muted fw-bold text-uppercase ls-1 mb-0 mt-1 font-monospace"
+                        style="font-size: 0.7rem;">ID: {{ student.user.username }}</p>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 gap-xl-4 flex-grow-1">
+
+                <div
+                    class="modern-card bg-white shadow-sm flex-grow-1 w-50 p-3 d-flex flex-column align-items-center justify-content-center text-center group-hover transition-all tilt-card">
+                    <div class="glare-layer dark-glare"></div>
+                    <div class="radial-progress shadow-sm mb-2 pointer-events-none"
+                        style="--progress: {{ attendance_percentage|default:0 }}; width: 56px; height: 56px;">
+                        <div class="inner-circle bg-white text-theme-dark fw-black font-monospace d-flex align-items-center justify-content-center"
+                            style="font-size: 0.75rem; width: 44px; height: 44px;">
+                            <span class="count-up" data-target="{{ attendance_percentage|default:0 }}">0</span>%
+                        </div>
+                    </div>
+                    <h6 class="fw-bold text-theme-dark m-0 mb-1 pointer-events-none" style="font-size: 0.8rem;">Presence
+                    </h6>
+                    <span class="text-muted fw-bold text-uppercase font-monospace pointer-events-none"
+                        style="font-size: 0.6rem;">{{ present_days|default:0 }} / {{ total_days|default:0 }} Days</span>
+                </div>
+
+                <div
+                    class="modern-card bg-theme-dark text-white shadow-sm flex-grow-1 w-50 p-3 d-flex flex-column align-items-center justify-content-center text-center group-hover transition-all border-0 position-relative overflow-hidden tilt-card">
+                    <div class="glare-layer"></div>
+                    <i class="bi bi-wallet2 theme-accent-text fs-3 mb-2 z-2 position-relative pointer-events-none"></i>
+                    <h5 class="fw-black m-0 tracking-tighter z-2 position-relative text-white pointer-events-none">
+                        ₹<span class="count-up" data-target="{{ fees_due|default:'0' }}">0</span></h5>
+                    <span
+                        class="text-white opacity-50 fw-bold text-uppercase ls-1 z-2 position-relative mt-1 pointer-events-none"
+                        style="font-size: 0.6rem;">Pending Dues</span>
+
+                    <div class="position-absolute top-50 start-50 translate-middle w-100 h-100 bg-theme-accent opacity-10 pointer-events-none"
+                        style="filter: blur(20px);"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 g-xl-4 align-items-stretch">
+
+        <div class="col-xl-8 animate-fade-up" style="--delay: 0.2s;">
+            <div class="modern-card bg-white shadow-sm h-100 d-flex flex-column overflow-hidden">
+                <div
+                    class="card-header bg-transparent border-bottom px-4 py-3 d-flex justify-content-between align-items-center flex-shrink-0">
+                    <h6 class="fw-bold text-theme-dark m-0 text-uppercase ls-1" style="font-size: 0.8rem;">Priority
+                        Alerts</h6>
+                    <span
+                        class="badge bg-danger bg-opacity-10 text-danger rounded-pill fw-bold font-monospace px-3 py-2">
+                        {{ overdue_books|length }} Action Items
+                    </span>
+                </div>
+
+                <div class="card-body p-4 flex-grow-1 overflow-auto">
+                    {% for item in overdue_books %}
+                    <div
+                        class="action-link-row d-flex align-items-center justify-content-between p-3 rounded-4 bg-light border transition-all mb-3">
+                        <div class="d-flex align-items-center gap-3 overflow-hidden">
+                            <div class="icon-squircle-sm bg-danger bg-opacity-10 text-danger flex-shrink-0"><i
+                                    class="bi bi-book"></i></div>
+                            <div class="overflow-hidden">
+                                <h6 class="fw-bold text-theme-dark m-0 text-truncate" style="font-size: 0.9rem;">
+                                    {{ item.book.title }}
+                                </h6>
+                                <span class="text-danger fw-bold text-uppercase"
+                                    style="font-size: 0.65rem; letter-spacing: 0.5px;">Return Overdue</span>
+                            </div>
+                        </div>
+                        <a href="{% url 'library:index' %}"
+                            class="btn btn-sm btn-light border text-theme-dark fw-bold px-3 transition-all hover-theme-dark rounded-pill"
+                            style="font-size: 0.75rem;">Resolve</a>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4 text-muted">
+                        <div class="icon-squircle bg-success bg-opacity-10 text-success mx-auto mb-3"
+                            style="width: 54px; height: 54px;">
+                            <i class="bi bi-check2-circle fs-3"></i>
+                        </div>
+                        <h6 class="fw-bold text-theme-dark mb-1">All Caught Up!</h6>
+                        <p class="mb-0 smallest">You have no pending alerts or overdue assets.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 d-flex flex-column gap-3 gap-xl-4 animate-fade-up" style="--delay: 0.25s;">
+            <div class="modern-card bg-white shadow-sm flex-grow-1 d-flex flex-column p-4">
+                <h6 class="fw-bold text-muted text-uppercase ls-1 mb-4 smallest">Learning Portals</h6>
+
+                <div class="d-flex flex-column gap-2 mt-auto h-100 justify-content-center">
+
+                    <a href="{% url 'timetable:index' %}"
+                        class="action-link-row d-flex align-items-center p-3 rounded-4 bg-white border transition-all text-decoration-none group-hover">
+                        <div
+                            class="icon-squircle bg-theme-accent bg-opacity-10 text-theme-dark border border-theme-accent flex-shrink-0 me-3 transition-all group-hover-scale">
+                            <i class="bi bi-calendar3 fs-5"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h6 class="fw-bold text-theme-dark m-0 text-truncate" style="font-size: 0.9rem;">Timetable
+                            </h6>
+                            <span class="text-muted fw-medium text-truncate d-block" style="font-size: 0.75rem;">View
+                                class schedule</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-muted fs-5 transition-all group-hover-slide"></i>
+                    </a>
+
+                    <a href="{% url 'exam:entry_index' %}"
+                        class="action-link-row d-flex align-items-center p-3 rounded-4 bg-white border transition-all text-decoration-none group-hover">
+                        <div
+                            class="icon-squircle bg-sage text-theme-dark flex-shrink-0 me-3 transition-all group-hover-scale">
+                            <i class="bi bi-trophy fs-5"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h6 class="fw-bold text-theme-dark m-0 text-truncate" style="font-size: 0.9rem;">Exam
+                                Results</h6>
+                            <span class="text-muted fw-medium text-truncate d-block" style="font-size: 0.75rem;">Check
+                                academic performance</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-muted fs-5 transition-all group-hover-slide"></i>
+                    </a>
+
+                    <a href="{% url 'library:index' %}"
+                        class="action-link-row d-flex align-items-center p-3 rounded-4 bg-white border transition-all text-decoration-none group-hover">
+                        <div
+                            class="icon-squircle bg-sage text-theme-dark flex-shrink-0 me-3 transition-all group-hover-scale">
+                            <i class="bi bi-book fs-5"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h6 class="fw-bold text-theme-dark m-0 text-truncate" style="font-size: 0.9rem;">Library
+                                Node</h6>
+                            <span class="text-muted fw-medium text-truncate d-block" style="font-size: 0.75rem;">Search
+                                and reserve assets</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-muted fs-5 transition-all group-hover-slide"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="modern-card bg-white shadow-sm p-4 flex-shrink-0 transition-all hover-lift-sm">
+                <a href="{% url 'transportation:index' %}"
+                    class="text-decoration-none d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-squircle-sm bg-sage text-theme-dark"><i class="bi bi-bus-front"></i></div>
+                        <span class="fw-bold text-theme-dark" style="font-size: 0.85rem;">Transport Logistics</span>
+                    </div>
+                    {% if transport_status == 'Active' %}
+                    <span
+                        class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1 fw-bold font-monospace"
+                        style="font-size: 0.65rem;">ACTIVE</span>
+                    {% else %}
+                    <span
+                        class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-2 py-1 fw-bold font-monospace"
+                        style="font-size: 0.65rem;">INACTIVE</span>
+                    {% endif %}
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #f8faf9;
+        --white: #ffffff;
+        --sage: #e8f0eb;
+    }
+
+    body {
+        background-color: var(--bg-light);
+        color: var(--theme-dark);
+    }
+
+    .theme-wrapper {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* TYPOGRAPHY */
+    .fw-black {
+        font-weight: 800;
+    }
+
+    .tracking-tighter {
+        letter-spacing: -1px !important;
+    }
+
+    .line-height-1 {
+        line-height: 1.1;
+    }
+
+    .ls-1 {
+        letter-spacing: 0.5px !important;
+    }
+
+    .ls-2 {
+        letter-spacing: 1px !important;
+    }
+
+    .smallest {
+        font-size: 0.72rem;
+    }
+
+    .text-theme-dark {
+        color: var(--theme-dark) !important;
+    }
+
+    .theme-accent-text {
+        color: var(--theme-accent) !important;
+    }
+
+    .text-gradient {
+        background: linear-gradient(135deg, var(--theme-dark) 0%, var(--theme-accent-dark) 100%);
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* ==========================================
+       MODERN SAAS CARDS
+       ========================================== */
+    .modern-card {
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .group-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08) !important;
+        border-color: #cbd5e1;
+    }
+
+    .group-hover:hover .group-hover-scale {
+        transform: scale(1.1);
+    }
+
+    .group-hover:hover .group-hover-slide {
+        transform: translateX(6px);
+        color: var(--theme-dark) !important;
+    }
+
+    /* 3D Glass Tilt */
+    .tilt-card {
+        transform-style: preserve-3d;
+        transform: perspective(1000px);
+        will-change: transform;
+        position: relative;
+    }
+
+    .glare-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 5;
+        mix-blend-mode: overlay;
+        border-radius: inherit;
+    }
+
+    .tilt-card:hover .glare-layer {
+        opacity: 1;
+    }
+
+    .dark-glare {
+        background: radial-gradient(circle at 50% 50%, rgba(15, 56, 34, 0.05) 0%, transparent 60%);
+        mix-blend-mode: normal;
+    }
+
+    /* Components */
+    .bg-theme-dark {
+        background-color: var(--theme-dark) !important;
+    }
+
+    .bg-theme-accent {
+        background-color: var(--theme-accent) !important;
+    }
+
+    .bg-sage {
+        background-color: var(--sage) !important;
+    }
+
+    .icon-squircle {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-squircle-sm {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pointer-events-none {
+        pointer-events: none;
+    }
+
+    .pointer-events-auto {
+        pointer-events: auto;
+    }
+
+    .z-2 {
+        z-index: 2;
+    }
+
+    .z-3 {
+        z-index: 3;
+    }
+
+    /* BUTTONS */
+    .btn-theme-accent {
+        background-color: var(--theme-accent);
+        color: var(--theme-dark);
+        border: 1px solid var(--theme-accent);
+    }
+
+    .btn-theme-accent:hover {
+        background-color: #b5e630;
+        border-color: #b5e630;
+        color: var(--theme-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(203, 251, 69, 0.3) !important;
+    }
+
+    .hover-bg-white:hover {
+        background-color: #ffffff !important;
+        color: var(--theme-dark) !important;
+        border-color: #ffffff !important;
+        transform: translateY(-2px);
+    }
+
+    .hover-theme-dark:hover {
+        background-color: var(--theme-dark) !important;
+        color: var(--theme-accent) !important;
+        border-color: var(--theme-dark) !important;
+    }
+
+    .action-link-row:hover {
+        background-color: #f8faf9 !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    /* ANIMATIONS & PHYSICS */
+    .animate-fade-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: var(--delay, 0s);
+    }
+
+    @keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .pulse-dot {
+        animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+        0% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+    }
+
+    .pulse-ring {
+        width: 8px;
+        height: 8px;
+        background: var(--theme-dark);
+        border-radius: 50%;
+        display: inline-block;
+        animation: ringPulse 2s infinite;
+    }
+
+    @keyframes ringPulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(15, 56, 34, 0.5);
+        }
+
+        70% {
+            box-shadow: 0 0 0 5px rgba(15, 56, 34, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(15, 56, 34, 0);
+        }
+    }
+
+    .pulse-ring-avatar {
+        animation: avatarRing 3s infinite;
+    }
+
+    @keyframes avatarRing {
+        0% {
+            transform: translate(-50%, -50%) scale(0.9);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translate(-50%, -50%) scale(1.15);
+            opacity: 0;
+        }
+    }
+
+    .radial-progress {
+        border-radius: 50%;
+        background: conic-gradient(var(--theme-accent-dark) calc(var(--progress) * 1%), #e2e8f0 0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: background 1s ease;
+    }
+
+    .inner-circle {
+        border-radius: 50%;
+        position: absolute;
+    }
+
+    .transition-all {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hover-scale:hover {
+        transform: scale(1.05);
+    }
+
+    .hover-lift-sm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(15, 56, 34, 0.05) !important;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+        // 1. Live System Clock & Date
+        function updateClock() {
+            const now = new Date();
+            const clockEl = document.getElementById('live-clock');
+            const dateEl = document.getElementById('live-date');
+
+            if (clockEl) clockEl.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (dateEl) {
+                const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+                dateEl.innerText = now.toLocaleDateString('en-US', dateOptions);
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 2. Hardware 3D Tilt Effect
+        const tiltCards = document.querySelectorAll('.tilt-card');
+        if (window.matchMedia("(min-width: 1024px)").matches) {
+            tiltCards.forEach(card => {
+                const glare = card.querySelector('.glare-layer');
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    const rotateX = ((y - centerY) / centerY) * -4;
+                    const rotateY = ((x - centerX) / centerX) * 4;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+                    if (glare) {
+                        const glareX = (x / rect.width) * 100;
+                        const glareY = (y / rect.height) * 100;
+                        if (glare.classList.contains('dark-glare')) {
+                            glare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(15,56,34,0.06) 0%, transparent 60%)`;
+                        } else {
+                            glare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.15) 0%, transparent 60%)`;
+                        }
+                    }
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                });
+            });
+        }
+
+        // 3. Smooth Number Counters
+        const counters = document.querySelectorAll('.count-up');
+        counters.forEach(counter => {
+            const rawTarget = counter.getAttribute('data-target').replace(/,/g, '');
+            const target = parseInt(rawTarget, 10);
+
+            if (isNaN(target) || target <= 0) return; // Leave as 0 if no data
+
+            const duration = 1200;
+            const frameRate = 1000 / 60;
+            const totalFrames = Math.round(duration / frameRate);
+            let frame = 0;
+
+            const updateCounter = setInterval(() => {
+                frame++;
+                const progress = 1 - Math.pow(1 - (frame / totalFrames), 3);
+                const current = Math.round(target * progress);
+                counter.innerText = current.toLocaleString('en-IN');
+
+                if (frame >= totalFrames) {
+                    clearInterval(updateCounter);
+                    counter.innerText = target.toLocaleString('en-IN');
+                }
+            }, frameRate);
+        });
+
+    });
+</script>
+{% endblock %}

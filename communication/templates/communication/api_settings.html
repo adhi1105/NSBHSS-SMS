@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- intl-tel-input CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@21.0.8/build/css/intlTelInput.css">
+<style>
+    .iti {
+        width: 100%;
+        display: block;
+    }
+
+    .iti__country-list {
+        background-color: #0f1a14 !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        margin-top: 10px !important;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .iti__country {
+        padding: 12px 15px !important;
+    }
+
+    .iti__country:hover {
+        background-color: rgba(203, 251, 69, 0.1) !important;
+    }
+
+    .iti__selected-flag {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-radius: 12px 0 0 12px !important;
+        padding-left: 15px !important;
+    }
+
+    .iti__tel-input {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        color: white !important;
+        font-weight: 700 !important;
+        height: 64px !important;
+        border-radius: 12px !important;
+        padding-left: 100px !important;
+        /* Adjust based on dial code width */
+        font-size: 1.1rem !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .iti__tel-input:focus {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: var(--theme-accent) !important;
+        box-shadow: 0 0 20px rgba(203, 251, 69, 0.15) !important;
+    }
+
+    .iti__selected-dial-code {
+        color: white !important;
+        font-weight: 600 !important;
+        margin-left: 5px;
+    }
+</style>
+<div class="theme-wrapper container-fluid p-3 p-lg-4 p-xl-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 mb-xl-5 gap-4 animate-fade-up"
+        style="--delay: 0s;">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div
+                    class="modern-badge bg-theme-accent text-theme-dark px-3 py-1 fw-bold rounded-pill smallest ls-1 d-flex align-items-center gap-2 shadow-sm border border-theme-accent border-opacity-50">
+                    <i class="bi bi-gear-fill"></i> CONFIGURATION
+                </div>
+                <span class="text-uppercase smallest fw-bold ls-2 text-muted">Admin Settings</span>
+            </div>
+            <h1 class="display-5 fw-black text-theme-dark tracking-tighter m-0 line-height-1">
+                API <span class="text-gradient">Integrations</span>
+            </h1>
+            <p class="text-muted mt-2 fw-medium">Connect third-party communication providers.</p>
+        </div>
+        <div>
+            <a href="{% url 'communication:bulk_whatsapp' %}"
+                class="btn btn-outline-dark rounded-pill shadow-sm d-flex align-items-center gap-2 fw-bold">
+                <i class="bi bi-arrow-left"></i> Back to Messenger
+            </a>
+        </div>
+    </div>
+
+    <!-- Feedback Messages -->
+    {% if messages %}
+    <div class="animate-fade-up mb-4" style="--delay: 0.1s;">
+        {% for message in messages %}
+        <div
+            class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} border-0 shadow-sm rounded-4 d-flex align-items-center gap-3 fade show">
+            <i
+                class="bi {% if message.tags == 'error' %}bi-exclamation-triangle-fill{% elif message.tags == 'success' %}bi-check-circle-fill{% else %}bi-info-circle-fill{% endif %} fs-4"></i>
+            <div class="fw-bold">{{ message }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row align-items-stretch animate-fade-up" style="--delay: 0.1s;">
+        <div class="col-xl-5 mb-4 mb-xl-0">
+            <!-- Left Info Card -->
+            <div
+                class="modern-card bg-theme-dark text-white p-4 p-xl-5 h-100 border-0 shadow-lg rounded-4 position-relative overflow-hidden d-flex flex-column group-hover">
+                <div class="position-absolute top-0 end-0 opacity-10 pe-none" style="transform: translate(30%, -30%);">
+                    <i class="bi bi-shield-lock-fill" style="font-size: 15rem;"></i>
+                </div>
+
+                <div class="position-relative z-1 mb-5">
+                    <div class="bg-theme-accent bg-opacity-25 text-theme-accent rounded-circle d-flex align-items-center justify-content-center mb-4"
+                        style="width: 60px; height: 60px;">
+                        <i class="bi bi-key-fill fs-3"></i>
+                    </div>
+                    <h3 class="fw-black tracking-tighter mb-3">Secure Connection</h3>
+                    <p class="opacity-75 smallest lh-lg mb-0">Your API keys are encrypted and stored securely. We
+                        recommend using a dedicated provider like <strong class="text-white">Ultramsg</strong> or
+                        <strong class="text-white">Twilio</strong> for high-volume message delivery.
+                    </p>
+                </div>
+
+                <div class="mt-auto position-relative z-1 pt-4 border-top border-white border-opacity-10">
+                    <h6 class="fw-bold tracking-tighter text-theme-accent mb-3"><i
+                            class="bi bi-info-circle-fill me-2"></i> Current Status</h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="spinner-grow spinner-grow-sm text-theme-accent" role="status">
+                            <span class="visually-hidden">Active</span>
+                        </div>
+                        <span class="fw-bold font-monospace smallest opacity-75">Ready to Dispatch</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Link via Phone Number Card (Premium Redesign) -->
+            <div class="modern-card mt-4 p-0 border-0 shadow-lg rounded-4 position-relative overflow-hidden animate-fade-up pairing-glass-card"
+                style="--delay: 0.2s;">
+                <div class="p-4 p-xl-5 position-relative z-1 text-white h-100 d-flex flex-column">
+                    <h5 class="fw-black text-white mb-2 tracking-tighter d-flex align-items-center gap-2">
+                        <i class="bi bi-phone-vibrate text-theme-accent"></i> Link WhatsApp via Phone Number
+                    </h5>
+                    <p class="text-white-50 smallest mb-4">Enter your WhatsApp phone number to receive a pairing code.
+                    </p>
+
+                    <div class="pairing-form-container row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="pairing-input-wrapper position-relative">
+                                <input type="text" id="pairingPhone" class="iti__tel-input" placeholder="1234567890">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="pairingCodeResult" class="mb-4 d-none animate-bounce-in">
+                        <div
+                            class="pairing-code-box p-4 rounded-4 text-center border border-theme-accent border-opacity-25 glass-bg">
+                            <div class="smallest text-uppercase ls-2 text-theme-accent opacity-75 mb-2 font-monospace">
+                                Pairing Code</div>
+                            <h2 id="displayPairingCode"
+                                class="display-4 fw-black tracking-widest text-white m-0 font-monospace pairing-code-text">
+                                ---- ----</h2>
+                            <p class="smallest mt-3 mb-0 text-white-50">Enter this code on your phone
+                                in:<br><strong>Linked Devices > Link with phone number</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        <button type="button" id="btnGetPairingCode"
+                            class="btn btn-pairing-primary w-100 py-3 rounded-3 fw-black ls-1 d-flex align-items-center justify-content-center gap-2 hover-glow transition-all">
+                            <i class="bi bi-key-fill"></i> GET CODE
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <p class="smallest text-white-50 mb-0">No camera? No problem. Use this secure method.</p>
+                    </div>
+                </div>
+
+                <!-- Background decorative elements -->
+                <div class="position-absolute top-0 end-0 p-5 opacity-10">
+                    <i class="bi bi-whatsapp display-1 text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-7">
+            <div
+                class="modern-card bg-white p-4 p-xl-5 h-100 border-0 shadow-lg rounded-4 position-relative overflow-hidden">
+                <form method="POST" action="{% url 'communication:api_settings' %}" class="position-relative z-1">
+                    {% csrf_token %}
+
+                    <!-- Provider Selection -->
+                    <div
+                        class="p-4 bg-light rounded-4 mb-4 border border-dark border-opacity-10 transition-all hover-shadow">
+                        <h6 class="fw-bold text-dark text-uppercase smallest ls-1 mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-hdd-network-fill text-muted"></i> Provider Configuration
+                        </h6>
+                        <div class="mb-0">
+                            {{ form.provider }}
+                            <div class="form-text mt-2 smallest text-muted fw-medium"><i
+                                    class="bi bi-info-circle me-1"></i> Selection dictates how outgoing messages are
+                                dispatched across the network.</div>
+                        </div>
+                    </div>
+
+                    <!-- Secret Key -->
+                    <div
+                        class="p-4 bg-light rounded-4 mb-4 border border-dark border-opacity-10 transition-all hover-shadow">
+                        <h6 class="fw-bold text-dark text-uppercase smallest ls-1 mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-key-fill text-muted"></i> Authentication
+                        </h6>
+                        <div class="form-floating mb-0">
+                            {{ form.api_key }}
+                            <label class="fw-bold smallest text-muted">Secret Key / Token</label>
+                            {% if form.api_key.errors %}
+                            <div class="invalid-feedback d-block fw-bold smallest mt-2 px-2"><i
+                                    class="bi bi-exclamation-triangle-fill"></i> {{ form.api_key.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <div
+                                class="p-4 bg-light rounded-4 h-100 border border-dark border-opacity-10 transition-all hover-shadow">
+                                <h6
+                                    class="fw-bold text-dark text-uppercase smallest ls-1 mb-3 d-flex align-items-center gap-2">
+                                    <i class="bi bi-person-badge-fill text-muted"></i> Account ID
+                                </h6>
+                                <div class="form-floating mb-0">
+                                    {{ form.account_sid }}
+                                    <label class="fw-bold smallest text-muted">Account SID</label>
+                                    <div class="form-text mt-2 smallest text-muted px-2">Only required if using
+                                        <strong>Twilio</strong>.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div
+                                class="p-4 bg-light rounded-4 h-100 border border-dark border-opacity-10 transition-all hover-shadow">
+                                <h6
+                                    class="fw-bold text-dark text-uppercase smallest ls-1 mb-3 d-flex align-items-center gap-2">
+                                    <i class="bi bi-telephone-fill text-muted"></i> Outbound Number
+                                </h6>
+                                <div class="form-floating mb-0">
+                                    {{ form.sender_number }}
+                                    <label class="fw-bold smallest text-muted">Sender Phone</label>
+                                    <div class="form-text mt-2 smallest text-muted px-2">Twilio Number (eg. +1234) or
+                                        Meta Phone ID.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="btn bg-theme-accent text-theme-dark w-100 py-4 rounded-pill fw-black ls-1 fs-5 shadow-lg d-flex align-items-center justify-content-center gap-3 hover-scale hover-glow transition-all position-relative overflow-hidden group">
+                        <span class="position-relative z-1 d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-check fs-4"></i> SAVE CONFIGURATION
+                        </span>
+                        <!-- Button gloss effect -->
+                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-white opacity-25"
+                            style="transform: skewX(-20deg) translateX(-150%); transition: transform 0.5s;"
+                            id="btnGloss"></div>
+                    </button>
+
+                    <script
+                        src="https://cdn.jsdelivr.net/npm/intl-tel-input@21.0.8/build/js/intlTelInput.min.js"></script>
+                    <script>
+                        // Form styling override script
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const inputs = document.querySelectorAll("input, select, textarea");
+                            inputs.forEach(input => {
+                                if (!input.classList.contains('form-control')) {
+                                    input.classList.add("form-control", "bg-white", "border-0", "shadow-sm", "rounded-3", "fw-medium");
+                                }
+                                if (input.tagName === 'SELECT') input.classList.add("form-select", "py-3");
+                            });
+
+                            // Initialize intlTelInput
+                            const phoneInput = document.querySelector("#pairingPhone");
+                            const iti = window.intlTelInput(phoneInput, {
+                                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@21.0.8/build/js/utils.js",
+                                initialCountry: "auto",
+                                geoIpLookup: callback => {
+                                    fetch("https://ipapi.co/json")
+                                        .then(res => res.json())
+                                        .then(data => callback(data.country_code))
+                                        .catch(() => callback("us"));
+                                },
+                                separateDialCode: true,
+                            });
+
+                            // Pairing Code Logic
+                            const btnGetPairingCode = document.getElementById('btnGetPairingCode');
+                            const pairingCodeResult = document.getElementById('pairingCodeResult');
+                            const displayPairingCode = document.getElementById('displayPairingCode');
+
+                            btnGetPairingCode.addEventListener('click', function () {
+                                const fullNumber = iti.getNumber();
+                                if (!iti.isValidNumber()) {
+                                    alert("Please enter a valid phone number with country code.");
+                                    return;
+                                }
+
+                                btnGetPairingCode.disabled = true;
+                                btnGetPairingCode.innerHTML = `<span class="spinner-border spinner-border-sm"></span> SECURING...`;
+
+                                const formData = new FormData();
+                                formData.append('phone', fullNumber);
+                                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                                fetch("{% url 'communication:whatsapp_pairing' %}", {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                    .then(response => {
+                                        if (!response.ok) throw new Error('Network response was not ok (Status: ' + response.status + ')');
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        btnGetPairingCode.disabled = false;
+                                        btnGetPairingCode.innerHTML = `<i class="bi bi-key"></i> GET CODE`;
+
+                                        if (data.success) {
+                                            displayPairingCode.innerText = data.pairing_code;
+                                            pairingCodeResult.classList.remove('d-none');
+                                        } else {
+                                            alert("Connection Error: " + data.error);
+                                        }
+                                    })
+                                    .catch(error => {
+                                        btnGetPairingCode.disabled = false;
+                                        btnGetPairingCode.innerHTML = `<i class="bi bi-key"></i> GET CODE`;
+                                        console.error("Pairing Error:", error);
+                                        alert("System Error: " + error.message + ". \n\nCheck if the Node.js terminal is showing any red text.");
+                                    });
+                            });
+                        });
+                    </script>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<style>
+    /* Theme Variables & Utility Classes (Local overrides) */
+    :root {
+        --theme-accent: #cbfb45;
+        --theme-dark: #0f3822;
+    }
+
+    .bg-theme-accent {
+        background-color: var(--theme-accent) !important;
+    }
+
+    .text-theme-accent {
+        color: var(--theme-accent) !important;
+    }
+
+    .bg-theme-dark {
+        background-color: var(--theme-dark) !important;
+    }
+
+    .text-theme-dark {
+        color: var(--theme-dark) !important;
+    }
+
+    /* Premium Pairing Card Styles */
+    .pairing-glass-card {
+        background: #091a11 !important;
+        /* Deeper green for better contrast */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        min-width: 420px;
+    }
+
+    .bg-dark-soft {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .glass-bg {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+    }
+
+    .btn-pairing-primary {
+        background: var(--theme-accent);
+        color: #0f3822 !important;
+        border: none;
+        box-shadow: 0 4px 15px rgba(203, 251, 69, 0.2);
+    }
+
+    .btn-pairing-primary:hover {
+        background: #d4ff5c;
+        box-shadow: 0 0 25px rgba(203, 251, 69, 0.4);
+        transform: translateY(-2px);
+        color: #000 !important;
+    }
+
+    .pairing-code-text {
+        text-shadow: 0 0 20px rgba(203, 251, 69, 0.3);
+        color: var(--theme-accent) !important;
+    }
+
+    .hover-glow:hover {
+        box-shadow: 0 0 25px rgba(203, 251, 69, 0.3);
+    }
+</style>
+{% endblock content %}

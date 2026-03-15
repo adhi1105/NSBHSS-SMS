@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ custom_form.title }} | Terminal Entry{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+
+    <style>
+        :root {
+            --theme-dark: #0f3822;
+            --theme-accent: #cbfb45;
+            --theme-accent-dark: #217346;
+            --bg-sage: #e8f0eb;
+            --bg-sage-light: #f8faf9;
+        }
+        
+        /* Visibility Guard: Ensure fields are visible by default */
+        .form-field-wrapper { display: block; opacity: 1; transition: opacity 0.3s ease; }
+        
+        .display-title { font-weight: 900; font-size: clamp(2rem, 5vw, 3.5rem); color: var(--theme-dark); }
+        .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; }
+    </style>
+
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-8">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech">NODE_ID: {{ custom_form.id|stringformat:"04d" }}</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50">
+                    SECURE_DATA_ENTRY_PROTOCOL
+                </h6>
+            </div>
+            <h1 class="display-title tracking-tighter m-0 line-height-1">
+                {{ custom_form.title }}
+            </h1>
+            {% if custom_form.description %}
+                <p class="fs-6 fw-bold text-muted mt-3 mb-0" style="max-width: 650px;">{{ custom_form.description }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="col-xl-4 d-flex justify-content-xl-end">
+            <div class="text-xl-end bg-white p-3 rounded-4 shadow-sm border">
+                <span class="smallest fw-black text-muted uppercase ls-1 d-block mb-1">Registry_Sync</span>
+                <span class="fw-black text-theme-dark"><i class="bi bi-clock-history me-2"></i>Asia/Kolkata (IST)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-xl-8">
+            <div class="card card-terminal border-0 glass-node shadow-soft overflow-hidden">
+                <div class="bg-theme-dark py-3 px-4 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-dot animate-pulse"></span>
+                        <span class="smallest fw-black text-theme-accent uppercase ls-1">Active_Session</span>
+                    </div>
+                    <code class="smallest text-white opacity-50">v2.0.26_SYNCED</code>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data" class="card-body p-4 p-md-5" id="smartForm">
+                    {% csrf_token %}
+
+                    <div class="row g-4">
+                        {% for field in fields %}
+                        <div class="col-12 form-field-wrapper" id="field_wrapper_{{ field.id }}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="fw-black text-theme-dark smallest uppercase ls-1 m-0">
+                                    {{ field.label }} {% if field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                            </div>
+
+                            <div class="input-group-node">
+                                {% if field.field_type == 'text' %}
+                                    <input type="text" name="field_{{ field.id }}" class="form-control node-input" 
+                                           placeholder="{{ field.placeholder }}" {% if field.required %}required{% endif %}>
+
+                                {% elif field.field_type == 'textarea' %}
+                                    <textarea name="field_{{ field.id }}" class="form-control node-input" rows="4" 
+                                              placeholder="{{ field.placeholder }}" {% if field.required %}required{% endif %}></textarea>
+
+                                {% elif field.field_type == 'number' %}
+                                    <input type="number" name="field_{{ field.id }}" class="form-control node-input" 
+                                           placeholder="0" {% if field.required %}required{% endif %}>
+
+                                {% elif field.field_type == 'date' %}
+                                    <input type="date" name="field_{{ field.id }}" class="form-control node-input" 
+                                           {% if field.required %}required{% endif %}>
+
+                                {% elif field.field_type == 'select' %}
+                                    <select name="field_{{ field.id }}" class="form-select node-input" {% if field.required %}required{% endif %}>
+                                        <option value="" selected disabled>Choose from registry...</option>
+                                        {% for choice in field.get_choices %}
+                                            <option value="{{ choice }}">{{ choice }}</option>
+                                        {% endfor %}
+                                    </select>
+
+                                {% elif field.field_type == 'checkbox' %}
+                                    <div class="p-3 rounded-4 bg-sage-light border">
+                                        {% for choice in field.get_choices %}
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" name="field_{{ field.id }}" 
+                                                   value="{{ choice }}" id="chk_{{ field.id }}_{{ forloop.index }}">
+                                            <label class="form-check-label fw-bold smallest text-theme-dark" for="chk_{{ field.id }}_{{ forloop.index }}">
+                                                {{ choice }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+
+                                {% elif field.field_type == 'file' %}
+                                    <div class="p-4 text-center rounded-4 border-dashed bg-white">
+                                        <i class="bi bi-cloud-arrow-up-fill fs-1 text-theme-accent-dark"></i>
+                                        <input type="file" name="field_{{ field.id }}" class="form-control mt-3" {% if field.required %}required{% endif %}>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if field.help_text %}
+                                <div class="form-text smallest fw-bold mt-2 text-muted">
+                                    <i class="bi bi-info-circle me-1 text-theme-accent-dark"></i> {{ field.help_text }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-5 pt-4 border-top">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <button type="submit" class="btn-terminal-action neon w-100 py-3 justify-content-center">
+                                    <i class="bi bi-shield-check me-2"></i>AUTHORIZE_AND_SUBMIT
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="{% url 'form_builder:index' %}" class="btn-terminal-outline w-100 py-3 text-center d-block" style="text-decoration:none">
+                                    ABORT_ENTRY
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card border-0 glass-node-dark shadow-sm p-4 text-white mb-4" style="background: var(--theme-dark);">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=cbfb45&color=0f3822&bold=true" 
+                         class="rounded-circle border border-3 border-theme-accent" style="width: 56px;">
+                    <div>
+                        <h6 class="fw-black m-0 tracking-tighter">{{ request.user.get_full_name|default:request.user.username }}</h6>
+                        <span class="smallest opacity-50 fw-black uppercase ls-1">Authorized_User</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 glass-node shadow-sm p-4">
+                <h6 class="fw-black text-theme-dark smallest uppercase ls-1 mb-3">Protocol_Rules</h6>
+                <ul class="list-unstyled mb-0 smallest fw-bold text-muted">
+                    <li class="mb-2"><i class="bi bi-check2-circle text-theme-accent-dark me-2"></i>Locked after submission.</li>
+                    <li><i class="bi bi-check2-circle text-theme-accent-dark me-2"></i>IP Logged: {{ request.META.REMOTE_ADDR }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const logicRules = JSON.parse('{{ logic_json|safe }}');
+        const form = document.getElementById('smartForm');
+
+        function applyLogic() {
+            // Step 1: Hide all targets initially if they are part of a SHOW rule
+            logicRules.forEach(rule => {
+                if (rule.action === 'SHOW') {
+                    document.getElementById(rule.target).style.display = 'none';
+                }
+            });
+
+            // Step 2: Show/Hide based on current values
+            logicRules.forEach(rule => {
+                const triggerInput = form.querySelector(`[name="${rule.trigger}"]`);
+                const targetWrapper = document.getElementById(rule.target);
+
+                if (!triggerInput || !targetWrapper) return;
+
+                let isMatch = false;
+                if (rule.operator === 'equals') isMatch = (triggerInput.value === rule.value);
+                else if (rule.operator === 'not_equals') isMatch = (triggerInput.value !== rule.value);
+
+                if (rule.action === 'SHOW' && isMatch) targetWrapper.style.display = 'block';
+                if (rule.action === 'HIDE' && isMatch) targetWrapper.style.display = 'none';
+            });
+        }
+
+        applyLogic();
+        form.addEventListener('input', applyLogic);
+        form.addEventListener('change', applyLogic);
+    });
+</script>
+
+<style>
+    .node-input { border: 2px solid #eef2f0; border-radius: 12px; padding: 14px; font-weight: 600; background: #fff; }
+    .node-input:focus { border-color: var(--theme-accent-dark); outline: none; }
+    .btn-terminal-action.neon { background: var(--theme-accent); color: var(--theme-dark); border: none; font-weight: 900; border-radius: 12px; }
+    .btn-terminal-outline { border: 2px solid var(--theme-dark); border-radius: 12px; color: var(--theme-dark); font-weight: 900; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; }
+    @keyframes pulse-neon { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    .animate-pulse { animation: pulse-neon 2s infinite; }
+    .border-dashed { border: 2px dashed #d1d9d4; }
+</style>
+{% endblock %}

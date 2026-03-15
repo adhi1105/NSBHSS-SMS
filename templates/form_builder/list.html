@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-8 col-xxl-9" style="min-width: 0;">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech flex-shrink-0">TOOLS_SCHEMA_v1.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50 text-truncate">
+                    Institutional Tools & Logic Utilities
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1 text-nowrap text-truncate">
+                Form <span class="theme-accent-text-dark">Manager</span>
+            </h1>
+            <div class="d-flex align-items-center gap-2 mt-3 text-theme-dark fw-bold">
+                <div class="status-pulse-wrapper d-flex align-items-center flex-shrink-0"><span class="status-dot animate-pulse"></span></div>
+                <span class="smallest ls-1 fw-black text-nowrap uppercase opacity-75">Control_State:</span> 
+                <span class="smallest ls-1 fw-black text-nowrap text-theme-accent-dark uppercase">Registry_Management_Active</span>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-xxl-3 d-flex justify-content-xl-end">
+            <a href="{% url 'form_builder:create' %}" class="btn-terminal-action neon text-nowrap shadow-sm w-100 justify-content-center">
+                <i class="bi bi-plus-square-fill me-2"></i>INITIALIZE_NEW_SCHEMA
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 transition-fade">
+        {% for form in forms %}
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-terminal border-0 h-100 terminal-node-card shadow-sm position-relative overflow-hidden">
+                
+                <div class="node-header p-3 border-bottom-faint d-flex justify-content-between align-items-center bg-white">
+                    <code class="code-fragment">ID_{{ form.id|stringformat:"03d" }}</code>
+                    <div class="terminal-badge-status border shadow-sm m-0">
+                        {% if form.is_active %}
+                            <span class="dot-mini bg-success"></span>
+                            <span class="smallest fw-black uppercase text-success">ACTIVE_NODE</span>
+                        {% else %}
+                            <span class="dot-mini bg-warning"></span>
+                            <span class="smallest fw-black uppercase text-warning">DRAFT_MODE</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="terminal-icon-box bg-theme-dark text-theme-accent mb-3 flex-shrink-0 shadow-sm">
+                        <i class="bi bi-ui-checks-grid"></i>
+                    </div>
+                    
+                    <h5 class="fw-black text-theme-dark mb-2 tracking-tighter text-truncate">
+                        <a href="{% url 'form_builder:builder' form.id %}" class="text-decoration-none text-theme-dark hover-accent">
+                            {{ form.title }}
+                        </a>
+                    </h5>
+                    
+                    <p class="smallest fw-bold text-muted uppercase ls-1 mb-4 opacity-75">
+                        {{ form.description|default:"No protocol description defined."|truncatewords:12 }}
+                    </p>
+                    
+                    <div class="terminal-data-strip w-100 border overflow-hidden mt-auto mb-4">
+                        <div class="d-grid data-row-grid p-2 align-items-center bg-light-sage">
+                            <div class="text-start pe-2 overflow-hidden d-flex align-items-center gap-2" style="min-width: 0;">
+                                <img src="https://ui-avatars.com/api/?name={{ form.created_by.get_full_name }}&background=0f3822&color=fff&size=64&bold=true" 
+                                     class="rounded-circle border border-white" width="20" height="20">
+                                <span class="smallest fw-black text-theme-dark text-truncate">{{ form.created_by.first_name|upper }}</span>
+                            </div>
+                            <div class="vertical-divider bg-dark opacity-10" style="height: 20px;"></div>
+                            <div class="text-end ps-2 overflow-hidden">
+                                <label class="label-micro text-muted">SCHEMA_V</label>
+                                <span class="smallest fw-black text-theme-dark">1.0.{{ form.id }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'form_builder:render' form.id %}" class="btn-terminal-outline flex-grow-1" title="View Production" target="_blank">
+                            <i class="bi bi-terminal-fill me-2"></i>RENDER
+                        </a>
+                        <a href="{% url 'form_builder:builder' form.id %}" class="btn-terminal-outline px-3" title="Modify Logic">
+                            <i class="bi bi-cpu"></i>
+                        </a>
+                        <button type="button" class="btn-terminal-outline danger px-3" 
+                                data-bs-toggle="modal" data-bs-target="#deleteModal{{ form.id }}">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal{{ form.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 glass-node shadow-soft overflow-hidden">
+                    <div class="bg-danger p-4 text-center text-white">
+                        <i class="bi bi-exclamation-octagon display-4"></i>
+                        <h4 class="fw-black uppercase ls-2 mt-3 m-0">Destructive Protocol</h4>
+                    </div>
+                    <div class="modal-body p-4 p-lg-5 text-center">
+                        <p class="fw-bold text-theme-dark mb-2">ARE YOU SURE YOU WANT TO PURGE:</p>
+                        <h5 class="fw-black text-danger tracking-tighter mb-4">"{{ form.title|upper }}"</h5>
+                        <p class="smallest fw-bold text-muted uppercase ls-1 mb-0">All associated data fragments and submission payloads will be permanently erased from the registry.</p>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0 gap-2">
+                        <button type="button" class="btn-terminal-action standard flex-grow-1 py-3" data-bs-dismiss="modal">ABORT_CMD</button>
+                        <form action="{% url 'form_builder:delete_form' form.id %}" method="post" class="flex-grow-1">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-terminal-action danger w-100 py-3">CONFIRM_PURGE</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="empty-terminal-state p-5 rounded-5 border-dashed border-dark opacity-50 mx-auto" style="max-width: 600px;">
+                <i class="bi bi-clipboard-x display-1 text-theme-dark"></i>
+                <h4 class="fw-black text-theme-dark mt-3 uppercase ls-2">Zero Schema Nodes Detected</h4>
+                <p class="smallest fw-bold text-muted uppercase ls-1">Initialize your first data collection node to begin acquisition.</p>
+                <a href="{% url 'form_builder:create' %}" class="btn-terminal-action neon mt-4 px-5">INITIALIZE_FIRST_NODE</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    :root { 
+        --bg-sage: #e8f0eb; --theme-dark: #0f3822; --theme-accent: #cbfb45; 
+        --theme-accent-dark: #217346; --bg-light: #fdfdfc; --white: #ffffff; 
+    }
+
+    /* BLUEPRINT BASELINE */
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); overflow-x: hidden; }
+    .registry-blueprint { background-image: radial-gradient(var(--bg-sage) 1.5px, transparent 1.5px); background-size: 30px 30px; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .display-title { font-weight: 900; font-size: 3rem; letter-spacing: -2px; }
+    .ls-1 { letter-spacing: 0.5px !important; } .ls-2 { letter-spacing: 1.5px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .text-nowrap { white-space: nowrap !important; }
+    .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .label-micro { font-size: 0.55rem; font-weight: 900; color: rgba(15, 56, 34, 0.5); text-transform: uppercase; letter-spacing: 1px; display: block; }
+
+    /* TERMINAL COMPONENTS */
+    .terminal-node-card { background: #ffffff; border: 2px solid var(--white); border-radius: 24px; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .terminal-icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .terminal-data-strip { background: #fdfdfd; border-radius: 16px; border: 1px solid rgba(15, 56, 34, 0.05) !important; }
+    .data-row-grid { display: grid; grid-template-columns: 1fr 1px 1fr; }
+    .vertical-divider { background: var(--bg-sage); }
+    .bg-light-sage { background: #f4f8f6; }
+    
+    .glass-node { background: rgba(255, 255, 255, 0.95); border: 2px solid var(--white); border-radius: 28px; }
+    .code-fragment { font-family: monospace; font-size: 0.65rem; font-weight: 900; background: rgba(15, 56, 34, 0.08); padding: 4px 10px; border-radius: 6px; color: var(--theme-dark); }
+    
+    /* BUTTONS */
+    .btn-terminal-action { border: none; padding: 12px 24px; border-radius: 12px; font-weight: 900; font-size: 0.68rem; text-transform: uppercase; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; }
+    .btn-terminal-action.neon { background: var(--theme-accent); color: var(--theme-dark); }
+    .btn-terminal-action.danger { background: #fee2e2; color: #dc2626; border: 2px solid #fca5a5; }
+    .btn-terminal-action.standard { background: var(--white); color: var(--theme-dark); border: 2.5px solid var(--bg-sage); }
+    .btn-terminal-action:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 56, 34, 0.08); }
+
+    .btn-terminal-outline { background: transparent; border: 2px solid var(--theme-dark); color: var(--theme-dark); border-radius: 10px; font-weight: 900; font-size: 0.65rem; padding: 10px; text-transform: uppercase; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .btn-terminal-outline:hover { background: var(--theme-dark); color: var(--theme-accent); }
+    .btn-terminal-outline.danger:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
+
+    /* INDICATORS */
+    .terminal-badge-status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; }
+    .dot-mini { width: 8px; height: 8px; border-radius: 50%; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #10b981; }
+    .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; }
+
+    /* UTILS */
+    .hover-accent:hover { color: var(--theme-accent-dark) !important; }
+    .border-bottom-faint { border-bottom: 1px solid rgba(15, 56, 34, 0.05); }
+    .border-dashed { border-style: dashed !important; }
+    .shadow-soft { box-shadow: 0 15px 35px rgba(15, 56, 34, 0.05); }
+    
+    @keyframes pulse-neon { 0% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0.6); } 70% { box-shadow: 0 0 0 8px rgba(203, 251, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0); } }
+    .animate-pulse { animation: pulse-neon 2s infinite; }
+    .terminal-node-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(15, 56, 34, 0.1) !important; border-color: var(--bg-sage); }
+</style>
+{% endblock %}

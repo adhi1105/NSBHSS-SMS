@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h6 class="text-uppercase text-muted fw-bold small mb-2 ls-1">Learning Management</h6>
+        <h2 class="fw-bold m-0 text-dark display-6">Course Directory</h2>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-bottom p-3">
+                <h6 class="fw-bold m-0 text-uppercase small text-muted">Select Class</h6>
+            </div>
+            <div class="list-group list-group-flush" style="max-height: 600px; overflow-y: auto;">
+                {% for classroom in classrooms %}
+                <a href="?class_id={{ classroom.id }}" 
+                   class="list-group-item list-group-item-action border-0 py-3 px-4 d-flex justify-content-between align-items-center
+                   {% if selected_classroom.id == classroom.id %}bg-primary-subtle text-primary fw-bold{% else %}text-muted{% endif %}">
+                    <div>
+                        <span class="d-block">{{ classroom.name }}</span>
+                        <small style="font-size: 0.75rem;">{{ classroom.stream.name|default:"General" }}</small>
+                    </div>
+                    {% if selected_classroom.id == classroom.id %}
+                        <i class="bi bi-chevron-right small"></i>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        {% if selected_classroom %}
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="fw-bold text-dark m-0">Curriculum for {{ selected_classroom.name }}</h5>
+                <span class="badge bg-white text-muted border shadow-sm">{{ courses.count }} Subjects</span>
+            </div>
+
+            <div class="row g-3">
+                {% for subject in courses %}
+                <div class="col-xl-4 col-md-6">
+                    <div class="card border-0 shadow-hover h-100 rounded-4 overflow-hidden position-relative">
+                        <div class="position-absolute top-0 start-0 h-100" style="width: 4px; 
+                            background: {% if subject.subject_type == 'Core' %}#4f46e5{% elif subject.subject_type == 'Language' %}#10b981{% else %}#f59e0b{% endif %};">
+                        </div>
+                        
+                        <div class="card-body p-4 ps-4">
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="badge rounded-pill border fw-bold
+                                    {% if subject.subject_type == 'Core' %}bg-primary-subtle text-primary border-primary-subtle
+                                    {% elif subject.subject_type == 'Language' %}bg-success-subtle text-success border-success-subtle
+                                    {% else %}bg-warning-subtle text-warning border-warning-subtle{% endif %}">
+                                    {{ subject.subject_type }}
+                                </span>
+                                {% if subject.code %}
+                                <small class="text-muted font-monospace">{{ subject.code }}</small>
+                                {% endif %}
+                            </div>
+                            
+                            <h5 class="fw-bold text-dark mb-1">{{ subject.name }}</h5>
+                            <p class="text-muted small mb-3 text-truncate">Stream: {{ selected_classroom.stream.name }}</p>
+
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'lms:index' %}?filter_subject={{ subject.id }}" class="btn btn-light btn-sm rounded-pill fw-bold text-dark">
+                                    <i class="bi bi-journal-text me-2"></i>Manage Content
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <div class="icon-square bg-light text-muted rounded-circle mx-auto mb-3">
+                        <i class="bi bi-journal-x fs-2"></i>
+                    </div>
+                    <h6 class="fw-bold text-muted">No Subjects Found</h6>
+                    <p class="small text-muted">No subjects match the stream requirements for this class.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5 bg-white rounded-4 border border-dashed">
+                <div class="icon-square-lg bg-light text-primary rounded-circle mb-3">
+                    <i class="bi bi-collection fs-1"></i>
+                </div>
+                <h4 class="fw-bold text-dark">Select a Class</h4>
+                <p class="text-muted" style="max-width: 400px;">
+                    Select a classroom from the sidebar to view the subjects taught in that class.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .bg-primary-subtle { background-color: #eef2ff !important; }
+    .border-primary-subtle { border-color: #c7d2fe !important; }
+    .list-group-item.bg-primary-subtle { border-left: 3px solid #4f46e5 !important; }
+    .shadow-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important; transition: all 0.2s; }
+</style>
+{% endblock %}

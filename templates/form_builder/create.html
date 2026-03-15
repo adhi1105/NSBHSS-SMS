@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-8 col-xxl-9" style="min-width: 0;">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech flex-shrink-0">SCHEMA_INIT_NODE</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50 text-nowrap overflow-hidden text-truncate">
+                    Institutional Data Acquisition
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1 text-nowrap text-truncate">
+                Create <span class="theme-accent-text-dark">New Form</span>
+            </h1>
+            <div class="d-flex align-items-center gap-2 mt-3 text-theme-dark fw-bold">
+                <div class="status-pulse-wrapper d-flex align-items-center flex-shrink-0"><span class="status-dot animate-pulse"></span></div>
+                <span class="smallest ls-1 fw-black text-nowrap uppercase opacity-75">Link_State:</span> 
+                <span class="smallest ls-1 fw-black text-nowrap text-theme-accent-dark uppercase">Initialization_Protocol_Ready</span>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-xxl-3 d-flex justify-content-xl-end">
+            <a href="{% url 'form_builder:index' %}" class="btn-terminal-action danger text-nowrap shadow-sm w-100 justify-content-center">
+                <i class="bi bi-x-circle-fill me-2"></i>ABORT_INIT
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-7 col-xxl-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative overflow-hidden">
+                <code class="code-fragment position-absolute top-0 end-0 m-4 text-theme-dark opacity-50 d-none d-md-block">INIT_FRM_V1.0</code>
+                
+                <div class="card-body p-4 p-lg-5">
+                    <form method="POST" class="terminal-form">
+                        {% csrf_token %}
+                        
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="terminal-icon-box bg-theme-dark text-theme-accent shadow-sm flex-shrink-0">
+                                <i class="bi bi-file-earmark-plus-fill"></i>
+                            </div>
+                            <h5 class="fw-black text-theme-dark m-0 tracking-tighter text-nowrap text-truncate w-100">Metadata Definition</h5>
+                        </div>
+                        
+                        <div class="terminal-data-strip p-4 mb-2 border">
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <label class="label-micro mb-2">FORM_TITLE_NOMENCLATURE</label>
+                                    {{ form.title }}
+                                    <div class="smallest fw-bold text-muted mt-2 opacity-50 uppercase ls-1">Required: Primary identifier for this data node.</div>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label class="label-micro mb-2">PROTOCOL_DESCRIPTION</label>
+                                    {{ form.description }}
+                                    <div class="smallest fw-bold text-muted mt-2 opacity-50 uppercase ls-1">Contextual information for respondents.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mt-5 pt-4 border-top-faint gap-3">
+                            <div class="d-flex align-items-center gap-2 text-muted">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <span class="smallest fw-bold ls-1 uppercase">Next step: Configure specific question fragments.</span>
+                            </div>
+                            <button type="submit" class="btn-terminal-action neon shadow-soft px-5 py-3 text-nowrap">
+                                NEXT: ADD_QUESTIONS <i class="bi bi-chevron-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root { 
+        --bg-sage: #e8f0eb; --theme-dark: #0f3822; --theme-accent: #cbfb45; 
+        --theme-accent-dark: #217346; --bg-light: #fdfdfc; --white: #ffffff; 
+    }
+
+    /* BLUEPRINT BASELINE */
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--theme-dark); overflow-x: hidden; }
+    .registry-blueprint { background-image: radial-gradient(var(--bg-sage) 1.5px, transparent 1.5px); background-size: 30px 30px; }
+    
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .display-title { font-weight: 900; font-size: 3rem; letter-spacing: -2px; }
+    .tracking-tighter { letter-spacing: -1.2px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .text-nowrap { white-space: nowrap !important; }
+    .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .label-micro { font-size: 0.58rem; font-weight: 900; color: rgba(15, 56, 34, 0.6); text-transform: uppercase; letter-spacing: 1.5px; display: block; }
+    
+    /* TERMINAL COMPONENTS */
+    .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; }
+    .glass-node { background: rgba(255, 255, 255, 0.95); border: 2px solid var(--white); border-radius: 24px; }
+    .terminal-icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .terminal-data-strip { background: #fdfdfd; border-radius: 16px; border: 1px solid rgba(15, 56, 34, 0.05) !important; }
+    .code-fragment { font-family: monospace; font-size: 0.7rem; font-weight: 900; background: rgba(15, 56, 34, 0.06); padding: 4px 10px; border-radius: 6px; }
+    .border-top-faint { border-top: 1px solid rgba(15, 56, 34, 0.1); }
+
+    /* BUTTONS */
+    .btn-terminal-action { border: none; padding: 12px 24px; border-radius: 12px; font-weight: 900; font-size: 0.68rem; text-transform: uppercase; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; }
+    .btn-terminal-action.neon { background: var(--theme-accent); color: var(--theme-dark); }
+    .btn-terminal-action.danger { background: #fee2e2; color: #dc2626; border: 2px solid #fecaca; }
+    .btn-terminal-action:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 56, 34, 0.08); }
+
+    /* FORM ENGINEERING: Styles all Django auto-rendered inputs */
+    .terminal-form input[type="text"], 
+    .terminal-form textarea {
+        width: 100%;
+        background-color: #ffffff;
+        border: 2px solid var(--bg-sage);
+        border-radius: 10px;
+        color: var(--theme-dark);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 12px 16px;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+    
+    .terminal-form input:focus, 
+    .terminal-form textarea:focus {
+        border-color: var(--theme-dark);
+        outline: none;
+        background-color: var(--white);
+        box-shadow: 0 0 0 4px rgba(203, 251, 69, 0.25);
+    }
+
+    .terminal-form textarea { min-height: 120px; }
+
+    /* STATUS PULSE */
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #cbfb45; }
+    @keyframes pulse-neon { 0% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0.6); } 70% { box-shadow: 0 0 0 8px rgba(203, 251, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(203, 251, 69, 0); } }
+    .animate-pulse { animation: pulse-neon 2s infinite; }
+
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+</style>
+{% endblock %}

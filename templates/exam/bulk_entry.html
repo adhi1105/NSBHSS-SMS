@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h6 class="text-uppercase text-muted fw-bold smallest ls-1">Exam Management</h6>
+            <h2 class="fw-bold m-0">{{ series.name }} - {{ subject.name }}</h2>
+            <p class="text-muted">{{ classroom.name }} ({{ classroom.stream.name }})</p>
+        </div>
+        <button type="submit" form="mark-form" class="btn btn-lime rounded-pill px-5 fw-bold shadow-sm">
+            <i class="bi bi-save me-2"></i>Save All Marks
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <form method="post" id="mark-form">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3 smallest text-uppercase">Roll No</th>
+                            <th class="py-3 smallest text-uppercase">Student Name</th>
+                            <th class="py-3 text-center smallest text-uppercase">Theory (80)</th>
+                            {% if is_practical %}
+                            <th class="py-3 text-center smallest text-uppercase">Practical (20)</th>
+                            {% endif %}
+                            <th class="py-3 text-center smallest text-uppercase">CE / Internal</th>
+                            <th class="pe-4 text-end smallest text-uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %}
+                        <tr>
+                            {{ form.id }}
+                            <td class="ps-4 fw-bold text-muted">
+                                #{{ form.instance.student.roll_number }}
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ form.instance.student.user.get_full_name }}</div>
+                                <div class="smallest text-muted">{{ form.instance.student.student_id }}</div>
+                            </td>
+                            <td class="text-center">
+                                {{ form.theory_marks }}
+                            </td>
+                            {% if is_practical %}
+                            <td class="text-center">
+                                {{ form.practical_marks }}
+                            </td>
+                            {% endif %}
+                            <td class="text-center">
+                                {{ form.ce_marks }}
+                            </td>
+                            <td class="pe-4 text-end">
+                                {% if form.instance.total_marks > 0 %}
+                                    <span class="badge bg-success-subtle text-success rounded-pill px-3">Entered</span>
+                                {% else %}
+                                    <span class="badge bg-warning-subtle text-warning rounded-pill px-3">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Make inputs look like clean spreadsheet cells */
+    input[type="number"] {
+        width: 80px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 5px;
+        text-align: center;
+        font-weight: bold;
+    }
+    input[type="number"]:focus {
+        border-color: #d4f268;
+        outline: none;
+        background-color: #f9fff0;
+    }
+</style>
+{% endblock %}

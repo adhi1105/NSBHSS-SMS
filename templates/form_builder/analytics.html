@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Telemetry | {{ form.title }}{% endblock %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation registry-blueprint">
+    
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-8 col-xxl-9" style="min-width: 0;">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech flex-shrink-0">TELEMETRY_NODE_V1</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50 text-truncate">
+                    Data Insights & Registry Management
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1 text-truncate">
+                {{ form.title }}
+            </h1>
+            <div class="d-flex align-items-center gap-2 mt-3 text-theme-dark fw-bold">
+                <div class="status-pulse-wrapper d-flex align-items-center flex-shrink-0"><span class="status-dot animate-pulse"></span></div>
+                <span class="smallest ls-1 fw-black text-nowrap uppercase opacity-75">Registry_State:</span> 
+                <span class="smallest ls-1 fw-black text-nowrap text-theme-accent-dark uppercase">Node_Active</span>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-xxl-3 d-flex flex-column gap-2 justify-content-xl-end">
+            <a href="{% url 'form_builder:export' form.id %}" class="btn-terminal-action neon text-nowrap shadow-sm w-100 justify-content-center">
+                <i class="bi bi-file-earmark-spreadsheet-fill me-2"></i>EXPORT_CSV_PAYLOAD
+            </a>
+            <a href="{% url 'form_builder:builder' form.id %}" class="btn-terminal-outline text-nowrap w-100 justify-content-center py-2">
+                <i class="bi bi-pencil-square me-2"></i>EDIT_SCHEMA
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">GLOBAL_01</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-theme-dark text-theme-accent flex-shrink-0 shadow-sm">
+                        <i class="bi bi-inboxes-fill"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0 text-truncate">Registered Responses</h6>
+                        <h3 class="display-4 fw-black text-theme-dark m-0 tracking-tighter">{{ total_submissions }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">GLOBAL_02</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-light-sage text-theme-dark flex-shrink-0 shadow-sm">
+                        <i class="bi bi-pie-chart-fill"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0 text-truncate">Node Quota Status</h6>
+                        <h3 class="display-4 fw-black text-theme-dark m-0 tracking-tighter">
+                            {% if form.limit_responses > 0 %}{{ total_submissions }}<small class="fs-6 opacity-50">/{{ form.limit_responses }}</small>{% else %}∞{% endif %}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node-dark shadow-sm position-relative text-white">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-accent opacity-50">GLOBAL_03</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="terminal-icon-box bg-theme-accent text-theme-dark flex-shrink-0 shadow-sm">
+                        <i class="bi bi-broadcast"></i>
+                    </div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black theme-accent-text smallest text-uppercase ls-1 m-0 text-truncate">System Availability</h6>
+                        <h3 class="display-4 fw-black text-white m-0 tracking-tighter">{{ form.status|upper }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5" id="chartsGrid"></div>
+
+    <div class="card card-terminal border-0 glass-node shadow-sm overflow-hidden mb-5">
+        <div class="bg-theme-dark py-3 px-4 d-flex justify-content-between align-items-center">
+            <span class="smallest fw-black text-theme-accent uppercase ls-1">Registry_Submissions_Log</span>
+            <span class="smallest text-white opacity-50">Sequential_Feed</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light-sage">
+                    <tr>
+                        <th class="ps-4 smallest fw-black uppercase ls-1 text-theme-dark">Authorized_User</th>
+                        <th class="smallest fw-black uppercase ls-1 text-theme-dark">Entry_Date</th>
+                        <th class="smallest fw-black uppercase ls-1 text-theme-dark">Review_State</th>
+                        <th class="smallest fw-black uppercase ls-1 text-theme-dark">Payload_Preview</th>
+                        <th class="text-end pe-4 smallest fw-black uppercase ls-1 text-theme-dark">Command</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in submissions %}
+                    <tr class="{% if not sub.is_reviewed %}bg-theme-accent-fade fw-bold{% endif %}">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://ui-avatars.com/api/?name={{ sub.submitted_by.username }}&background=0f3822&color=cbfb45&bold=true" class="rounded-circle border" style="width: 32px;">
+                                <span class="text-theme-dark">{{ sub.submitted_by.get_full_name|default:sub.submitted_by.username }}</span>
+                            </div>
+                        </td>
+                        <td><span class="smallest fw-bold text-muted">{{ sub.submitted_at|date:"d M Y, H:i" }}</span></td>
+                        <td>
+                            {% if sub.is_reviewed %}
+                                <span class="badge-processed"><i class="bi bi-shield-check me-1"></i> PROCESSED</span>
+                            {% else %}
+                                <span class="badge-pending"><i class="bi bi-activity me-1"></i> PENDING_REVIEW</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="smallest text-muted text-truncate" style="max-width: 240px;">
+                                {% for key, value in sub.data.items|slice:":2" %}
+                                    <span class="fw-black text-theme-dark">{{ key|truncatechars:10 }}:</span> {{ value|truncatechars:15 }} 
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'form_builder:toggle_review' sub.id %}" class="btn-node-toggle {% if sub.is_reviewed %}active{% endif %}">
+                                <i class="bi {% if sub.is_reviewed %}bi-arrow-counterclockwise{% else %}bi-check-all{% endif %}"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted fw-bold italic opacity-50">NO_DATA_PAYLOAD_DETECTED</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const analyticsData = {{ analytics_json|safe }};
+    const grid = document.getElementById('chartsGrid');
+    const themeColors = ['#cbfb45', '#0f3822', '#217346', '#e8f0eb', '#a3e635', '#064e3b'];
+
+    Object.keys(analyticsData).forEach((question, i) => {
+        const answers = analyticsData[question];
+        const cardHtml = `
+            <div class="col-md-6 col-xl-4">
+                <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                    <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark opacity-50">NODE_${String(i+1).padStart(2, '0')}</code>
+                    <div class="card-body p-4 pt-5 d-flex flex-column h-100">
+                        <div class="d-flex align-items-start gap-3 mb-4">
+                            <div class="icon-sq-micro bg-light-sage text-theme-dark flex-shrink-0 border"><i class="bi bi-bar-chart-fill"></i></div>
+                            <h6 class="fw-black text-theme-dark m-0 tracking-tighter text-truncate w-100" style="line-height: 1.4;">${question}</h6>
+                        </div>
+                        <div class="terminal-data-strip p-3 border mt-auto d-flex align-items-center justify-content-center bg-white" style="height: 280px;">
+                            <canvas id="chart-${i}"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        grid.innerHTML += cardHtml;
+
+        setTimeout(() => {
+            new Chart(document.getElementById(`chart-${i}`), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(answers),
+                    datasets: [{
+                        data: Object.values(answers),
+                        backgroundColor: themeColors,
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                    }]
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 10, weight: '800' }, color: '#0f3822' } }
+                    } 
+                }
+            });
+        }, 10);
+    });
+</script>
+
+<style>
+    /* ADD TO YOUR STYLE.CSS OR KEEP IN STYLE BLOCK */
+    .bg-theme-accent-fade { background-color: rgba(203, 251, 69, 0.03); }
+    
+    .badge-processed { 
+        background: var(--bg-sage); color: var(--theme-accent-dark); 
+        padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.6rem; letter-spacing: 0.5px;
+    }
+    
+    .badge-pending { 
+        background: #fff3cd; color: #856404; 
+        padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.6rem; letter-spacing: 0.5px;
+    }
+
+    .btn-node-toggle {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--theme-dark);
+        color: var(--theme-dark); transition: 0.3s; text-decoration: none;
+    }
+    .btn-node-toggle:hover { background: var(--theme-dark); color: var(--theme-accent); }
+    .btn-node-toggle.active { background: var(--bg-sage); border-color: var(--theme-accent-dark); color: var(--theme-accent-dark); }
+
+    .btn-terminal-outline {
+        border: 2px solid var(--theme-dark); border-radius: 12px;
+        color: var(--theme-dark); font-weight: 900; font-size: 0.68rem;
+        text-transform: uppercase; text-decoration: none; display: flex; align-items: center;
+    }
+    
+    .glass-node-dark { background: var(--theme-dark); }
+    .theme-accent-text { color: var(--theme-accent); }
+</style>
+{% endblock %}

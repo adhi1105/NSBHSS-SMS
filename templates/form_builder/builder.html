@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Eduplex Form Architect | {{ custom_form.title }}{% endblock %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-0 page-load-animation registry-blueprint" style="overflow-y: auto; height: 100vh; background-attachment: fixed;">
+    
+    <div class="builder-nav bg-white border-bottom sticky-top px-4 py-2 shadow-sm" style="z-index: 1050;">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'form_builder:index' %}" class="text-theme-dark"><i class="bi bi-arrow-left fs-4"></i></a>
+                <div>
+                    <h6 class="m-0 fw-black text-theme-dark tracking-tighter">{{ custom_form.title }}</h6>
+                    <span class="smallest text-muted fw-bold uppercase ls-1">NODE_ID: {{ custom_form.id|stringformat:"04d" }}</span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'form_builder:render' custom_form.id %}" target="_blank" class="btn btn-light rounded-pill px-4 smallest fw-black ls-1 border">
+                    <i class="bi bi-eye me-2"></i>PREVIEW
+                </a>
+                <a href="{% url 'form_builder:analytics' custom_form.id %}" class="btn-terminal-action neon rounded-pill px-4 smallest fw-black ls-1">
+                    <i class="bi bi-graph-up-arrow me-2"></i>TELEMETRY
+                </a>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-center gap-4 mt-2">
+            <button class="tab-link active" onclick="switchTab('questions')">Questions</button>
+            <button class="tab-link" onclick="switchTab('logic')">Logic Branches</button>
+            <button class="tab-link" onclick="switchTab('settings')">Settings</button>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center position-relative">
+            
+            <div class="col-lg-8" id="main-workspace">
+                
+                <div id="questions-tab" class="tab-content active">
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden builder-card-head">
+                        <div class="card-body p-4 p-md-5">
+                            <h1 class="display-6 fw-black text-theme-dark">{{ custom_form.title }}</h1>
+                            <p class="text-muted fw-bold mb-0 opacity-75">{{ custom_form.description|default:"Form description goes here..." }}</p>
+                        </div>
+                    </div>
+
+                    <div id="fieldContainer">
+                        {% for field in fields %}
+                        <div class="card border-0 shadow-sm rounded-4 mb-3 field-editor-card" data-id="{{ field.id }}">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-grip-vertical text-muted fs-5 handle" style="cursor: grab;"></i>
+                                        <h6 class="fw-black text-theme-dark m-0">{{ field.label }}</h6>
+                                        {% if field.required %}<span class="text-danger">*</span>{% endif %}
+                                    </div>
+                                    <div class="d-flex gap-2 action-icons">
+                                        <button class="btn btn-sm btn-light rounded-circle" title="Edit"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm btn-light text-danger rounded-circle" title="Delete"><i class="bi bi-trash3"></i></button>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-3 rounded-3 bg-light border-dashed">
+                                    <div class="smallest text-muted fw-black uppercase ls-1 mb-2">TYPE: {{ field.get_field_type_display }}</div>
+                                    {% if field.choices %}
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for choice in field.get_choices %}
+                                                <span class="badge bg-white text-theme-dark border rounded-pill px-3">{{ choice }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="text-muted smallest italic">No extra parameters defined.</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5 glass-node rounded-4 border-dashed">
+                            <i class="bi bi-plus-circle fs-1 text-muted opacity-25"></i>
+                            <p class="fw-bold text-muted mt-3">Start building by adding your first question node.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="logic-tab" class="tab-content" style="display: none;">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 glass-node">
+                        <h4 class="fw-black text-theme-dark mb-4">Conditional Branching</h4>
+                        <div class="logic-list mb-4">
+                            {% for rule in logic_rules %}
+                            <div class="logic-rule-strip p-3 border-start border-4 border-theme-dark bg-white rounded-3 shadow-sm mb-2 d-flex justify-content-between">
+                                <span class="smallest fw-bold">If <strong>{{ rule.trigger_field.label }}</strong> {{ rule.operator }} "<strong>{{ rule.value }}</strong>", then <strong>{{ rule.action }}</strong> {{ rule.target_field.label }}.</span>
+                                <button class="btn btn-sm py-0 text-danger"><i class="bi bi-x-lg"></i></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-terminal-outline w-100 py-3" data-bs-toggle="modal" data-bs-target="#addLogicModal">
+                            <i class="bi bi-diagram-3 me-2"></i>DEFINE_LOGIC_GATE
+                        </button>
+                    </div>
+                </div>
+
+                <div id="settings-tab" class="tab-content" style="display: none;">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                        <h4 class="fw-black text-theme-dark mb-4">Node Configuration</h4>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label class="smallest fw-black uppercase ls-1 text-muted mb-2 d-block">System Category</label>
+                                <input type="text" class="node-input" value="{{ custom_form.category }}">
+                            </div>
+                            <div class="mb-4">
+                                <label class="smallest fw-black uppercase ls-1 text-muted mb-2 d-block">Publication Status</label>
+                                <select class="form-select node-input">
+                                    <option value="draft" {% if custom_form.status == 'draft' %}selected{% endif %}>Draft</option>
+                                    <option value="published" {% if custom_form.status == 'published' %}selected{% endif %}>Published</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-terminal-action neon w-100 py-3">UPDATE_GLOBAL_SETTINGS</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-1">
+                <div class="sticky-top floating-menu-wrapper" style="top: 100px;">
+                    <div class="card border-0 shadow-soft p-2 rounded-pill bg-white d-flex flex-column gap-3 align-items-center floating-toolbar">
+                        <button class="btn btn-toolbar" title="Add Question" data-bs-toggle="modal" data-bs-target="#addFieldModal"><i class="bi bi-plus-circle-fill fs-4 text-theme-dark"></i></button>
+                        <button class="btn btn-toolbar" title="Import Template"><i class="bi bi-file-earmark-arrow-down fs-4 text-muted"></i></button>
+                        <button class="btn btn-toolbar" title="Node Scripts"><i class="bi bi-code-slash fs-4 text-muted"></i></button>
+                        <hr class="w-75 my-0 opacity-10">
+                        <button class="btn btn-toolbar" title="Global Theme"><i class="bi bi-palette fs-4 text-muted"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addFieldModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            {% csrf_token %}
+            <div class="modal-header bg-theme-dark text-white border-0 py-3">
+                <h6 class="modal-title smallest fw-black uppercase ls-1">Initialize_New_Field</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" name="add_field" value="1">
+                <div class="mb-3">
+                    <label class="smallest fw-black uppercase ls-1 text-muted mb-2 d-block">Question Text</label>
+                    {{ form.label }}
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="smallest fw-black uppercase ls-1 text-muted mb-2 d-block">Type</label>
+                        {{ form.field_type }}
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check form-switch mb-2">
+                            {{ form.required }}
+                            <label class="smallest fw-black text-theme-dark ms-2">REQUIRED</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3" id="choicesWrapper" style="display:none;">
+                    <label class="smallest fw-black uppercase ls-1 text-muted mb-2 d-block">Choices (Comma Separated)</label>
+                    {{ form.choices }}
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="submit" class="btn-terminal-action neon w-100 py-3">SAVE_NODE</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="addLogicModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            {% csrf_token %}
+            <div class="modal-header bg-theme-accent-dark text-white border-0 py-3">
+                <h6 class="modal-title smallest fw-black uppercase ls-1">Configure_Logic_Branch</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" name="add_logic" value="1">
+                <div class="row g-3">
+                    <div class="col-12">{{ logic_form.trigger_field }}</div>
+                    <div class="col-6">{{ logic_form.operator }}</div>
+                    <div class="col-6">{{ logic_form.value }}</div>
+                    <div class="col-4">{{ logic_form.action }}</div>
+                    <div class="col-8">{{ logic_form.target_field }}</div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="submit" class="btn-terminal-action neon w-100 py-3">LINK_LOGIC_BRANCH</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* CUSTOM BUILDER STYLES */
+    .tab-link { 
+        background: none; border: none; padding: 10px 0; font-weight: 800; color: var(--text-dark); opacity: 0.5;
+        border-bottom: 3px solid transparent; transition: 0.3s; font-size: 0.9rem;
+    }
+    .tab-link.active { opacity: 1; border-bottom: 3px solid var(--theme-dark); }
+    .tab-link:hover { opacity: 0.8; }
+
+    .builder-card-head { border-top: 10px solid var(--theme-dark) !important; }
+    
+    .field-editor-card { 
+        transition: 0.3s; border-left: 0px solid var(--theme-accent) !important; cursor: default;
+    }
+    .field-editor-card:hover { 
+        transform: translateX(5px); border-left: 6px solid var(--theme-accent) !important; 
+    }
+    
+    .floating-toolbar { 
+        border: 2px solid #fff; 
+        transition: 0.3s; 
+    }
+    .floating-toolbar:hover { box-shadow: 0 20px 40px rgba(15, 56, 34, 0.1) !important; }
+    .btn-toolbar { padding: 8px; border-radius: 50%; transition: 0.2s; }
+    .btn-toolbar:hover { background: #f8faf9; transform: scale(1.1); }
+
+    .node-input, select.form-select, textarea.form-control {
+        border: 2px solid #eef2f0; border-radius: 12px; padding: 12px; font-weight: 600; width: 100%;
+    }
+    .border-dashed { border: 2px dashed #d1d9d4 !important; }
+</style>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+        document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+        
+        document.getElementById(tabId + '-tab').style.display = 'block';
+        event.currentTarget.classList.add('active');
+    }
+
+    // Modal Choice Logic
+    document.querySelector('[name="field_type"]').addEventListener('change', function() {
+        const wrapper = document.getElementById('choicesWrapper');
+        if (['select', 'checkbox'].includes(this.value)) {
+            wrapper.style.display = 'block';
+        } else {
+            wrapper.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

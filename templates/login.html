@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Eduplex NSBHSS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-lime: #d4f268;
+            --bg-body: #f5f5f7;
+            --sidebar-dark: #1c1e26;
+        }
+        body {
+            background-color: var(--bg-body);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+        .login-card {
+            background: white;
+            padding: 3rem 2.5rem;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid rgba(0,0,0,0.02);
+            animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo-box {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--sidebar-dark);
+        }
+        .btn-lime {
+            background: var(--primary-lime);
+            color: #1a1a1a;
+            font-weight: 800;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(212, 242, 104, 0.3);
+        }
+        .btn-lime:hover { 
+            background: #c2e055; 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 242, 104, 0.4);
+        }
+        .form-label {
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border-radius: 14px;
+            padding: 12px 16px;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .form-control:focus {
+            box-shadow: none;
+            border-color: var(--primary-lime);
+            background: #fff;
+        }
+        .input-group-text {
+            background: #f8fafc;
+            border: 2px solid #f1f5f9;
+            border-left: none;
+            border-radius: 0 14px 14px 0;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+        .password-toggle:hover { color: var(--sidebar-dark); }
+        .link-muted {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: color 0.2s;
+        }
+        .link-muted:hover { color: #1a1a1a; }
+        .alert-custom {
+            background-color: #fff1f2;
+            color: #e11d48;
+            border: none;
+            font-weight: 600;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="text-center mb-5">
+            <div class="logo-box mb-2">
+                <i class="bi bi-mortarboard-fill text-dark"></i> Edu<span class="text-primary-emphasis">plex</span>
+            </div>
+            <p class="text-muted small fw-medium">Unified School Management System</p>
+        </div>
+
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+            {% if form.errors %}
+                <div class="alert alert-custom small p-3 text-center mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Incorrect credentials.
+                </div>
+            {% endif %}
+
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <div class="position-relative">
+                    <input type="text" name="username" class="form-control" placeholder="your_id" required autofocus>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <label class="form-label">Password</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" name="password" id="passwordField" class="form-control" style="border-right: none;" placeholder="••••••••" required>
+                    <span class="input-group-text password-toggle" onclick="togglePassword()">
+                        <i class="bi bi-eye" id="toggleIcon"></i>
+                    </span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-lime mb-4">
+                Sign In <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+        </form>
+        
+        <div class="text-center">
+            <a href="{% url 'password_reset_contact' %}" class="link-muted d-inline-block mb-4">
+                Forgot password? Contact Administrator
+            </a>
+            
+            <div class="pt-4 border-top border-light">
+                <p class="small text-muted fw-medium mb-0">
+                    New to the portal? 
+                    <a href="{% url 'register' %}" class="text-dark fw-extrabold text-decoration-none ms-1">Apply for Access</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth password visibility toggle
+        function togglePassword() {
+            const passwordField = document.getElementById('passwordField');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+    </script>
+</body>
+</html>

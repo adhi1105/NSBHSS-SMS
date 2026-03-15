@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center vh-100 page-entry">
+    <div class="card border-0 shadow-lg rounded-5 overflow-hidden modal-mimic">
+        
+        <div class="card-header bg-dark border-0 p-4 text-center">
+            <div class="smallest fw-bold text-primary text-uppercase ls-3 mb-2">Slot Configuration</div>
+            <h4 class="text-white fw-black mb-0">{{ day }} <span class="fw-light opacity-50">/ Period {{ slot.period_number }}</span></h4>
+            <div class="smallest text-white-50 mt-1 fw-bold">{{ slot.start_time|time:"H:i" }} — {{ slot.end_time|time:"H:i" }}</div>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <form method="POST" action="{% url 'timetable:add_entry' classroom.id day slot.id %}" id="addEntryForm">
+                {% csrf_token %}
+
+                <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                    <div>
+                        <div class="smallest text-muted fw-bold text-uppercase ls-1">Classroom</div>
+                        <div class="fw-bold text-dark">{{ classroom.name }}</div>
+                    </div>
+                    <div class="icon-circle bg-light">
+                        <i class="bi bi-door-open-fill text-primary"></i>
+                    </div>
+                </div>
+
+                <label class="smallest fw-bold text-uppercase ls-2 text-primary mb-3 d-block text-center">Select Allocated Subject</label>
+                
+                <div class="row g-2 subject-grid custom-scrollbar">
+                    {% for subject in subjects %}
+                    <div class="col-6">
+                        <input type="radio" class="btn-check" name="subject" id="sub-{{ subject.id }}" value="{{ subject.id }}" required>
+                        <label class="subject-card" for="sub-{{ subject.id }}">
+                            <div class="check-mark"><i class="bi bi-check-circle-fill"></i></div>
+                            <div class="fw-black small text-uppercase">{{ subject.code|default:"SUB" }}</div>
+                            <div class="smallest fw-medium text-muted text-truncate w-100 text-center">{{ subject.name }}</div>
+                        </label>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-4">
+                        <div class="opacity-25 mb-2"><i class="bi bi-exclamation-circle fs-1"></i></div>
+                        <p class="smallest fw-bold text-muted">No teachers allocated to this class yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-5">
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm mb-3">
+                        Confirm Assignment
+                    </button>
+                    <a href="{% url 'timetable:view_timetable' classroom.id %}" class="btn btn-link w-100 text-muted smallest fw-bold text-decoration-none">
+                        CANCEL SELECTION
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 1. CORE STYLE */
+    .page-entry { background: #f8fafc; }
+    .modal-mimic { width: 100%; max-width: 440px; }
+    .fw-black { font-weight: 900; }
+    .ls-3 { letter-spacing: 3px; }
+    .ls-2 { letter-spacing: 2px; }
+    .ls-1 { letter-spacing: 1px; }
+    .smallest { font-size: 0.65rem; }
+
+    .rounded-5 { border-radius: 2rem !important; }
+
+    /* 2. SUBJECT CARD SYSTEM */
+    .subject-grid { max-height: 250px; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
+    
+    .subject-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 10px;
+        background: #fff;
+        border: 2px solid #f1f5f9;
+        border-radius: 1.25rem;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    .subject-card:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+    .btn-check:checked + .subject-card {
+        border-color: #0061ff;
+        background: #f0f7ff;
+        transform: scale(0.96);
+    }
+
+    .check-mark {
+        position: absolute; top: 8px; right: 8px;
+        color: #0061ff; opacity: 0; transform: scale(0);
+        transition: 0.3s;
+    }
+
+    .btn-check:checked + .subject-card .check-mark {
+        opacity: 1; transform: scale(1);
+    }
+
+    /* 3. UTILITIES */
+    .icon-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-entry { animation: fadeIn 0.4s ease-out; }
+</style>
+{% endblock %}

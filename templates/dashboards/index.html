@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Command Hub | Eduplex{% endblock %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid page-load-animation">
+    
+    <div class="row align-items-end mb-5 gy-4">
+        <div class="col-xl-8 col-xxl-9" style="min-width: 0;">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-node-tech flex-shrink-0">HUB_v3.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-1 m-0 text-theme-dark opacity-50 text-nowrap overflow-hidden text-truncate">
+                    {% if request.user.is_superuser %}ROOT_ADMINISTRATIVE_CONTROL{% else %}{{ request.user.groups.all.0.name|upper }}_OPERATIONS{% endif %}
+                </h6>
+            </div>
+            <h1 class="display-title text-theme-dark tracking-tighter m-0 line-height-1 text-nowrap text-truncate w-100">
+                Welcome, <span class="theme-accent-text-dark">{{ request.user.first_name }}</span>
+            </h1>
+        </div>
+    </div>
+
+    {% if request.user.groups.all.0.name == 'Cashier' %}
+    <div class="row g-4 mb-5">
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node-dark shadow-sm position-relative text-white">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-white opacity-50">FIN_01</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="icon-sq-micro bg-theme-accent text-theme-dark flex-shrink-0 shadow-sm"><i class="bi bi-cash-stack"></i></div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black theme-accent-text smallest text-uppercase ls-1 m-0 text-truncate">Today's Ledger</h6>
+                        <h2 class="fw-black text-white m-0 tracking-tighter">₹ 42,500</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">FIN_02</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="icon-sq-micro bg-danger text-white flex-shrink-0 shadow-sm animate-pulse"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                    <div class="w-100 overflow-hidden">
+                        <h6 class="fw-black text-danger smallest text-uppercase ls-1 m-0 text-truncate">Pending Dues</h6>
+                        <h2 class="fw-black text-theme-dark m-0 tracking-tighter">14 Nodes</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-12">
+            <div class="terminal-data-strip border p-4 h-100 bg-white shadow-soft d-flex flex-column justify-content-center">
+                <a href="{% url 'fees:index' %}" class="btn-terminal-action neon w-100 justify-content-center py-3">
+                    <i class="bi bi-receipt me-2"></i>INITIATE_TRANSACTION
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if request.user.groups.all.0.name == 'Librarian' %}
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">LIB_OUT</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="icon-sq-micro bg-theme-accent text-theme-dark flex-shrink-0"><i class="bi bi-journal-arrow-up"></i></div>
+                    <div>
+                        <h6 class="fw-black text-muted smallest text-uppercase ls-1 m-0">Issued Today</h6>
+                        <h2 class="fw-black text-theme-dark m-0 tracking-tighter">28</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm position-relative border-start border-5 border-danger">
+                <code class="code-fragment position-absolute top-0 end-0 m-3 text-theme-dark">LIB_ERR</code>
+                <div class="card-body p-4 pt-5 d-flex align-items-center gap-3">
+                    <div class="icon-sq-micro bg-danger text-white flex-shrink-0 animate-pulse"><i class="bi bi-clock-history"></i></div>
+                    <div>
+                        <h6 class="fw-black text-danger smallest text-uppercase ls-1 m-0">Overdue Returns</h6>
+                        <h2 class="fw-black text-theme-dark m-0 tracking-tighter">12</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-md-12">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="fw-black text-theme-dark m-0 tracking-tighter">Scan Terminal</h5>
+                        <p class="label-micro text-muted mt-1 m-0">AWAITING_BARCODE_INPUT</p>
+                    </div>
+                    <button class="btn-terminal-action standard py-3 px-4">
+                        <i class="bi bi-upc-scan me-2"></i>SCAN_ASSET
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if request.user.groups.all.0.name == 'Admin' or request.user.groups.all.0.name == 'Office_Staff' %}
+    <div class="row g-4 mb-5">
+        <div class="col-xl-8 d-flex flex-column gap-4">
+            <div class="card card-terminal border-0 shadow-sm glass-node h-100">
+                <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+                    <h6 class="smallest fw-black uppercase ls-2 text-theme-dark m-0">Priority_Action_Queue</h6>
+                    <span class="badge-terminal bg-theme-dark text-theme-accent">3 PENDING</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="terminal-data-strip p-3 border mb-3 d-flex align-items-center justify-content-between bg-white card-hover-sync">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-sq-micro bg-light-sage text-theme-dark"><i class="bi bi-person-lines-fill"></i></div>
+                            <div>
+                                <h6 class="fw-black text-theme-dark m-0 tracking-tighter">New Admission Inquiry</h6>
+                                <span class="label-micro text-muted">ID: ADM_8892 | Std 11 Science</span>
+                            </div>
+                        </div>
+                        <button class="btn-terminal-action standard py-2">REVIEW</button>
+                    </div>
+                    
+                    <div class="terminal-data-strip p-3 border mb-3 d-flex align-items-center justify-content-between bg-white card-hover-sync border-start border-5 border-theme-accent">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-sq-micro bg-theme-dark text-theme-accent"><i class="bi bi-calendar2-minus"></i></div>
+                            <div>
+                                <h6 class="fw-black text-theme-dark m-0 tracking-tighter">Faculty Leave Request</h6>
+                                <span class="label-micro text-muted">Prof. Anjali | 2 Days</span>
+                            </div>
+                        </div>
+                        <button class="btn-terminal-action standard py-2">PROCESS</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 d-flex flex-column gap-4">
+            <div class="card card-terminal border-0 shadow-sm glass-node text-center p-4 card-hover-sync">
+                <div class="icon-sq-micro bg-sage text-theme-dark mx-auto mb-3" style="width: 50px; height: 50px; font-size: 1.5rem;"><i class="bi bi-building"></i></div>
+                <h4 class="fw-black text-theme-dark tracking-tighter m-0">94%</h4>
+                <p class="label-micro text-muted m-0 mt-1">CAMPUS_ATTENDANCE_TODAY</p>
+                <div class="progress mt-3" style="height: 6px;">
+                    <div class="progress-bar bg-theme-accent-dark" style="width: 94%"></div>
+                </div>
+            </div>
+            
+            <a href="{% url 'admission:index' %}" class="btn-terminal-action neon w-100 justify-content-center py-3 shadow-soft">
+                <i class="bi bi-plus-circle-fill me-2"></i>REGISTER_NEW_NODE
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if request.user.is_superuser %}
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm p-4 text-center card-hover-sync">
+                <h2 class="fw-black text-theme-dark tracking-tighter m-0">1,248</h2>
+                <span class="label-micro text-muted mt-2">TOTAL_STUDENT_NODES</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm p-4 text-center card-hover-sync">
+                <h2 class="fw-black text-theme-dark tracking-tighter m-0">84</h2>
+                <span class="label-micro text-muted mt-2">ACTIVE_FACULTY</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-terminal border-0 h-100 glass-node-dark shadow-sm p-4 text-center card-hover-sync text-white">
+                <h2 class="fw-black theme-accent-text tracking-tighter m-0">Live</h2>
+                <span class="label-micro opacity-50 mt-2 text-white">SYSTEM_HEALTH_SYNC</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-terminal border-0 h-100 glass-node shadow-sm p-4 text-center card-hover-sync">
+                <h2 class="fw-black text-theme-dark tracking-tighter m-0">14</h2>
+                <span class="label-micro text-danger mt-2">CRITICAL_LOGS</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<style>
+    /* TYPOGRAPHY */
+    .fw-black { font-weight: 900; }
+    .display-title { font-weight: 900; font-size: 2.5rem; letter-spacing: -1.5px; }
+    .tracking-tighter { letter-spacing: -1.2px !important; }
+    .ls-1 { letter-spacing: 0.5px !important; } .ls-2 { letter-spacing: 1.5px !important; }
+    .smallest { font-size: 0.72rem; line-height: 1.2; }
+    .label-micro { font-size: 0.55rem; font-weight: 900; color: rgba(15, 56, 34, 0.5); text-transform: uppercase; letter-spacing: 1.5px; display: block; }
+    .theme-accent-text { color: var(--theme-accent) !important; }
+
+    /* COMPONENTS */
+    .badge-node-tech { background: var(--theme-dark); color: var(--theme-accent); padding: 6px 14px; border-radius: 50px; font-weight: 900; font-size: 0.65rem; }
+    .glass-node { background: rgba(255, 255, 255, 0.95); border: 2px solid var(--white); border-radius: 28px; }
+    .glass-node-dark { background: var(--theme-dark); border-radius: 28px; }
+    .terminal-data-strip { background: #fdfdfd; border-radius: 18px; border: 1px solid rgba(15, 56, 34, 0.05) !important; }
+    .icon-sq-micro { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .bg-light-sage { background: #f4f8f6; }
+    .bg-sage { background: var(--bg-sage); }
+
+    /* BADGES & BUTTONS */
+    .code-fragment { font-family: monospace; font-size: 0.7rem; font-weight: 900; background: rgba(15, 56, 34, 0.06); padding: 4px 10px; border-radius: 6px; }
+    .badge-terminal { padding: 6px 14px; border-radius: 8px; font-size: 0.65rem; font-weight: 900; }
+    
+    .btn-terminal-action { border: none; padding: 10px 20px; border-radius: 12px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; }
+    .btn-terminal-action.standard { background: var(--white); color: var(--theme-dark); border: 2.5px solid var(--bg-sage); }
+    .btn-terminal-action.neon { background: var(--theme-accent); color: var(--theme-dark); }
+    .btn-terminal-action:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 56, 34, 0.08); }
+
+    /* UTILITIES */
+    .shadow-soft { box-shadow: 0 15px 35px rgba(15, 56, 34, 0.05); }
+    .card-hover-sync:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(15, 56, 34, 0.08) !important; }
+
+    /* ANIMATIONS */
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    
+    @keyframes pulse-neon { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6); } 70% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+    .animate-pulse { animation: pulse-neon 2s infinite; }
+</style>
+{% endblock %}

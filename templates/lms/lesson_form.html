@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-4 p-lg-5 page-load-animation">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5 gap-4">
+        <div class="header-group">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="badge-pill-neon">Editor v2.0</span>
+                <h6 class="text-uppercase smallest fw-black ls-3 m-0 text-theme-dark">Curriculum Builder</h6>
+            </div>
+            <h1 class="title-heavy text-theme-dark tracking-normal m-0 line-height-1">
+                {{ title|default:"Configure Node" }}
+            </h1>
+            <p class="text-theme-dark fw-bold mt-3 mb-0 d-flex align-items-center gap-2">
+                <span class="status-dot animate-pulse"></span>
+                Parent Course: <span class="theme-accent-text-dark uppercase ls-1">{{ course.title }}</span>
+            </p>
+        </div>
+        
+        <div class="d-flex gap-3">
+            <a href="{% url 'lms:course_detail' course.id %}" class="btn-minimal shadow-soft">
+                <i class="bi bi-x-lg me-2"></i>Discard
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <form method="POST" enctype="multipart/form-data" id="lessonForm">
+                {% csrf_token %}
+                
+                <div class="card card-bento border-0 shadow-soft mb-5 overflow-hidden">
+                    <div class="card-header bg-theme-dark p-4 border-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-square bg-theme-accent text-theme-dark shadow-sm">
+                                <i class="bi bi-journal-text"></i>
+                            </div>
+                            <h4 class="text-white fw-black m-0 tracking-tighter" style="letter-spacing: 0.5px;">General Configuration</h4>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 p-md-5 bg-white">
+                        <div class="row g-4">
+                            <div class="col-md-9">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Module Title</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}<div class="text-danger smallest mt-2 fw-black"><i class="bi bi-exclamation-circle"></i> {{ form.title.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Sequence Order</label>
+                                {{ form.order }}
+                            </div>
+                            <div class="col-12">
+                                <label class="smallest fw-black text-theme-dark text-uppercase ls-2 d-block mb-2">Module Description / Notes</label>
+                                {{ form.content }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-bento border-0 shadow-soft mb-5 overflow-hidden">
+                    <div class="card-header bg-sage p-4 border-0 d-flex justify-content-between align-items-center" style="border-bottom: 2px solid var(--theme-dark) !important;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-square bg-theme-dark text-theme-accent shadow-sm">
+                                <i class="bi bi-play-btn-fill"></i>
+                            </div>
+                            <h4 class="text-theme-dark fw-black m-0 tracking-tighter" style="letter-spacing: 0.5px;">Media Infrastructure</h4>
+                        </div>
+                        <button type="button" id="add-video" class="btn-neon-premium-sm shadow-sm transition-all">
+                            <i class="bi bi-plus-lg me-2"></i>Add Stream Node
+                        </button>
+                    </div>
+                    
+                    <div class="card-body p-4 p-lg-5 bg-light-sage">
+                        {{ formset.management_form }}
+                        <div id="video-form-container" class="d-flex flex-column gap-3">
+                            {% for video_form in formset %}
+                            <div class="video-row bento-input-group p-4 animate-in shadow-sm">
+                                {% for hidden in video_form.hidden_fields %}{{ hidden }}{% endfor %}
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="smallest fw-black text-theme-dark text-uppercase ls-1 mb-2">Video Label</label>
+                                        {{ video_form.title }}
+                                    </div>
+                                    <div class="col-md-7">
+                                        <label class="smallest fw-black text-theme-dark text-uppercase ls-1 mb-2">Native YouTube URL</label>
+                                        {{ video_form.youtube_url }}
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        {% if formset.can_delete %}
+                                        <div class="form-check p-0 m-0">
+                                            {{ video_form.DELETE }}
+                                            <label class="btn-delete-circle hover-lift mt-1" title="Mark for Removal">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </label>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div id="empty-form" class="d-none">
+                            <div class="video-row bento-input-group p-4 border-dashed border-dark">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">{{ formset.empty_form.title }}</div>
+                                    <div class="col-md-7">{{ formset.empty_form.youtube_url }}</div>
+                                    <div class="col-md-1 text-center">
+                                        <button type="button" class="btn-delete-circle remove-row">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 mb-5">
+                    <button type="submit" class="btn-neon-premium px-5 py-3 shadow-soft hover-lift">
+                        Commit & Synchronize Module <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;         /* Deep Forest Green */
+        --theme-accent: #cbfb45;       /* Neon Lime */
+        --theme-accent-dark: #217346;  /* Readable High-Contrast Green */
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); min-height: 100vh; }
+    
+    /* TYPOGRAPHY FIXES */
+    .fw-black { font-weight: 900; }
+    .title-heavy { font-weight: 900; font-size: 3rem; color: var(--theme-dark) !important; }
+    .tracking-normal { letter-spacing: 0; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-3 { letter-spacing: 3px; }
+    .smallest { font-size: 0.75rem; }
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .theme-accent-text-dark { color: var(--theme-accent-dark) !important; font-weight: 800; }
+
+    /* CARDS */
+    .card-bento { border-radius: 30px; border: 1px solid var(--bg-sage); background: var(--white); }
+    .bg-sage { background: var(--bg-sage) !important; }
+    .bg-light-sage { background: #f4f8f6; }
+    .icon-square { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+    /* INPUT VISIBILITY */
+    input, textarea, select { 
+        width: 100%;
+        border-radius: 15px !important; 
+        border: 2px solid var(--bg-sage) !important; 
+        padding: 14px 18px !important; 
+        font-size: 1rem !important; 
+        font-weight: 600 !important;      
+        color: #000000 !important;        /* Pure black for user input clarity */
+        background: var(--white) !important;
+        transition: 0.3s ease; 
+    }
+    input:focus { border-color: var(--theme-dark) !important; box-shadow: 0 10px 20px rgba(15, 56, 34, 0.05) !important; outline: none; }
+    
+    .bento-input-group { background: var(--white); border-radius: 20px; border: 1px solid var(--bg-sage); }
+
+    /* BUTTONS */
+    .btn-neon-premium { background: var(--theme-accent); color: var(--theme-dark) !important; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 900; text-transform: uppercase; text-decoration: none; }
+    .btn-neon-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 251, 69, 0.4); }
+
+    .btn-neon-premium-sm { background: var(--theme-dark); color: var(--theme-accent); border: none; padding: 8px 20px; border-radius: 50px; font-weight: 900; text-transform: uppercase; font-size: 0.7rem; }
+    .btn-minimal { background: var(--white); border: 2px solid var(--bg-sage); color: var(--theme-dark); border-radius: 50px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; padding: 10px 25px; text-decoration: none; }
+
+    .btn-delete-circle { width: 38px; height: 38px; border-radius: 50%; background: #fef2f2; color: #dc2626; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+    /* UTILITIES */
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .badge-pill-neon { background: var(--theme-accent); color: var(--theme-dark) !important; padding: 4px 15px; border-radius: 50px; font-weight: 900; font-size: 0.7rem; }
+    .shadow-soft { box-shadow: 0 15px 45px rgba(15, 56, 34, 0.06); }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-load-animation { animation: slideUpFade 0.6s ease forwards; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addBtn = document.getElementById('add-video');
+    const container = document.getElementById('video-form-container');
+    const totalForms = document.querySelector('[name="videos-TOTAL_FORMS"]');
+    const emptyFormTemplate = document.getElementById('empty-form').innerHTML;
+
+    addBtn.addEventListener('click', function() {
+        const count = parseInt(totalForms.value);
+        const newRowHtml = emptyFormTemplate.replace(/__prefix__/g, count);
+        const newDiv = document.createElement('div');
+        newDiv.innerHTML = newRowHtml;
+        newDiv.firstElementChild.classList.remove('d-none');
+        container.appendChild(newDiv.firstElementChild);
+        totalForms.value = count + 1;
+    });
+
+    container.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-row')) {
+            const row = e.target.closest('.video-row');
+            row.remove();
+            totalForms.value = parseInt(totalForms.value) - 1;
+        }
+    });
+});
+</script>
+{% endblock %}
