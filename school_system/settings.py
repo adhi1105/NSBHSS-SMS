@@ -17,8 +17,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-^xq5b2uii**+7=mp8dj0t-8-!t5(7!%iw#+0dfo@z6#^4bovj+'
 
-# [UPDATED FOR RENDER] Turns off Debug mode automatically on Render, keeps it True on your computer
-DEBUG = 'RENDER' not in os.environ  
+# Turns off Debug mode on Render, keeps it True locally
+DEBUG = 'RENDER' not in os.environ
 
 # --- CSRF & SECURITY FIX ---
 ALLOWED_HOSTS = ['localhost', '127.0.0.1'] 
@@ -27,12 +27,11 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
 ]
 
-# [ADDED FOR RENDER] Automatically allow the Render URL
+# Automatically allow the Render deployment URL
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
     CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
-# -----------------------------------------
 
 # Application definition
 INSTALLED_APPS = [
@@ -208,6 +207,9 @@ UNFOLD = {
     },
     "STYLES": [
         lambda request: static("css/admin_custom.css"),
+    ],
+    "SCRIPTS": [
+        lambda request: static("js/admin_run_btn.js"),
     ],
     "GLOBAL_SEARCH": [
         {
