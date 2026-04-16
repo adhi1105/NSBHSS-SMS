@@ -34,9 +34,35 @@ def is_staff(user):
     """Check if the user is an Admin or a Teacher (linked to a Staff profile)."""
     return is_admin(user) or hasattr(user, 'staff') or user.groups.filter(name='Teacher').exists()
 
+def has_global_timetable_access(user):
+    """Checks if the user has overarching authority to edit any schedule/autofill."""
+    if user.is_superuser:
+        return True
+    try:
+        return user.profile.role in ['Admin', 'Office_Staff', 'Dept_Admin']
+    except AttributeError:
+        return user.groups.filter(name__in=['Admin', 'Office_Staff', 'Dept_Admin']).exists()
+
+def can_edit_timetable(user, classroom):
+    """
+    Checks if a user is allowed to edit this specific classroom's timetable.
+    Allowed: Global roles (Admin, Office Staff, Dept Admin) OR the respective Class Teacher.
+    """
+    if has_global_timetable_access(user):
+        return True
+    
+    # Respective Class Teacher check
+    try:
+        if user.profile.role == 'Teacher' and hasattr(user, 'staff'):
+            return classroom.class_teacher == user.staff
+    except AttributeError:
+        pass
+        
+    return False
+
 def get_teacher_allowed_classes(user):
     """Returns ClassRooms assigned to the teacher via SubjectAllocation."""
-    if is_admin(user):
+    if has_global_timetable_access(user):
         return ClassRoom.objects.filter(standard__in=[11, 12])
     
     try:
@@ -159,12 +185,9 @@ def view_timetable(request, classroom_id):
     classroom = get_object_or_404(ClassRoom, pk=classroom_id)
     stream_name = classroom.stream.name
     
-    # Permission Check for Teachers
-    if is_staff(request.user) and not is_admin(request.user):
-        allowed_classes = get_teacher_allowed_classes(request.user)
-        if classroom not in allowed_classes:
-            messages.error(request, "Access Denied.")
-            return redirect('timetable:manage_timetable')
+    can_edit = can_edit_timetable(request.user, classroom)
+    
+    # We stripped away viewing restrictions, so any logged-in user can VIEW this page.
             
     # Period Numbering logic: Critical to order by start_time for 3-2-2-2 order chronology
     raw_slots = TimeSlot.objects.all().order_by('start_time')
@@ -188,7 +211,7 @@ def view_timetable(request, classroom_id):
     
     # POST handling for Bulk Sync from the Frontend Grid
     if request.method == "POST":
-        if not is_admin(request.user):
+        if not can_edit:
             return JsonResponse({'status': 'error', 'message': 'Permission Denied.'}, status=403)
             
         try:
@@ -242,7 +265,7 @@ def view_timetable(request, classroom_id):
     context = {
         'classroom': classroom, 'time_slots': time_slots, 'days': days,
         'timetable_data': timetable_data, 'subjects': allocated_subjects,
-        'is_staff_user': is_staff(request.user), 'can_edit': is_admin(request.user) 
+        'is_staff_user': is_staff(request.user), 'can_edit': can_edit 
     }
     return render(request, 'timetable/detail.html', context)
 
@@ -250,15 +273,12 @@ def view_timetable(request, classroom_id):
 
 @login_required
 def manage_timetable(request):
-    """ Displays the master list of classrooms for management. """
-    if not is_staff(request.user):
-        messages.error(request, "Access Denied.")
-        return redirect('home')
-        
-    classrooms = get_teacher_allowed_classes(request.user).order_by('standard', 'division', 'stream')
+    """ Displays the master list of classrooms for viewing. """
+    # Everyone gets to view the dashboard! We list all their relevant rooms.
+    classrooms = ClassRoom.objects.all().order_by('standard', 'division', 'stream')
     return render(request, 'timetable/manage_list.html', {
         'classrooms': classrooms,
-        'is_restricted': not is_admin(request.user)
+        'is_restricted': not has_global_timetable_access(request.user)
     })
 
 # --- 4. WORKLOAD & ARRANGEMENT ---
@@ -266,8 +286,9 @@ def manage_timetable(request):
 @login_required
 def teacher_workload_analysis(request):
     """ View to analyze teacher workload for arrangement optimization and substitution. """
-    if not is_admin(request.user):
-        return redirect('home')
+    if not has_global_timetable_access(request.user):
+        messages.error(request, "Permission Denied. Only administration can view global workload.")
+        return redirect('timetable:manage_timetable')
 
     # Calculate total academic periods per week for each teacher across all classrooms
     workload_data = Staff.objects.annotate(
@@ -283,10 +304,10 @@ def teacher_workload_analysis(request):
 @login_required
 def add_entry(request, class_id, day, slot_id):
     """ Manual modal-based entry addition for precise scheduling. """
-    if not is_admin(request.user):
-        return redirect('timetable:manage_timetable')
-
     classroom = get_object_or_404(ClassRoom, pk=class_id)
+    if not can_edit_timetable(request.user, classroom):
+        messages.error(request, "Permission Denied. You do not have scheduling rights for this class.")
+        return redirect('timetable:view_timetable', classroom_id=class_id)
     stream_name = classroom.stream.name
     slot = get_object_or_404(TimeSlot, pk=slot_id)
     allowed_names = STREAM_SUBJECT_MAPPING.get(stream_name, [])
@@ -320,10 +341,11 @@ def add_entry(request, class_id, day, slot_id):
 @login_required
 def delete_entry(request, entry_id):
     """ Deletes a specific academic entry from the grid. """
-    if not is_admin(request.user):
-        return redirect('timetable:manage_timetable')
     entry = get_object_or_404(TimetableEntry, id=entry_id)
     cid = entry.classroom.id
+    if not can_edit_timetable(request.user, entry.classroom):
+        messages.error(request, "Permission Denied. You do not have scheduling rights for this class.")
+        return redirect('timetable:view_timetable', classroom_id=cid)
     entry.delete()
     return redirect('timetable:view_timetable', classroom_id=cid)
 
@@ -356,10 +378,12 @@ def check_drag_conflict(request):
 # --- 8. SMART AUTO-FILL (Optimized for 9-Period 5-Day Week with Conflict Retry) ---
 
 @login_required
-@user_passes_test(is_admin)
 def auto_fill_timetable(request, classroom_id):
     """ Improved Auto-Fill with multi-subject retry logic to ensure zero empty slots where possible. """
     classroom = get_object_or_404(ClassRoom, pk=classroom_id)
+    if not can_edit_timetable(request.user, classroom):
+        return JsonResponse({'status': 'error', 'message': 'Permission Denied.'}, status=403)
+        
     stream_name = classroom.stream.name
     allowed_names = STREAM_SUBJECT_MAPPING.get(stream_name, [])
     
@@ -411,11 +435,13 @@ def auto_fill_timetable(request, classroom_id):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 @login_required
-@user_passes_test(is_admin)
 def clear_timetable(request, classroom_id):
     """ Wipes all scheduled academic entries for the specific classroom. """
     if request.method == "POST":
         classroom = get_object_or_404(ClassRoom, pk=classroom_id)
+        if not can_edit_timetable(request.user, classroom):
+            return JsonResponse({'status': 'error', 'message': 'Permission Denied.'}, status=403)
+            
         TimetableEntry.objects.filter(classroom=classroom).delete()
         return JsonResponse({'status': 'success', 'message': 'Class grid cleared successfully.'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
