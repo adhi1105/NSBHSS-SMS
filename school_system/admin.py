@@ -5,6 +5,7 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.utils.translation import gettext_lazy as _
 from unfold.decorators import action
 from .models import Profile, Stream, Subject
+from django.contrib.admin.sites import NotRegistered
 
 # --- 1. USER & PROFILE MANAGEMENT ---
 
@@ -72,8 +73,13 @@ class UserAdmin(UnfoldUserAdmin):
             
         self.message_user(request, msg)
 
-# Re-register User to include Profile inlines
-admin.site.unregister(User)
+# --- 1.2 SAFER USER REGISTRATION ---
+# Wrap unregister in try/except to prevent deployment crashes if User isn't already registered
+try:
+    admin.site.unregister(User)
+except NotRegistered:
+    pass
+
 admin.site.register(User, UserAdmin)
 
 

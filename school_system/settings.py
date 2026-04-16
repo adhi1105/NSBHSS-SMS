@@ -7,7 +7,6 @@ from pathlib import Path
 import os
 import dj_database_url
 from django.templatetags.static import static
-from school_system.dashboard import get_dashboard_stats 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
