@@ -12,32 +12,25 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # --- 1. PUBLIC ENTRY POINT ---
-    # The Root is now the Landing Page for all logged-out users
     path('', core_views.main_landing, name='landing'),
     path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw.js'),
 
     # --- 2. CORE AUTHENTICATION ---
-    # Updated to use the custom 'auth/login.html' template AND the SecureLoginForm with Captcha
     path('login/', auth_views.LoginView.as_view(
         template_name='auth/login.html',
         authentication_form=SecureLoginForm
     ), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='landing'), name='logout'),
     
-    # Registration & Support
     path('register/', core_views.register, name='register'),
 
-    # --- 3. INTERNAL ROUTING (The Brain) ---
-    # This is the destination after login and for all dashboard links
+    # --- 3. INTERNAL ROUTING ---
     path('home/', core_views.home, name='home'),
-    
-    # Catch-all redirects for standard Django behaviors
     path('accounts/profile/', RedirectView.as_view(pattern_name='home')),
     path('accounts/login/', RedirectView.as_view(pattern_name='login')),
     path('dashboard/main/', RedirectView.as_view(pattern_name='home')),
 
     # --- 4. MODULAR APP ARCHITECTURE ---
-    # Each module is isolated for better maintenance
     path('dashboard/', include('dashboard.urls')),
     path('staff/', include('staff.urls', namespace='staff')), 
     path('student_info/', include('student_info.urls', namespace='student_info')),
@@ -51,14 +44,10 @@ urlpatterns = [
     path('lms/', include('lms.urls', namespace='lms')),
     path('exam/', include('exam.urls', namespace='exam')),
     path('timetable/', include('timetable.urls', namespace='timetable')),
-    
-    # Included Communication URLs
     path('communication/', include('communication.urls', namespace='communication')),
-    
-    # Required for the CAPTCHA images to render properly
     path('captcha/', include('captcha.urls')),
 
-    # --- 5. PASSWORD RESET FLOW ---
+    # --- 5. PASSWORD RESET FLOW (RE-SYNKED) ---
     path('password-reset/', auth_views.PasswordResetView.as_view(
         template_name='auth/password_reset_form.html',
         email_template_name='auth/password_reset_email.html',
