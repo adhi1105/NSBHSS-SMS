@@ -43,3 +43,25 @@ body, html {
     background-color: var(--theme-accent) !important;
     color: var(--theme-dark) !important;
 }
+
+/* Specific styling for high-visibility "Run" buttons */
+/* Targeting Unfold action buttons specifically */
+.unfold-actions [name="enroll_as_student"],
+.unfold-actions [data-action="enroll_as_student"],
+.unfold-actions a[href*="enroll_as_student"] {
+    background-color: var(--theme-dark) !important;
+    border: 2px solid var(--theme-accent) !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(15, 56, 34, 0.3) !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+}
+
+.unfold-actions [name="enroll_as_student"]:hover,
+.unfold-actions [data-action="enroll_as_student"]:hover,
+.unfold-actions a[href*="enroll_as_student"]:hover {
+    transform: translateY(-2px) !important;
+    background-color: var(--theme-accent) !important;
+    color: var(--theme-dark) !important;
+}

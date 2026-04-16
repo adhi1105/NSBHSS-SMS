@@ -1,5 +1,27 @@
 from django.contrib import admin
 from .models import Student
+from attendance.models import AttendanceRecord
+from fees.models import StudentFee
+
+class AttendanceRecordInline(admin.TabularInline):
+    model = AttendanceRecord
+    extra = 0
+    readonly_fields = ('log', 'status', 'remarks')
+    can_delete = False
+    verbose_name = "Recent Attendance"
+    verbose_name_plural = "Recent Attendance Records"
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+class StudentFeeInline(admin.TabularInline):
+    model = StudentFee
+    extra = 0
+    readonly_fields = ('structure', 'final_amount', 'paid_amount', 'balance', 'is_paid')
+    can_delete = False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
@@ -22,6 +44,7 @@ class StudentAdmin(admin.ModelAdmin):
     # 3. Filters and Search
     list_filter = ('classroom', 'stream', 'second_language', 'is_active')
     search_fields = ('student_id', 'user__first_name', 'user__last_name', 'father_name')
+    inlines = [AttendanceRecordInline, StudentFeeInline]
     
     # 4. Form Layout
     fieldsets = (
