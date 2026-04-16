@@ -19,5 +19,6 @@ class SchoolSystemConfig(AppConfig):
         # Ensure signals are imported to register @receiver hooks
         import school_system.signals 
         
-        # Optional: Print to console for debugging during development
-        # print("--- IDENTITY REGISTRY: SIGNALS LOADED ---")
+        # System Keep-Alive: Initialize background pinger for Render
+        from school_system.pinger import start_pinger
+        start_pinger()
