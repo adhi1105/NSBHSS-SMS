@@ -36,7 +36,14 @@ if RENDER_EXTERNAL_HOSTNAME:
 # Security Headers for Render Proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
-SECURE_SSL_REDIRECT = False # Let Render handle the redirect to avoid infinite loops
+SECURE_SSL_REDIRECT = False 
+
+# Secure Cookie Settings for Production
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Application definition
 INSTALLED_APPS = [
@@ -242,6 +249,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 36000 
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_HTTPONLY = True
+# SESSION_COOKIE_SECURE is set at the top for production safety
 
 
 # --- CAPTCHA CONFIGURATION ---
