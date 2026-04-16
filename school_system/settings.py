@@ -172,7 +172,7 @@ UNFOLD = {
                     {"title": "Students", "link": "/admin/student_info/student/", "icon": "person_search"},
                     {"title": "Attendance", "link": "/admin/attendance/attendancelog/", "icon": "event_available"},
                     {"title": "Exams", "link": "/admin/exam/exam/", "icon": "assignment"},
-                    {"title": "Timetables", "link": "/admin/timetable/timetable/", "icon": "calendar_month"},
+                    {"title": "Timetables", "link": "/admin/timetable/timetableentry/", "icon": "calendar_month"},
                     {"title": "Classrooms", "link": "/admin/admission/classroom/", "icon": "meeting_room"},
                 ],
             },
@@ -181,7 +181,7 @@ UNFOLD = {
                 "separator": True,
                 "items": [
                     {"title": "Admissions", "link": "/admin/admission/admissionapplication/", "icon": "app_registration"},
-                    {"title": "Fees & Payments", "link": "/admin/fees/feepayment/", "icon": "payments"},
+                    {"title": "Fees & Payments", "link": "/admin/fees/payment/", "icon": "payments"},
                     {"title": "Library Books", "link": "/admin/library/book/", "icon": "local_library"},
                     {"title": "Transport Stories", "link": "/admin/transportation/route/", "icon": "directions_bus"},
                 ],
@@ -191,8 +191,8 @@ UNFOLD = {
                 "separator": True,
                 "items": [
                     {"title": "Staff Directory", "link": "/admin/staff/staff/", "icon": "badge"},
-                    {"title": "Messages", "link": "/admin/communication/message/", "icon": "chat"},
-                    {"title": "Form Builder", "link": "/admin/form_builder/form/", "icon": "dynamic_form"},
+                    {"title": "Messages", "link": "/admin/communication/broadcastmessage/", "icon": "chat"},
+                    {"title": "Form Builder", "link": "/admin/form_builder/customform/", "icon": "dynamic_form"},
                 ],
             },
             {
