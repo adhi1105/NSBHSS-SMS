@@ -1,19 +1,29 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.admin.sites import NotRegistered
+from django.db import transaction
+from .models import Profile, Stream, Subject
+
+# Safe import for Unfold Auth Admin
+try:
+    from unfold.contrib.auth.admin import UserAdmin as UnfoldUserAdmin
+    from unfold.decorators import action as unfold_action
+    HAS_UNFOLD = True
+except ImportError:
+    from django.contrib.auth.admin import UserAdmin as UnfoldUserAdmin
+    unfold_action = None
+    HAS_UNFOLD = False
 
 # --- 1. USER & PROFILE MANAGEMENT ---
 
 class ProfileInline(admin.StackedInline):
-    from .models import Profile
     model = Profile
     can_delete = False
     verbose_name_plural = 'Role & Profile'
     fk_name = 'user'
 
-class UserAdmin(BaseUserAdmin):
+class MyUserAdmin(UnfoldUserAdmin):
     inlines = (ProfileInline,)
 
     def get_inline_instances(self, request, obj=None):
@@ -30,11 +40,14 @@ class UserAdmin(BaseUserAdmin):
         return '-'
     get_role.short_description = 'Role'
 
-    @admin.action(description="Trigger Secure Password Reset")
+    # Action 1: Bulk Email reset (Secure)
     def trigger_password_reset_bulk(self, request, queryset):
+        """Dispatches branded password reset emails to selected users."""
         sent_count = 0
-        for user in queryset:
-            if user.email:
+        users_with_email = queryset.exclude(email__isnull=True).exclude(email__exact='')
+        
+        with transaction.atomic():
+            for user in users_with_email:
                 form = PasswordResetForm({'email': user.email})
                 if form.is_valid():
                     form.save(
@@ -44,30 +57,56 @@ class UserAdmin(BaseUserAdmin):
                         subject_template_name='auth/password_reset_subject.txt',
                     )
                     sent_count += 1
-        self.message_user(request, f"Successfully dispatched emails to {sent_count} users.")
+        
+        self.message_user(request, f"🚀 Successfully dispatched secure reset emails to {sent_count} users.")
+    trigger_password_reset_bulk.short_description = "Trigger Secure Password Reset"
 
-    @admin.action(description="Reset Password to Stud1234")
+    # Action 2: Reset to Stud1234 (Mass Default - Optimized)
     def reset_passwords_to_default(self, request, queryset):
+        """Forcibly sets password to 'Stud1234' for selected Students only."""
         student_queryset = queryset.filter(groups__name='Student')
         count = student_queryset.count()
-        for user in student_queryset:
-            user.set_password('Stud1234')
-            user.save()
+        
+        if count == 0:
+            self.message_user(request, "⚠️ No users from the 'Student' group were selected.", level='warning')
+            return
+
+        # Optimization: atomic transaction prevents 502/timeouts
+        with transaction.atomic():
+            for user in student_queryset:
+                user.set_password('Stud1234')
+                user.save()
         
         ignored_count = queryset.count() - count
-        msg = f"Reset {count} students. {ignored_count} others ignored."
+        msg = f"✅ Successfully reset {count} student(s) to 'Stud1234'."
+        if ignored_count > 0:
+            msg += f" {ignored_count} non-student users were ignored for safety."
+            
         self.message_user(request, msg)
+    reset_passwords_to_default.short_description = "Reset Password to Stud1234"
 
-# Safer re-registration
+    # Apply Unfold decorations if available
+    if HAS_UNFOLD and unfold_action:
+        trigger_password_reset_bulk = unfold_action(
+            description="Trigger Secure Password Reset", 
+            icon="mail"
+        )(trigger_password_reset_bulk)
+        
+        reset_passwords_to_default = unfold_action(
+            description="Reset Password to Stud1234", 
+            icon="lock_reset"
+        )(reset_passwords_to_default)
+
+# --- SAFER RE-REGISTRATION ---
 try:
     admin.site.unregister(User)
 except NotRegistered:
     pass
-admin.site.register(User, UserAdmin)
+
+admin.site.register(User, MyUserAdmin)
 
 
 # --- 2. ACADEMIC STRUCTURE ---
-from .models import Stream, Subject
 
 @admin.register(Stream)
 class StreamAdmin(admin.ModelAdmin):
