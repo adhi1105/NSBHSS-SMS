@@ -64,14 +64,14 @@ class MyUserAdmin(UnfoldUserAdmin):
     # Action 2: Reset to Stud1234 (Mass Default - Optimized)
     def reset_passwords_to_default(self, request, queryset):
         """Forcibly sets password to 'Stud1234' for selected Students only."""
-        student_queryset = queryset.filter(groups__name='Student')
+        # FIX: Filter by profile role 'Student' instead of group membership
+        student_queryset = queryset.filter(profile__role='Student')
         count = student_queryset.count()
         
         if count == 0:
-            self.message_user(request, "⚠️ No users from the 'Student' group were selected.", level='warning')
+            self.message_user(request, "⚠️ No users with the Student role were found among your selection.", level='warning')
             return
 
-        # Optimization: atomic transaction prevents 502/timeouts
         with transaction.atomic():
             for user in student_queryset:
                 user.set_password('Stud1234')
@@ -80,7 +80,7 @@ class MyUserAdmin(UnfoldUserAdmin):
         ignored_count = queryset.count() - count
         msg = f"✅ Successfully reset {count} student(s) to 'Stud1234'."
         if ignored_count > 0:
-            msg += f" {ignored_count} non-student users were ignored for safety."
+            msg += f" {ignored_count} non-student users were skipped for security."
             
         self.message_user(request, msg)
     reset_passwords_to_default.short_description = "Reset Password to Stud1234"
