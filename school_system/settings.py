@@ -25,6 +25,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     'https://nsbhss-sms.onrender.com',
+    'https://*.onrender.com', # Wildcard for Render subdomains
 ]
 
 # Automatically allow the Render deployment URL
@@ -44,6 +45,9 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
+
+# SESSION-BASED CSRF (More stable behind Proxies)
+CSRF_USE_SESSIONS = True
 
 # Application definition
 INSTALLED_APPS = [
