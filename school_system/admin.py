@@ -55,14 +55,22 @@ class UserAdmin(UnfoldUserAdmin):
     @action(description=_("Reset Password to Stud1234"), icon="lock_reset")
     def reset_passwords_to_default(self, request, queryset):
         """
-        Forcibly sets the password of selected users to 'Stud1234'.
+        Forcibly sets the password of selected users to 'Stud1234', 
+        strictly restricted to users in the 'Student' group.
         """
-        count = queryset.count()
-        for user in queryset:
+        student_queryset = queryset.filter(groups__name='Student')
+        count = student_queryset.count()
+        
+        for user in student_queryset:
             user.set_password('Stud1234')
             user.save()
         
-        self.message_user(request, f"Successfully reset credentials to 'Stud1234' for {count} users.")
+        ignored_count = queryset.count() - count
+        msg = f"Successfully reset credentials for {count} students to 'Stud1234'."
+        if ignored_count > 0:
+            msg += f" {ignored_count} non-student users were ignored."
+            
+        self.message_user(request, msg)
 
 # Re-register User to include Profile inlines
 admin.site.unregister(User)
