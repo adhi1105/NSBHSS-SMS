@@ -24,7 +24,7 @@ class UserAdmin(UnfoldUserAdmin):
         return super().get_inline_instances(request, obj)
 
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'get_role')
-    actions = ['trigger_password_reset_bulk']
+    actions = ['trigger_password_reset_bulk', 'reset_passwords_to_default']
     
     def get_role(self, instance):
         if hasattr(instance, 'profile'):
@@ -51,6 +51,18 @@ class UserAdmin(UnfoldUserAdmin):
                     sent_count += 1
         
         self.message_user(request, f"Successfully dispatched password reset emails to {sent_count} users.")
+
+    @action(description=_("Reset Password to Stud1234"), icon="lock_reset")
+    def reset_passwords_to_default(self, request, queryset):
+        """
+        Forcibly sets the password of selected users to 'Stud1234'.
+        """
+        count = queryset.count()
+        for user in queryset:
+            user.set_password('Stud1234')
+            user.save()
+        
+        self.message_user(request, f"Successfully reset credentials to 'Stud1234' for {count} users.")
 
 # Re-register User to include Profile inlines
 admin.site.unregister(User)
