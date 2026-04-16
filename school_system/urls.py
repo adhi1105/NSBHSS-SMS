@@ -26,7 +26,6 @@ urlpatterns = [
     
     # Registration & Support
     path('register/', core_views.register, name='register'),
-    path('password-reset-info/', core_views.password_reset_contact, name='password_reset_contact'),
 
     # --- 3. INTERNAL ROUTING (The Brain) ---
     # This is the destination after login and for all dashboard links
