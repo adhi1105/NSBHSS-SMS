@@ -76,3 +76,27 @@ class AssignClassTeacherForm(forms.Form):
 
     def clean_staff(self):
         return self.cleaned_data['staff']
+
+# --- 4. LEAVE REQUEST FORM ---
+from .models import LeaveRequest
+
+class LeaveRequestForm(forms.ModelForm):
+    class Meta:
+        model = LeaveRequest
+        fields = ['leave_type', 'start_date', 'end_date', 'reason']
+        widgets = {
+            'leave_type': forms.Select(attrs={'class': 'form-select'}),
+            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Please provide details for your leave request...'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+
+        if start_date and end_date:
+            if end_date < start_date:
+                self.add_error('end_date', "End date cannot be earlier than start date.")
+        return cleaned_data

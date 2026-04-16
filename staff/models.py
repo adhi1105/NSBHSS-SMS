@@ -99,3 +99,38 @@ class SubjectAllocation(models.Model):
 
     def __str__(self):
         return f"{self.staff.user.first_name} -> {self.subject.name} ({self.classroom.name})"
+
+# 4. LEAVE REQUESTS
+class LeaveRequest(models.Model):
+    LEAVE_TYPES = [
+        ('Casual', 'Casual Leave'),
+        ('Sick', 'Sick Leave'),
+        ('Emergency', 'Emergency Leave'),
+        ('Other', 'Other')
+    ]
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected')
+    ]
+    
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name='leave_requests')
+    leave_type = models.CharField(max_length=20, choices=LEAVE_TYPES)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    admin_remarks = models.TextField(blank=True, null=True)
+    applied_on = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-applied_on']
+        verbose_name = "Leave Request"
+        verbose_name_plural = "Leave Requests"
+        
+    def __str__(self):
+        return f"{self.staff.user.get_full_name()} - {self.leave_type} ({self.status})"
+    
+    @property
+    def duration(self):
+        return (self.end_date - self.start_date).days + 1

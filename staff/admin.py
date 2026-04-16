@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from django.contrib.auth.models import User, Group
 from django.db import transaction
-from .models import Staff, Department, SubjectAllocation
+from .models import Staff, Department, SubjectAllocation, LeaveRequest
 
 # --- 1. ACTION: Reset Password Function ---
 @admin.action(description='Reset password to "Staff123"')
@@ -115,3 +115,21 @@ class StaffAdmin(admin.ModelAdmin):
 class AllocationAdmin(admin.ModelAdmin):
     list_display = ('staff', 'subject', 'classroom')
     list_filter = ('classroom', 'subject')
+
+# --- LEAVE REQUEST ACTIONS ---
+@admin.action(description='Approve selected Leave Requests')
+def approve_leave_requests(modeladmin, request, queryset):
+    updated = queryset.update(status='Approved')
+    modeladmin.message_user(request, f"Successfully approved {updated} leave requests.", messages.SUCCESS)
+
+@admin.action(description='Reject selected Leave Requests')
+def reject_leave_requests(modeladmin, request, queryset):
+    updated = queryset.update(status='Rejected')
+    modeladmin.message_user(request, f"Rejected {updated} leave requests.", messages.WARNING)
+
+@admin.register(LeaveRequest)
+class LeaveRequestAdmin(admin.ModelAdmin):
+    list_display = ('staff', 'leave_type', 'start_date', 'end_date', 'duration', 'status', 'applied_on')
+    list_filter = ('status', 'leave_type')
+    search_fields = ('staff__user__first_name', 'staff__user__last_name', 'staff__user__username', 'reason')
+    actions = [approve_leave_requests, reject_leave_requests]

@@ -45,4 +45,7 @@ urlpatterns = [
     path('dashboard/office/', views.office_staff_dashboard, name='office_dashboard'),
     path('dashboard/department/', views.dept_admin_dashboard, name='dept_admin_dashboard'),
     path('admission/portal/', views.guest_dashboard, name='guest_dashboard'),
+    
+    # --- 12. LEAVE REQUEST ---
+    path('leave-request/', views.leave_request_portal, name='leave_request_portal'),
 ]

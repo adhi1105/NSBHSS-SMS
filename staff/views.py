@@ -8,14 +8,14 @@ from django.db.models import Count, Q
 from django.contrib.auth.models import Group, User
 
 # Import Models
-from .models import Staff, SubjectAllocation, Department, Subject
+from .models import Staff, SubjectAllocation, Department, Subject, LeaveRequest
 from admission.models import ClassRoom 
 from timetable.models import TimetableEntry 
 from student_info.models import Student 
 from exam.models import Result 
 
 # Import Forms
-from .forms import StaffOnboardingForm, AllocationForm, AssignClassTeacherForm
+from .forms import StaffOnboardingForm, AllocationForm, AssignClassTeacherForm, LeaveRequestForm
 from .decorators import is_librarian, is_cashier, is_office_staff, is_dept_admin, is_guest
 
 # --- HELPER FUNCTIONS ---
@@ -599,3 +599,38 @@ def dept_admin_dashboard(request):
 def guest_dashboard(request):
     # Public-facing or basic logged-in view for admission tracking
     return render(request, 'dashboards/guest_admission.html')
+
+# --- 12. LEAVE REQUEST PORTAL ---
+@login_required
+def leave_request_portal(request):
+    try:
+        staff_profile = request.user.staff
+    except Staff.DoesNotExist:
+        messages.error(request, "Staff profile is missing. Please contact Administration.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = LeaveRequestForm(request.POST)
+        if form.is_valid():
+            leave_req = form.save(commit=False)
+            leave_req.staff = staff_profile
+            leave_req.save()
+            messages.success(request, "Leave request submitted successfully. Awaiting approval.")
+            return redirect('staff:leave_request_portal')
+    else:
+        form = LeaveRequestForm()
+
+    # Get their past leave requests
+    history = LeaveRequest.objects.filter(staff=staff_profile).order_by('-applied_on')
+    
+    # Calculate some basic stats
+    approved_leaves = history.filter(status='Approved').count()
+    pending_leaves = history.filter(status='Pending').count()
+
+    return render(request, 'staff/leave_request.html', {
+        'form': form,
+        'history': history,
+        'staff_profile': staff_profile,
+        'approved_leaves': approved_leaves,
+        'pending_leaves': pending_leaves
+    })
