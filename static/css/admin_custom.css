@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --theme-dark: #0f3822;
+    --theme-accent: #cbfb45;
+}
+
+body, html {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* Glassmorphism for Sidebar */
+.unfold-sidebar {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Dark mode glassmorphism */
+.dark .unfold-sidebar {
+    background-color: rgba(15, 56, 34, 0.8) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Header customization */
+.unfold-header {
+    background: var(--theme-dark) !important;
+    color: white !important;
+}
+
+/* Custom transitions */
+* {
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease !important;
+}
+
+/* Button overrides */
+.btn-primary {
+    background-color: var(--theme-dark) !important;
+    border-color: var(--theme-dark) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--theme-accent) !important;
+    color: var(--theme-dark) !important;
+}
