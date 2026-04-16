@@ -1,0 +1,22 @@
+{% load i18n %}
+{% if action_form %}
+<div class="actions" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 0;">
+
+    {{ action_form.action }}
+
+    {% if show_result_count %}
+        <span class="action-counter" style="color: #64748b; font-size: 0.85rem;">
+            {{ cl.result_count }} of {{ full_result_count }} selected
+        </span>
+    {% endif %}
+
+    {# ── Premium Run Action button ── #}
+    <button type="submit" class="admin-run-btn">
+        <span class="run-icon">▶</span>
+        {% trans "Run Action" %}
+    </button>
+
+    {{ action_form.select_across }}
+
+</div>
+{% endif %}

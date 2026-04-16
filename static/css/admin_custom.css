@@ -9,43 +9,67 @@ body, html {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
-/* Glassmorphism for Sidebar */
+/* ─── Run Action Button ────────────────────────────────── */
+.admin-run-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--theme-dark);
+    color: #fff;
+    border: 2px solid var(--theme-accent);
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(15, 56, 34, 0.25);
+    vertical-align: middle;
+}
+
+.admin-run-btn:hover {
+    background-color: var(--theme-accent);
+    color: var(--theme-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 56, 34, 0.3);
+}
+
+.admin-run-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(15, 56, 34, 0.2);
+}
+
+.admin-run-btn .run-icon {
+    font-size: 0.75rem;
+}
+
+/* ─── Glassmorphism for Sidebar ──────────────────────── */
 .unfold-sidebar {
     backdrop-filter: blur(10px);
     background-color: rgba(255, 255, 255, 0.8) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
-/* Dark mode glassmorphism */
 .dark .unfold-sidebar {
     background-color: rgba(15, 56, 34, 0.8) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-/* Header customization */
+/* ─── Header ────────────────────────────────────────── */
 .unfold-header {
     background: var(--theme-dark) !important;
     color: white !important;
 }
 
-/* Custom transitions */
+/* ─── Global transitions ─────────────────────────────── */
 * {
     transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease !important;
 }
 
-/* Button overrides */
-.btn-primary {
-    background-color: var(--theme-dark) !important;
-    border-color: var(--theme-dark) !important;
-}
-
-.btn-primary:hover {
-    background-color: var(--theme-accent) !important;
-    color: var(--theme-dark) !important;
-}
-
-/* Specific styling for high-visibility "Run" buttons */
-/* Targeting Unfold action buttons specifically */
+/* ─── Unfold Enroll action buttons ───────────────────── */
 .unfold-actions [name="enroll_as_student"],
 .unfold-actions [data-action="enroll_as_student"],
 .unfold-actions a[href*="enroll_as_student"] {
