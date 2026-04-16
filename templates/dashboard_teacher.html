@@ -363,17 +363,17 @@
                 </div>
             </div>
 
-            <div class="modern-card bg-white shadow-sm p-4 flex-shrink-0 pointer-events-none">
-                <div
-                    class="d-flex justify-content-between align-items-center p-3 rounded-3 bg-sage border border-light">
+            <a href="{% url 'lms:index' %}" class="modern-card bg-white shadow-sm p-4 flex-shrink-0 text-decoration-none group-hover transition-all border d-block">
+                <div class="d-flex justify-content-between align-items-center p-3 rounded-3 bg-sage border border-light transition-all group-hover-scale">
                     <div class="d-flex align-items-center gap-3">
                         <div class="pulse-dot bg-theme-accent rounded-circle" style="width: 10px; height: 10px;"></div>
-                        <span class="fw-bold text-theme-dark" style="font-size: 0.85rem;">LMS Node</span>
+                        <span class="fw-bold text-theme-dark m-0" style="font-size: 0.9rem;">LMS Studio Gateway</span>
                     </div>
-                    <span class="badge bg-white text-theme-dark border shadow-sm px-2 py-1 fw-bold font-monospace"
-                        style="font-size: 0.65rem;">CONNECTED</span>
+                    <span class="badge bg-white text-theme-dark border shadow-sm px-2 py-1 fw-bold font-monospace d-flex align-items-center gap-1 transition-all" style="font-size: 0.65rem;">
+                        OPEN <i class="bi bi-arrow-up-right"></i>
+                    </span>
                 </div>
-            </div>
+            </a>
 
         </div>
     </div>
