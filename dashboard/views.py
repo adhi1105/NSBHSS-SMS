@@ -299,25 +299,37 @@ def active_login_users(request):
     active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
     user_id_list = []
     for session in active_sessions:
-        data = session.get_decoded()
-        user_id = data.get('_auth_user_id', None)
-        if user_id:
-            user_id_list.append(user_id)
+        try:
+            data = session.get_decoded()
+            user_id = data.get('_auth_user_id')
+            if user_id:
+                user_id_list.append(int(user_id))
+        except Exception:
+            continue
 
     # Get unique active users
     user_id_list = list(set(user_id_list))
-    active_users = User.objects.filter(id__in=user_id_list).select_related('staff')
+    # Removed select_related to prevent any schema join errors
+    active_users = User.objects.filter(id__in=user_id_list)
     
     user_list = []
     for u in active_users:
-        if u.is_superuser:
+        role_display = "User"
+        if getattr(u, 'is_superuser', False):
             role_display = "Admin"
-        elif hasattr(u, 'staff'):
-            role_display = "Staff"
-        elif hasattr(u, 'student'):
-            role_display = "Student"
         else:
-            role_display = "User"
+            try:
+                if hasattr(u, 'staff') and getattr(u, 'staff', None):
+                    role_display = "Staff"
+            except Exception:
+                pass
+                
+            if role_display == "User":
+                try:
+                    if hasattr(u, 'student_profile') and getattr(u, 'student_profile', None):
+                        role_display = "Student"
+                except Exception:
+                    pass
 
         user_list.append({
             'username': u.username,
