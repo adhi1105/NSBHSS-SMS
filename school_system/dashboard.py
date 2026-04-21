@@ -28,7 +28,7 @@ def get_dashboard_stats(request):
     
     # 2. Stream Distribution (Students per Stream)
     stream_distribution = []
-    streams = Stream.objects.annotate(student_count=Count('student_set'))
+    streams = Stream.objects.annotate(student_count=Count('student'))
     for s in streams:
         stream_distribution.append({"label": s.name, "value": s.student_count})
 
