@@ -12,4 +12,7 @@ urlpatterns = [
 
     # 3. Keep the Profile view
     path('profile/', views.my_profile, name='my_profile'),
+
+    # 4. Active Login Users view
+    path('active-users/', views.active_login_users, name='active_users'),
 ]

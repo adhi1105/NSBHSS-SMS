@@ -6,6 +6,7 @@ from django.db.models import Sum, Count, Q
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.contrib import messages
+from django.contrib.sessions.models import Session
 from .forms import UserRegisterForm
 
 # --- SAFE IMPORTS ---
@@ -286,3 +287,43 @@ def register(request):
 
 def password_reset_contact(request):
     return render(request, 'password_reset_contact.html')
+
+# ==========================================
+# 5. ADMIN UTILITIES
+# ==========================================
+@login_required
+def active_login_users(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name='Admin').exists()):
+        return redirect('dashboard:index')
+
+    active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+    user_id_list = []
+    for session in active_sessions:
+        data = session.get_decoded()
+        user_id = data.get('_auth_user_id', None)
+        if user_id:
+            user_id_list.append(user_id)
+
+    # Get unique active users
+    user_id_list = list(set(user_id_list))
+    active_users = User.objects.filter(id__in=user_id_list).select_related('staff')
+    
+    user_list = []
+    for u in active_users:
+        if u.is_superuser:
+            role_display = "Admin"
+        elif hasattr(u, 'staff'):
+            role_display = "Staff"
+        elif hasattr(u, 'student'):
+            role_display = "Student"
+        else:
+            role_display = "User"
+
+        user_list.append({
+            'username': u.username,
+            'email': u.email,
+            'role': role_display,
+            'last_login': u.last_login,
+        })
+        
+    return render(request, 'active_login_users.html', {'active_users': user_list})

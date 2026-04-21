@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="theme-wrapper container-fluid p-3 p-lg-4 p-xl-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 mb-xl-5 gap-4 animate-fade-up" style="--delay: 0s;">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="text-uppercase smallest fw-bold ls-2 text-muted">Admin Utilities</span>
+            </div>
+            <h1 class="display-5 fw-black text-theme-dark tracking-tighter m-0 line-height-1">
+                Active <span class="text-gradient">Sessions</span>
+            </h1>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+             <a href="{% url 'dashboard:index' %}" class="btn bg-theme-dark text-white rounded-pill px-4 fw-bold shadow-sm hover-scale transition-all d-flex align-items-center gap-2">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Active Users Table -->
+    <div class="modern-card bg-white p-4 p-xl-5 shadow-sm border-0 animate-fade-up" style="--delay: 0.1s;">
+        <h5 class="fw-black text-theme-dark mb-4">Currently Logged-In Users</h5>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 border-transparent">
+                <thead class="text-uppercase smallest fw-bold text-muted ls-1">
+                    <tr>
+                        <th class="ps-4 border-0">Username</th>
+                        <th class="border-0">Email</th>
+                        <th class="border-0">Role</th>
+                        <th class="border-0 text-end pe-4">Last Login</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top border-light">
+                    {% for user in active_users %}
+                    <tr class="transition-all hover-bg-light position-relative">
+                        <td class="ps-4 py-3 border-0">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-sage text-theme-dark rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 38px; height: 38px;">
+                                    {{ user.username|make_list|first|upper }}
+                                </div>
+                                <div class="fw-bold text-theme-dark">{{ user.username }}</div>
+                            </div>
+                        </td>
+                        <td class="py-3 border-0 text-muted">{{ user.email|default:"-" }}</td>
+                        <td class="py-3 border-0">
+                            {% if user.role == "Admin" %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2 smallest fw-bold">{{ user.role }}</span>
+                            {% elif user.role == "Staff" %}
+                                <span class="badge bg-theme-accent bg-opacity-25 text-theme-accent-dark border border-theme-accent border-opacity-50 rounded-pill px-3 py-2 smallest fw-bold">{{ user.role }}</span>
+                            {% else %}
+                                <span class="badge bg-sage text-theme-dark rounded-pill px-3 py-2 smallest fw-bold">{{ user.role }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 border-0 text-end pe-4 text-muted smallest fw-bold ls-1">
+                            {{ user.last_login|date:"M d, Y h:i A" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <div class="d-flex flex-column align-items-center gap-2">
+                                <i class="bi bi-people fs-1 opacity-25"></i>
+                                <span class="fw-bold">No active users found.</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Reuse variables and animation rules from dashboard_admin.html */
+    :root {
+        --bg-sage: #e8f0eb;
+        --theme-dark: #0f3822;
+        --theme-accent: #cbfb45;
+        --theme-accent-dark: #217346;
+        --bg-light: #fdfdfc;
+        --white: #ffffff;
+    }
+
+    .theme-wrapper {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--bg-light);
+        min-height: 100vh;
+        color: var(--theme-dark);
+    }
+
+    .modern-card {
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .fw-black { font-weight: 900; }
+    .tracking-tighter { letter-spacing: -1px; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-2 { letter-spacing: 1px; }
+    .smallest { font-size: 0.75rem; }
+    .line-height-1 { line-height: 1; }
+
+    .text-theme-dark { color: var(--theme-dark) !important; }
+    .text-theme-accent-dark { color: var(--theme-accent-dark) !important; }
+    
+    .bg-theme-dark { background-color: var(--theme-dark) !important; }
+    .bg-theme-accent { background-color: var(--theme-accent) !important; }
+    .bg-sage { background-color: var(--bg-sage) !important; }
+
+    .text-gradient {
+        background: linear-gradient(135deg, var(--theme-dark) 0%, var(--theme-accent-dark) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .animate-fade-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: var(--delay, 0s);
+    }
+
+    @keyframes fadeUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hover-scale:hover { transform: scale(1.05); }
+    .hover-bg-light:hover { background-color: #f8faf9; }
+</style>
+{% endblock %}
