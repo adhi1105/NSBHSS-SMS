@@ -12,7 +12,7 @@ try:
 except ImportError:
     AttendanceRecord = None
 
-def get_dashboard_stats(request):
+def get_dashboard_stats(request, context):
     """
     Returns high-end analytical data for the Unfold dashboard.
     """
