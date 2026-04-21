@@ -39,15 +39,13 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = False 
 
-# Secure Cookie Settings for Production
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
+# Secure Cookie Settings — only enforce HTTPS cookies on Render (production)
+_ON_RENDER = 'RENDER' in os.environ
+CSRF_COOKIE_SECURE = _ON_RENDER
+SESSION_COOKIE_SECURE = _ON_RENDER
+# NOTE: CSRF_COOKIE_HTTPONLY must remain False (default) so JS can read the cookie
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
-
-# SESSION-BASED CSRF (More stable behind Proxies)
-CSRF_USE_SESSIONS = True
 
 # Application definition
 INSTALLED_APPS = [
@@ -179,7 +177,7 @@ UNFOLD = {
     },
     "SIDEBAR": {
         "show_search": True,
-        "show_all_applications": False,
+        "show_all_applications": True,
         "navigation": [
             {
                 "title": "Academic Control",
