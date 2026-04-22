@@ -1,0 +1,1223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSBHSS Mannar | Excellence in Education</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #fafaf9;
+            --bg-sage: #e8f0eb;
+            --theme-dark: #0f3822;
+            --theme-accent: #cbfb45;
+            --text-dark: #1a1a1a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --radius-pill: 50px;
+            --radius-xl: 40px;
+        }
+
+        /* --- GLOBAL SMOOTHNESS --- */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 120px;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-dark);
+            background-color: var(--bg-page);
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-page);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--theme-dark);
+            border-radius: 10px;
+            border: 2px solid var(--bg-page);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--theme-accent);
+        }
+
+        /* --- ADVANCED ANIMATIONS --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 {
+            transition-delay: 0.1s;
+        }
+
+        .delay-2 {
+            transition-delay: 0.2s;
+        }
+
+        .delay-3 {
+            transition-delay: 0.3s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(2deg);
+            }
+        }
+
+        @keyframes blob-spin {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(180deg) scale(1.2);
+            }
+
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(203, 251, 69, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(203, 251, 69, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(203, 251, 69, 0);
+            }
+        }
+
+        /* --- FLOATING GLASS NAVBAR --- */
+        .nav-wrapper {
+            position: fixed;
+            top: 20px;
+            width: 100%;
+            z-index: 1050;
+            padding: 0 20px;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-pill);
+            padding: 12px 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--theme-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-link {
+            font-weight: 700;
+            color: var(--theme-dark) !important;
+            margin: 0 12px;
+            font-size: 0.95rem;
+            opacity: 0.6;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: var(--theme-accent);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Modern Buttons */
+        .btn-portal {
+            color: var(--theme-dark);
+            font-weight: 800;
+            text-decoration: none;
+            padding: 10px 20px;
+            transition: 0.3s;
+            opacity: 0.7;
+        }
+
+        .btn-portal:hover {
+            opacity: 1;
+        }
+
+        .btn-neon {
+            background: var(--theme-accent);
+            color: var(--theme-dark);
+            border-radius: var(--radius-pill);
+            padding: 12px 28px;
+            font-weight: 800;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-neon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s;
+            z-index: -1;
+        }
+
+        .btn-neon:hover::before {
+            left: 0;
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(203, 251, 69, 0.4);
+            color: var(--theme-dark);
+        }
+
+        .btn-neon i {
+            transition: 0.3s ease;
+        }
+
+        .btn-neon:hover i {
+            transform: translateX(5px);
+        }
+
+        .btn-dark {
+            background: var(--theme-dark);
+            color: var(--white);
+            border-radius: var(--radius-pill);
+            padding: 16px 36px;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            box-shadow: 0 10px 20px rgba(15, 56, 34, 0.15);
+        }
+
+        .btn-dark:hover {
+            background: #082415;
+            color: var(--white);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(15, 56, 34, 0.25);
+        }
+
+        .btn-dark i {
+            transition: 0.3s ease;
+        }
+
+        .btn-dark:hover i {
+            transform: translateX(5px);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero-container {
+            padding: 0 20px;
+            margin-top: 110px;
+        }
+
+        .hero {
+            background-color: var(--bg-sage);
+            border-radius: var(--radius-xl);
+            padding: 120px 20px 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Ambient Background Blobs */
+        .blob {
+            position: absolute;
+            filter: blur(90px);
+            z-index: -1;
+            opacity: 0.5;
+            border-radius: 50%;
+            animation: blob-spin 20s infinite linear;
+        }
+
+        .blob-1 {
+            top: -100px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: var(--theme-accent);
+        }
+
+        .blob-2 {
+            bottom: -100px;
+            right: 10%;
+            width: 500px;
+            height: 500px;
+            background: #a8d5ba;
+            animation-direction: reverse;
+        }
+
+        .hero-tag {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            color: var(--theme-dark);
+            padding: 8px 24px;
+            border-radius: var(--radius-pill);
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .hero-title {
+            font-size: clamp(3.5rem, 6vw, 6.5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            margin-bottom: 25px;
+            color: var(--theme-dark);
+            letter-spacing: -0.04em;
+        }
+
+        /* GRADIENT REMOVED: Changed to solid color inheritance */
+        .hero-title span {
+            color: inherit;
+            display: inline-block;
+            position: relative;
+        }
+
+        .hero-title span::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 12px;
+            background: var(--theme-accent);
+            bottom: 10px;
+            left: 0;
+            z-index: -1;
+            opacity: 0.5;
+            border-radius: 10px;
+        }
+
+        .hero-text {
+            font-size: 1.25rem;
+            color: var(--theme-dark);
+            opacity: 0.75;
+            margin: 0 auto 50px auto;
+            max-width: 650px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        /* Bento Box Gallery */
+        .bento-grid {
+            max-width: 1200px;
+            margin: 80px auto 0 auto;
+        }
+
+        .bento-card {
+            overflow: hidden;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+            position: relative;
+            transform-origin: center;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Keeps subtle shadow overlay for hover readability, not a color gradient */
+        .bento-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
+            opacity: 0;
+            transition: 0.5s;
+            pointer-events: none;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+            z-index: 10;
+        }
+
+        .bento-card:hover::after {
+            opacity: 1;
+        }
+
+        .bento-img {
+            width: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .bento-img-large {
+            height: 450px;
+        }
+
+        .bento-img-small {
+            height: 215px;
+        }
+
+        .bento-card:hover .bento-img {
+            transform: scale(1.08);
+        }
+
+        /* --- INFINITE MARQUEE TICKER (TRUST BAR) --- */
+        .ticker-wrap {
+            background: var(--theme-dark);
+            padding: 25px 0;
+            overflow: hidden;
+            position: relative;
+            margin-top: 60px;
+            transform: rotate(-1deg) scale(1.02);
+            box-shadow: 0 20px 40px rgba(15, 56, 34, 0.2);
+        }
+
+        .ticker {
+            display: flex;
+            width: max-content;
+            animation: ticker 30s linear infinite;
+        }
+
+        .ticker-item {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--theme-accent);
+            margin: 0 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ticker-item i {
+            color: var(--white);
+            font-size: 1.2rem;
+        }
+
+        @keyframes ticker {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            100% {
+                transform: translate3d(-50%, 0, 0);
+            }
+        }
+
+        /* --- INTERACTIVE TIMELINE WITH SCROLL PROGRESS --- */
+        .timeline-section {
+            padding: 140px 0;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-tag {
+            color: var(--theme-dark);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            display: inline-block;
+            background: var(--bg-sage);
+            padding: 8px 20px;
+            border-radius: var(--radius-pill);
+        }
+
+        .section-title {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--theme-dark);
+            letter-spacing: -2px;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            padding-left: 60px;
+            padding-bottom: 20px;
+        }
+
+        /* The static background line */
+        .timeline-line-bg {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: rgba(15, 56, 34, 0.1);
+            border-radius: 4px;
+        }
+
+        /* The dynamic filled line */
+        .timeline-line-progress {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            height: 0%;
+            width: 4px;
+            background: var(--theme-accent);
+            border-radius: 4px;
+            z-index: 1;
+            transition: height 0.1s ease-out;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 70px;
+            z-index: 2;
+        }
+
+        /* The static dot */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -50px;
+            top: 15px;
+            width: 24px;
+            height: 24px;
+            background: var(--white);
+            border: 4px solid var(--theme-dark);
+            border-radius: 50%;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 3;
+            box-shadow: 0 0 0 0 rgba(203, 251, 69, 0);
+        }
+
+        /* The Active lit-up dot */
+        .timeline-item.active-dot::before {
+            background: var(--theme-accent);
+            border-color: var(--theme-dark);
+            transform: scale(1.3);
+            box-shadow: 0 0 0 8px rgba(203, 251, 69, 0.3);
+        }
+
+        /* GRADIENT REMOVED: Changed to solid color */
+        .timeline-year {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--theme-dark);
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+            line-height: 1;
+            transition: 0.4s;
+        }
+
+        .timeline-item.active-dot .timeline-year {
+            transform: translateX(10px);
+        }
+
+        .timeline-content {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: all 0.4s;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.06);
+            border-color: var(--theme-accent);
+        }
+
+        .timeline-content h4 {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--theme-dark);
+            margin-bottom: 10px;
+        }
+
+        .timeline-content p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* --- EDITORIAL DARK SECTION --- */
+        .dark-container {
+            padding: 0 20px;
+            margin: 80px 0;
+        }
+
+        .dark-section {
+            background: var(--theme-dark);
+            border-radius: var(--radius-xl);
+            padding: 100px 80px;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(15, 56, 34, 0.25);
+        }
+
+        /* GRADIENT REMOVED: The radial blob before pseudo-element was removed here for solid background */
+
+        .dark-title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 30px;
+        }
+
+        .dark-text {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+            margin-bottom: 40px;
+            font-weight: 400;
+            max-width: 500px;
+        }
+
+        .img-stack {
+            position: relative;
+        }
+
+        .dark-img {
+            width: 100%;
+            height: 550px;
+            object-fit: cover;
+            border-radius: 30px;
+            box-shadow: -20px 20px 60px rgba(0, 0, 0, 0.4);
+            transition: transform 0.6s ease;
+        }
+
+        .img-stack:hover .dark-img {
+            transform: scale(1.02) rotate(1deg);
+        }
+
+        /* Floating Stat Cards */
+        .stat-floating {
+            position: absolute;
+            bottom: -30px;
+            left: -30px;
+            background: var(--theme-accent);
+            color: var(--theme-dark);
+            padding: 30px 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: float 6s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        .stat-floating h3 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 0;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+
+        .stat-floating p {
+            font-weight: 800;
+            font-size: 1rem;
+            margin: 5px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- FEATURES SECTION --- */
+        .features {
+            padding: 60px 0 140px 0;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: 40px;
+            padding: 50px 40px;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--theme-dark);
+            z-index: -1;
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 30px 60px rgba(15, 56, 34, 0.1);
+            border-color: transparent;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .icon-wrapper {
+            width: 70px;
+            height: 70px;
+            background: var(--bg-sage);
+            color: var(--theme-dark);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            transition: 0.4s;
+        }
+
+        .feature-card:hover .icon-wrapper {
+            background: var(--theme-accent);
+            color: var(--theme-dark);
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .feature-card h4 {
+            font-weight: 800;
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: var(--theme-dark);
+            transition: 0.4s;
+        }
+
+        .feature-card:hover h4 {
+            color: var(--white);
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 0;
+            transition: 0.4s;
+        }
+
+        .feature-card:hover p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .feature-card .apply-link {
+            color: var(--theme-dark);
+            font-weight: 800;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+            transition: 0.4s;
+        }
+
+        .feature-card:hover .apply-link {
+            color: var(--theme-accent);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--white);
+            padding: 100px 0 40px 0;
+            color: var(--theme-dark);
+        }
+
+        .footer-brand {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-text {
+            opacity: 0.7;
+            font-weight: 500;
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+
+        .footer-heading {
+            font-weight: 800;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            font-weight: 600;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 15px;
+            transition: 0.3s;
+            font-size: 1.05rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--theme-dark);
+            padding-left: 8px;
+            border-left: 3px solid var(--theme-accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+
+            .hero {
+                padding: 80px 15px 50px 15px;
+            }
+
+            .hero-container {
+                margin-top: 90px;
+            }
+
+            .dark-title {
+                font-size: 2.5rem;
+            }
+
+            .bento-img-large,
+            .bento-img-small {
+                height: 250px;
+            }
+
+            .dark-section {
+                padding: 60px 20px;
+                text-align: center;
+            }
+
+            .dark-text {
+                margin: 0 auto 30px auto;
+            }
+
+            .stat-floating {
+                position: static;
+                margin-top: -30px;
+                border-radius: 20px;
+                animation: none;
+                transform: translateY(-20px);
+            }
+
+            .navbar-custom {
+                border-radius: 20px;
+                padding: 15px;
+            }
+
+            .ticker-wrap {
+                transform: rotate(0);
+                margin-top: 40px;
+            }
+
+            .timeline {
+                padding-left: 20px;
+            }
+
+            .timeline-line-bg,
+            .timeline-line-progress {
+                left: 0px;
+            }
+
+            .timeline-item::before {
+                left: -20px;
+                width: 20px;
+                height: 20px;
+                top: 18px;
+            }
+
+            .timeline-item {
+                margin-bottom: 50px;
+            }
+
+            .timeline-content {
+                padding: 25px 20px;
+            }
+
+            .timeline-year {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="nav-wrapper" id="navbar">
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="bi bi-boxes" style="color: var(--theme-accent);"></i> NSBHSS
+                </a>
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav">
+                    <i class="bi bi-list fs-1"></i>
+                </button>
+                <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="#journey">Journey</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#academics">Academics</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#arts">Legacy</a></li>
+                        <li class="nav-item d-lg-none mt-3"><a class="nav-link text-success fw-bold"
+                                href="{% url 'admission:apply' %}">Admissions</a></li>
+                        <li class="nav-item d-lg-none"><a class="nav-link fw-bold" href="{% url 'login' %}">Portal
+                                Login</a></li>
+                    </ul>
+                </div>
+                <div class="d-none d-lg-flex align-items-center">
+                    <a href="{% url 'login' %}" class="btn-portal me-3">Portal Login</a>
+                    <a href="{% url 'admission:apply' %}" class="btn-neon">Apply <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div class="hero-container" id="top">
+        <section class="hero reveal">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+
+            <div class="container">
+                <div class="hero-tag reveal delay-1"><i class="bi bi-award-fill"></i> Nair Service Society</div>
+                <h1 class="hero-title reveal delay-2">Shine Hope Where<br>It's <span>Needed Most.</span></h1>
+                <p class="hero-text reveal delay-3">At Nair Samajam Higher Secondary School, we connect students with
+                    world-class education, turning ambition into tangible achievement.</p>
+
+                <div class="d-flex justify-content-center gap-3 flex-wrap reveal delay-3">
+                    <a href="{% url 'admission:apply' %}" class="btn-dark">
+                        Start Application <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <a href="https://hscap.kerala.gov.in/" target="_blank" rel="noopener noreferrer" class="btn-neon"
+                        style="background: var(--white);">
+                        HSCAP Portal <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
+
+                <div class="bento-grid reveal delay-3">
+                    <div class="row g-3">
+                        <div class="col-md-7">
+                            <div class="bento-card h-100">
+                                <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=2866&auto=format&fit=crop"
+                                    class="bento-img bento-img-large" alt="School Students">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="row g-3 h-100">
+                                <div class="col-12">
+                                    <div class="bento-card">
+                                        <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=2070&auto=format&fit=crop"
+                                            class="bento-img bento-img-small" alt="Classroom">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="bento-card">
+                                        <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2866&auto=format&fit=crop"
+                                            class="bento-img bento-img-small" alt="Sports">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <div class="ticker-item"><i class="bi bi-asterisk"></i> Kerala State Board</div>
+            <div class="ticker-item"><i class="bi bi-asterisk"></i> Established 1914</div>
+            <div class="ticker-item"><i class="bi bi-asterisk"></i> Fully Accessible Campus</div>
+            <div class="ticker-item"><i class="bi bi-asterisk"></i> 23+ Yrs Arts Champions</div>
+            <div class="ticker-item"><i class="bi bi-asterisk"></i> Kerala State Board</div>
+            <div class="ticker-item"><i class="bi bi-asterisk"></i> Established 1914</div>
+            <div class="ticker-item"><i class="bi bi-asterisk"></i> Fully Accessible Campus</div>
+            <div class="ticker-item"><i class="bi bi-asterisk"></i> 23+ Yrs Arts Champions</div>
+        </div>
+    </div>
+
+    <section class="timeline-section" id="journey">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-tag">Milestone Map</span>
+                <h2 class="section-title">A Century of Excellence.</h2>
+            </div>
+
+            <div class="timeline" id="timeline-container">
+                <div class="timeline-line-bg"></div>
+                <div class="timeline-line-progress" id="timeline-progress"></div>
+
+                <div class="timeline-item reveal delay-1">
+                    <div class="timeline-content">
+                        <div class="timeline-year">1914</div>
+                        <h4>The Foundation</h4>
+                        <p>Established under the visionary network of the Nair Service Society (NSS) to bring quality
+                            education to the Alappuzha district.</p>
+                    </div>
+                </div>
+                <div class="timeline-item reveal delay-2">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2003</div>
+                        <h4>Arts Dominance Begins</h4>
+                        <p>The start of an incredible 23-year unbroken streak winning the overall championship at the
+                            Revenue District School Arts Festival.</p>
+                    </div>
+                </div>
+                <div class="timeline-item reveal delay-1">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2018</div>
+                        <h4>Infrastructure Leap</h4>
+                        <p>Complete revamp of the digital computer labs in partnership with Providence College,
+                            alongside modernizing science labs.</p>
+                    </div>
+                </div>
+                <div class="timeline-item reveal delay-2">
+                    <div class="timeline-content">
+                        <div class="timeline-year">Present</div>
+                        <h4>Eduplex Digital Era</h4>
+                        <p>Integration of a state-of-the-art management system, bringing admissions, academics, and
+                            student life into a seamless digital portal.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="dark-container" id="arts">
+        <section class="dark-section reveal">
+            <div class="row align-items-center">
+                <div class="col-lg-5 mb-5 mb-lg-0 pe-lg-5 reveal delay-1">
+                    <div class="dark-badge mb-3 text-uppercase fw-bold"
+                        style="color: var(--theme-accent); letter-spacing: 2px; font-size: 0.8rem;"><i
+                            class="bi bi-palette-fill me-2"></i> Arts Powerhouse</div>
+                    <h2 class="dark-title">It Started With<br>a Vision.</h2>
+                    <p class="dark-text">For over two decades, NSBHSS Mannar has been a dominant force in the Alappuzha
+                        Revenue District. We consistently cultivate both academic brilliance and athletic potential.</p>
+                    <a href="{% url 'admission:apply' %}" class="btn-neon mt-2">Join Our Legacy <i
+                            class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="col-lg-7 position-relative reveal delay-2">
+                    <div class="img-stack">
+                        <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=2070&auto=format&fit=crop"
+                            alt="Students together" class="dark-img">
+                        <div class="stat-floating d-none d-md-block">
+                            <h3>23+</h3>
+                            <p>Years Overall<br>Arts Champions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="features" id="academics">
+        <div class="container">
+            <div class="section-header text-center mb-5 pb-3 reveal">
+                <span class="section-tag">What We Offer</span>
+                <h2 class="section-title">Fostering Growth.</h2>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4 reveal delay-1">
+                    <div class="feature-card">
+                        <div class="icon-wrapper"><i class="bi bi-pc-display"></i></div>
+                        <h4>Modern Labs</h4>
+                        <p>Featuring a revamped computer lab in partnership with Providence College and fully equipped
+                            science laboratories.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 reveal delay-2">
+                    <div class="feature-card">
+                        <div class="icon-wrapper"><i class="bi bi-trophy"></i></div>
+                        <h4>Sports & Fitness</h4>
+                        <p>Home to the spacious Nair Samajam School Ground hosting sub-district tournaments and the
+                            Active Championship.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 reveal delay-3">
+                    <div class="feature-card">
+                        <div class="icon-wrapper"><i class="bi bi-journal-check"></i></div>
+                        <h4>Admissions</h4>
+                        <p>HSS admissions are efficiently managed through the Kerala Single Window System following
+                            state guidelines.</p>
+                        <a href="https://hscap.kerala.gov.in/" target="_blank" class="apply-link">Apply via HSCAP <i
+                                class="bi bi-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container reveal">
+            <div class="row">
+                <div class="col-lg-5 mb-5 mb-lg-0">
+                    <div class="footer-brand">
+                        <i class="bi bi-boxes" style="color: var(--theme-accent);"></i> NSBHSS
+                    </div>
+                    <p class="footer-text pe-lg-5 mt-3">Operated by the Nair Service Society. A prominent educational
+                        institution in the Alappuzha district, dedicated to shaping tomorrow's leaders.</p>
+                </div>
+                <div class="col-lg-3 mb-5 mb-lg-0">
+                    <h5 class="footer-heading">Contact</h5>
+                    <p class="footer-text mb-2"><i class="bi bi-geo-alt-fill me-2 text-muted"></i>Kayamkulam Hwy, Mannar
+                    </p>
+                    <p class="footer-text mb-2"><i class="bi bi-telephone-fill me-2 text-muted"></i>+91 479 231 2741</p>
+                    <p class="footer-text"><i class="bi bi-clock-fill me-2 text-muted"></i>Mon-Fri: 9AM – 5PM</p>
+                </div>
+                <div class="col-lg-4">
+                    <h5 class="footer-heading">Portals</h5>
+                    <div class="footer-links">
+                        <a href="https://hscap.kerala.gov.in/" target="_blank">HSCAP State Portal</a>
+                        <a href="{% url 'login' %}">Staff & Admin Login</a>
+                        <a href="{% url 'admission:apply' %}">Submit Application</a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-5 pt-4 border-top opacity-50 fw-bold small">
+                &copy; {% now "Y" %} Nair Samajam Higher Secondary School, Mannar. Powered by Eduplex.
+                &nbsp;|&nbsp;
+                <a href="https://pixelzmedia.in" target="_blank" rel="noopener noreferrer"
+                    style="text-decoration: none; color: inherit;">Powered by Pixelz</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Scroll Reveal Animations
+            const reveals = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+            reveals.forEach(reveal => { observer.observe(reveal); });
+
+            // 2. Navbar Hide/Show on Scroll
+            let lastScrollTop = 0;
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function () {
+                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop > lastScrollTop && scrollTop > 150) {
+                    navbar.style.transform = 'translateY(-100%)'; // Scroll down - hide
+                } else {
+                    navbar.style.transform = 'translateY(0)'; // Scroll up - show
+                }
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            });
+
+            // 3. Dynamic Timeline Scroll Progress
+            const timelineContainer = document.getElementById('timeline-container');
+            const timelineProgress = document.getElementById('timeline-progress');
+            const timelineItems = document.querySelectorAll('.timeline-item');
+
+            window.addEventListener('scroll', function () {
+                if (!timelineContainer) return;
+
+                const rect = timelineContainer.getBoundingClientRect();
+                const windowCenter = window.innerHeight / 2;
+
+                // Calculate progress
+                let scrollDist = windowCenter - rect.top;
+                let progress = (scrollDist / rect.height) * 100;
+
+                // Clamp between 0 and 100%
+                progress = Math.max(0, Math.min(100, progress));
+                timelineProgress.style.height = progress + '%';
+
+                // Light up dots dynamically
+                timelineItems.forEach(item => {
+                    const itemRect = item.getBoundingClientRect();
+                    // Activate dot when the line hits it
+                    if (itemRect.top < windowCenter + 20) {
+                        item.classList.add('active-dot');
+                    } else {
+                        item.classList.remove('active-dot');
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

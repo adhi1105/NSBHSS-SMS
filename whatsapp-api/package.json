@@ -1,0 +1,15 @@
+{
+  "name": "whatsapp-local-api",
+  "version": "1.0.0",
+  "description": "Internal WhatsApp Web Scraper API for Django",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.1",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.34.6"
+  }
+}

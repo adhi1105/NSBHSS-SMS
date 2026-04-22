@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User, Group
 from school_system.models import Subject
-from staff.models import Staff, Department
-from django.utils import timezone  # <--- Import timezone
+from staff.models import Staff
 import random
 
 def create_data():
@@ -16,13 +15,10 @@ def create_data():
     print("--- STARTING DATA CREATION ---")
 
     for name, code in subjects_list:
-        # 1. Create Subject
-        subject, _ = Subject.objects.get_or_create(name=name, defaults={'code': code})
+        # Create Subject
+        subject, created = Subject.objects.get_or_create(name=name, defaults={'code': code})
         
-        # 2. Create/Get Department
-        dept_obj, _ = Department.objects.get_or_create(name=name)
-
-        # 3. Create User
+        # Create User
         username = f"teacher_{code.lower()}"
         email = f"{username}@school.com"
         
@@ -33,15 +29,12 @@ def create_data():
             )
             user.groups.add(staff_group)
             
-            # 4. Create Staff Profile (With Joining Date)
+            # Create Staff Profile
             if not Staff.objects.filter(user=user).exists():
                 Staff.objects.create(
-                    user=user,
-                    is_teaching_staff=True,
+                    user=user, is_teaching_staff=True,
                     employee_id=f"EMP{random.randint(1000, 9999)}",
-                    designation="Subject Teacher",
-                    department=dept_obj,
-                    joining_date=timezone.now().date()  # <--- THE FIX
+                    designation="Subject Teacher", department=name
                 )
             print(f"Created: {username}")
         else:
@@ -49,4 +42,5 @@ def create_data():
 
     print("\n--- COMPLETED SUCCESSFULLY ---")
 
+# Run the function
 create_data()
